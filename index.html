@@ -1,0 +1,2106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PF8FKQjsoQxra0MTKihY3N9ysnZJ+l/j1oTQT7dOFeM='; style-src 'sha256-/aJVz6NPByrATWqvupAps0RSaM72ODd9YMYBm6Hp+OA='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<title>Task List Tool</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f97316'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+/* Visual language matched to TD Dashboard (tdreports): dark palette, orange
+   accent, Syne / DM Sans / DM Mono type roles. The web fonts are NOT loaded
+   (CSP allows no outside files): each stack names the TD font first, so it is
+   used if installed locally, then falls back to the closest system fonts. */
+:root {
+  color-scheme: dark;
+  --bg: #0d0f14;
+  --sur: #151820;
+  --sur2: #1c2030;
+  --sur3: #242840;
+  --bdr: #2a2f45;
+  --acc: #f97316;
+  --grn: #22c55e;
+  --blu: #3b82f6;
+  --pur: #a855f7;
+  --red: #ef4444;
+  --txt: #e2e8f0;
+  --t2: #94a3b8;
+  --t3: #64748b;
+  --r: 10px;
+  --r2: 6px;
+  --acc-t: rgba(249, 115, 22, .15);
+  --grn-t: rgba(34, 197, 94, .15);
+  --blu-t: rgba(59, 130, 246, .15);
+  --pur-t: rgba(168, 85, 247, .15);
+  --red-t: rgba(239, 68, 68, .15);
+  --f-display: 'Syne', 'Avenir Next', 'Segoe UI Variable Display', 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  --f-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --f-mono: 'DM Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --bnav-h: 56px;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--txt);
+  font: 13px/1.5 var(--f-body);
+  -webkit-tap-highlight-color: transparent;
+}
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.25; margin: 0 0 .6em; color: var(--txt); }
+h1 { font-size: 17px; font-weight: 800; }
+h2 { font-size: 13px; }
+h3 { font-size: 12px; }
+p { margin: 0 0 .75em; }
+a { color: var(--acc); }
+code, .mono { font-family: var(--f-mono); }
+.muted { color: var(--t3); }
+.small { font-size: 11px; }
+.center { text-align: center; padding: 48px 16px; font-family: var(--f-mono); font-size: 12px; color: var(--t2); }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--sur); }
+::-webkit-scrollbar-thumb { background: var(--bdr); border-radius: 2px; }
+
+/* ---------- form controls ---------- */
+input, select, textarea, button { font: inherit; color: inherit; }
+input[type=text], input[type=email], input[type=password], input[type=url],
+input[type=date], input[type=number], input[type=search], select, textarea {
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 12px;
+  background: var(--sur2);
+  border: 1px solid var(--bdr);
+  border-radius: var(--r2);
+  color: var(--txt);
+  font-family: var(--f-body);
+  font-size: 13px;
+}
+input::placeholder, textarea::placeholder { color: var(--t3); }
+input.mono { font-family: var(--f-mono); }
+textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--acc); }
+button:focus-visible, .row:focus-visible, summary:focus-visible, input[type=checkbox]:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 2px;
+}
+input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--acc); margin: 0; flex: none; }
+input[readonly] { color: var(--t2); }
+label { display: block; }
+.field { margin-bottom: 12px; }
+.field > span:first-child {
+  display: block; margin-bottom: 5px;
+  font-family: var(--f-mono); font-size: 10px; color: var(--t3);
+  text-transform: uppercase; letter-spacing: .6px;
+}
+.hint, .field .hint { display: block; margin-top: 4px; font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
+.check { display: flex; align-items: center; gap: 8px; min-height: 34px; cursor: pointer; color: var(--t2); }
+.check.field > span:first-child { margin: 0; font-family: var(--f-body); font-size: 13px; color: var(--txt); text-transform: none; letter-spacing: 0; }
+.check.disabled { cursor: default; opacity: .55; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 34px; padding: 6px 14px;
+  background: var(--sur2); border: 1px solid var(--bdr); border-radius: var(--r2);
+  color: var(--t2); font-family: var(--f-body); font-size: 12px; font-weight: 500;
+  cursor: pointer; white-space: nowrap; transition: border-color .15s, color .15s, opacity .15s;
+}
+.btn:hover { border-color: var(--acc); color: var(--acc); }
+.btn.primary {
+  background: var(--acc); border-color: var(--acc); color: #fff;
+  font-family: var(--f-display); font-weight: 700; font-size: 13px;
+}
+.btn.primary:hover { color: #fff; opacity: .9; }
+.btn.danger { color: var(--red); }
+.btn.danger:hover { border-color: var(--red); color: var(--red); background: var(--red-t); }
+.btn.small { min-height: 30px; padding: 4px 11px; font-size: 11px; }
+.btn.primary.small { font-size: 12px; }
+.btn.link { border: 0; background: none; color: var(--acc); padding: 4px 6px; min-height: 30px; }
+.btn.link:hover { text-decoration: underline; }
+.btn:disabled { opacity: .5; cursor: default; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.actions.end { justify-content: flex-end; }
+
+/* ---------- notification (TD .notif) ---------- */
+.flash {
+  position: fixed; right: 20px; bottom: 20px; z-index: 999;
+  width: min(380px, calc(100% - 24px));
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 14px; font-size: 12px;
+  background: var(--sur2); border: 1px solid var(--bdr); border-left: 3px solid var(--acc);
+  border-radius: var(--r); box-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+  animation: slideIn .2s ease;
+}
+.flash.error { border-left-color: var(--red); }
+.flash.ok { border-left-color: var(--grn); }
+.flash span { flex: 1; white-space: pre-wrap; color: var(--txt); }
+.flash-close { border: 0; background: none; color: var(--t3); font-size: 18px; line-height: 1; cursor: pointer; padding: 0 2px; min-width: 24px; min-height: 24px; }
+.flash-close:hover { color: var(--txt); }
+@keyframes slideIn { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.inline-error {
+  margin-bottom: 12px; padding: 8px 12px; font-size: 12px; white-space: pre-wrap;
+  color: var(--red); background: var(--red-t); border-left: 3px solid var(--red); border-radius: var(--r2);
+}
+
+/* ---------- auth / join / pick (TD .auth-box) ---------- */
+.auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+.auth-card { width: 100%; max-width: 380px; background: var(--sur); border: 1px solid var(--bdr); border-radius: 16px; padding: 32px; }
+.auth-head { text-align: center; margin-bottom: 24px; }
+.auth-logo { font-family: var(--f-display); font-size: 30px; font-weight: 800; color: var(--acc); letter-spacing: -1.2px; line-height: 1.1; margin-bottom: 6px; }
+.auth-sub { font-family: var(--f-mono); font-size: 11px; color: var(--t3); letter-spacing: 2px; }
+.auth-card h1 { text-align: center; }
+.auth-card > p { text-align: center; color: var(--t2); font-size: 12px; }
+.auth-card form .actions .btn.primary { width: 100%; min-height: 42px; font-size: 14px; margin-top: 4px; }
+.auth-card form > p { text-align: center; margin-top: 12px; }
+.seg { display: flex; gap: 4px; background: var(--sur2); border: 1px solid var(--bdr); border-radius: var(--r2); padding: 3px; margin-bottom: 20px; }
+.seg button {
+  flex: 1; min-height: 34px; padding: 6px 8px; border: 0; border-radius: 4px; background: none; cursor: pointer;
+  color: var(--t3); font-family: var(--f-display); font-size: 12px; font-weight: 700;
+}
+.seg button:hover { color: var(--txt); }
+.seg button[aria-selected=true] { background: var(--acc-t); color: var(--acc); }
+.pick-list { display: grid; gap: 8px; margin: 12px 0 16px; }
+.pick-list .btn { justify-content: space-between; width: 100%; min-height: 50px; font-size: 13px; color: var(--txt); }
+.pick-list .btn .muted { font-family: var(--f-mono); font-size: 10px; }
+
+/* ---------- top bar (TD .topbar) ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 10px;
+  height: 48px; padding: 0 18px;
+  background: var(--sur); border-bottom: 1px solid var(--bdr);
+}
+.topbar .brand { display: flex; align-items: center; gap: 8px; min-width: 0; margin-right: 6px; }
+.logo { font-family: var(--f-display); font-weight: 800; font-size: 17px; color: var(--acc); letter-spacing: -.5px; white-space: nowrap; }
+.venture-tag {
+  font-family: var(--f-mono); font-size: 10px; font-weight: 500; letter-spacing: .5px;
+  padding: 1px 7px; border-radius: 8px; background: var(--acc-t); color: var(--acc);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;
+}
+.tabs { display: flex; align-self: stretch; }
+.tab {
+  display: flex; align-items: center; height: 100%; padding: 0 14px;
+  border: 0; border-bottom: 2px solid transparent; background: none; cursor: pointer;
+  font-family: var(--f-display); font-size: 12px; font-weight: 700; color: var(--t3);
+  white-space: nowrap; transition: color .15s, border-color .15s;
+}
+.tab:hover { color: var(--txt); }
+.tab[aria-current=page] { color: var(--acc); border-bottom-color: var(--acc); }
+.menu { position: relative; margin-left: auto; }
+.user-chip {
+  list-style: none; cursor: pointer; display: flex; align-items: center; gap: 7px;
+  padding: 3px 10px 3px 3px; min-height: 30px;
+  background: var(--sur3); border: 1px solid var(--bdr); border-radius: 20px;
+  font-size: 11px; color: var(--t2);
+}
+.user-chip::-webkit-details-marker { display: none; }
+.user-chip:hover { border-color: var(--acc); }
+.menu-name { max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu-items {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; min-width: 230px;
+  display: grid; padding: 6px;
+  background: var(--sur2); border: 1px solid var(--bdr); border-radius: var(--r);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .5);
+}
+.menu-items .who { padding: 6px 10px 8px; margin-bottom: 4px; border-bottom: 1px solid var(--bdr); font-size: 12px; word-break: break-all; }
+.menu-items .who div + div { font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
+.menu-items button {
+  text-align: left; border: 0; background: none; cursor: pointer;
+  padding: 9px 10px; min-height: 38px; border-radius: var(--r2); color: var(--t2); font-size: 12px;
+}
+.menu-items button:hover { background: var(--sur3); color: var(--acc); }
+
+/* ---------- bottom nav (TD mobile #bottom-nav) ---------- */
+.bnav { display: none; }
+
+/* ---------- page ---------- */
+.page { max-width: 1100px; margin: 0 auto; padding: 14px 18px 24px; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+.toolbar .search { flex: 1 1 240px; }
+.toolbar select { width: auto; flex: 0 1 190px; }
+.toolbar .check { padding: 0 6px; font-size: 12px; }
+
+/* ---------- badges (TD .bdg / .role-badge) ---------- */
+.chip {
+  display: inline-flex; align-items: center; height: 20px; padding: 0 8px;
+  border-radius: 20px; white-space: nowrap; max-width: 170px; overflow: hidden; text-overflow: ellipsis;
+  font-family: var(--f-mono); font-size: 10px; font-weight: 500;
+  background: var(--sur3); color: var(--t2);
+}
+.chip.cat { background: transparent; border: 1px solid var(--bdr); color: var(--t2); }
+.chip.pri-high { background: var(--red-t); color: var(--red); }
+.chip.pri-medium { background: var(--acc-t); color: var(--acc); }
+.chip.pri-low { background: var(--sur3); color: var(--t3); }
+.chip.st-in-progress { background: var(--blu-t); color: var(--blu); }
+.chip.st-completed { background: var(--grn-t); color: var(--grn); }
+.chip.st-blocked { background: var(--red-t); color: var(--red); }
+.chip.ext { background: var(--acc-t); color: var(--acc); }
+.chip.int { background: var(--blu-t); color: var(--blu); }
+.chip.sa { background: var(--pur-t); color: var(--pur); }
+.chip.you { background: var(--grn-t); color: var(--grn); }
+/* avatar (TD .rb-av) */
+.avatar {
+  width: 28px; height: 28px; border-radius: 50%; flex: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--acc-t); border: 1px solid rgba(249, 115, 22, .25); color: var(--acc);
+  font-family: var(--f-display); font-size: 11px; font-weight: 700;
+}
+.avatar.sm { width: 24px; height: 24px; font-size: 10px; }
+.avatar.none { background: var(--sur2); border-color: var(--bdr); color: var(--t3); }
+
+/* ---------- task list (TD .panel) ---------- */
+.panel { background: var(--sur); border: 1px solid var(--bdr); border-radius: var(--r); overflow: hidden; }
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 9px 14px; background: var(--sur2); border-bottom: 1px solid var(--bdr);
+}
+.panel-title { font-family: var(--f-display); font-size: 12px; font-weight: 700; color: var(--txt); }
+.panel-count { font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
+.tasklist { list-style: none; margin: 0; padding: 0; }
+.task + .task { border-top: 1px solid var(--bdr); }
+.tasklist .empty { padding: 28px 16px; text-align: center; color: var(--t3); font-family: var(--f-mono); font-size: 11px; }
+.row {
+  display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 4px 10px;
+  align-items: center; padding: 10px 14px; cursor: pointer; transition: background .12s;
+}
+.row:hover { background: var(--sur2); }
+.task.open > .row { background: var(--sur2); }
+.chev { color: var(--t3); font-size: 18px; line-height: 1; text-align: center; transition: transform .15s, color .15s; display: inline-block; }
+.task.open .chev { transform: rotate(90deg); color: var(--acc); }
+.title { font-weight: 600; font-size: 13px; color: var(--txt); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sub { font-size: 11px; color: var(--t3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.meta { display: flex; align-items: center; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.deadline { font-family: var(--f-mono); font-size: 10px; color: var(--t3); min-width: 62px; text-align: right; white-space: nowrap; }
+.deadline.overdue { color: var(--acc); font-weight: 500; }
+.task.done .title { text-decoration: line-through; color: var(--t3); }
+.task.done .row { opacity: .55; }
+
+.detail { padding: 6px 16px 16px 40px; background: var(--sur2); border-top: 1px dashed var(--bdr); }
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 18px; margin: 10px 0 14px; align-items: center; }
+.facts dt { font-family: var(--f-mono); font-size: 9px; text-transform: uppercase; letter-spacing: .6px; color: var(--t3); }
+.facts dd { margin: 0; overflow-wrap: anywhere; font-size: 12px; }
+.facts dd.expired { color: var(--acc); }
+.facts select { width: auto; min-width: 170px; }
+.vis-note { margin-left: 8px; font-size: 11px; color: var(--t3); }
+.notes { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 8px; }
+.note { background: var(--sur); border: 1px solid var(--bdr); border-radius: var(--r2); padding: 8px 12px; }
+/* Orange means NEW: only notes by someone else since my previous look get colour. */
+.note.new { border-left: 2px solid var(--grn); border-radius: 0 var(--r2) var(--r2) 0; }
+.note.new .note-head strong { color: var(--acc); }
+.note-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; margin-bottom: 3px; }
+.note-head { align-items: center; }
+.note-head strong { color: var(--txt); font-size: 12px; font-weight: 600; }
+.note-head time { font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
+.note-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; line-height: 1.7; }
+.note-form { display: grid; gap: 8px; }
+.note-form textarea { background: var(--sur); }
+.detail-actions { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 16px; }
+.detail h3 { font-size: 12px; }
+
+/* ---------- activity ---------- */
+.new-dot {
+  display: inline-block; width: 8px; height: 8px; margin: 0 8px 1px 1px; vertical-align: middle;
+  border-radius: 50%; background: var(--acc); box-shadow: 0 0 0 3px var(--acc-t);
+}
+.sub.sub-new { color: var(--acc); }
+.tab { gap: 6px; }
+.tab-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--acc); color: #fff; font-family: var(--f-mono); font-size: 10px; font-weight: 500; line-height: 1;
+}
+.bnav-item { position: relative; }
+.bnav-item .tab-badge { position: absolute; top: 5px; left: calc(50% + 6px); }
+.panel-header { flex-wrap: wrap; }
+.panel-head-left, .panel-head-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.activity { margin-top: 18px; }
+.events { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.event { background: var(--sur); border: 1px solid var(--bdr); border-radius: var(--r2); padding: 6px 12px; }
+.event.new {
+  border-left: 2px solid var(--acc); border-radius: 0 var(--r2) var(--r2) 0;
+  background: linear-gradient(90deg, var(--acc-t), transparent 70%), var(--sur);
+}
+.event.new .event-head strong { color: var(--acc); }
+.event-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; }
+.event-head strong { color: var(--txt); font-size: 12px; font-weight: 600; }
+/* top-of-task summary of what is new */
+.new-summary {
+  display: flex; align-items: center; gap: 8px; margin: 10px 0 2px; padding: 8px 12px;
+  background: var(--acc-t); border-left: 3px solid var(--acc); border-radius: 0 var(--r2) var(--r2) 0;
+  color: var(--acc); font-size: 12px; font-weight: 500; overflow-wrap: anywhere;
+}
+.new-summary .new-dot { margin: 0 2px 0 0; flex: none; }
+/* details grid: a field someone else changed since my previous look */
+.facts dt.changed { color: var(--acc); }
+.facts dt.changed::before {
+  content: ""; display: inline-block; width: 6px; height: 6px; margin: 0 6px 1px 0; vertical-align: middle;
+  border-radius: 50%; background: var(--acc);
+}
+.facts dd.changed { border-left: 2px solid var(--acc); padding-left: 8px; }
+.change-line { display: block; margin-top: 3px; font-size: 11px; color: var(--acc); }
+.event-head time { font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
+.event-what { margin: 2px 0 0; font-size: 12px; color: var(--t2); white-space: pre-wrap; overflow-wrap: anywhere; }
+.sortgroup { display: flex; gap: 6px; flex: 0 1 260px; min-width: 0; }
+.sortgroup select { flex: 1; width: auto; min-width: 0; }
+.dir-btn { min-width: 38px; padding: 6px 10px; font-size: 15px; }
+.dir-btn[aria-pressed=true] { border-color: var(--acc); color: var(--acc); }
+.custom-range { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)); gap: 8px; flex: 1 1 100%; }
+.range-field > span {
+  display: block; margin-bottom: 4px;
+  font-family: var(--f-mono); font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: .6px;
+}
+
+/* ---------- admin (TD .adm-card) ---------- */
+.section { background: var(--sur); border: 1px solid var(--bdr); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.adm-title { font-family: var(--f-display); font-size: 13px; font-weight: 700; color: var(--acc); margin-bottom: 10px; }
+.section > p.muted { font-size: 11px; color: var(--t2); }
+.section h3 { margin-top: 18px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 10px; }
+.card { background: var(--bg); border: 1px solid var(--bdr); border-radius: var(--r2); padding: 12px; display: grid; gap: 10px; align-content: start; }
+.card-head { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.card-head strong { margin-right: 2px; overflow-wrap: anywhere; font-size: 13px; }
+.email { font-family: var(--f-mono); font-size: 10px; color: var(--t3); overflow-wrap: anywhere; margin-top: 2px; }
+.toggles { display: flex; flex-wrap: wrap; gap: 0 18px; }
+.catgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0 10px; }
+.subhead { font-family: var(--f-mono); font-size: 9px; font-weight: 500; color: var(--t3); text-transform: uppercase; letter-spacing: .6px; margin: 0 0 2px; }
+.cat-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--bdr); }
+.cat-row:last-child { border-bottom: 0; }
+.cat-row input { background: var(--bg); }
+.cat-row .muted { font-family: var(--f-mono); font-size: 10px; min-width: 52px; text-align: right; }
+.inline-form { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.inline-form input { flex: 1 1 200px; width: auto; }
+.invite-result { margin: 12px 0; padding: 12px 14px; display: grid; gap: 8px; background: var(--grn-t); border: 1px solid rgba(34, 197, 94, .3); border-radius: var(--r); }
+.invite-result strong { color: var(--grn); font-size: 12px; }
+.invite-result code { display: block; word-break: break-all; padding: 8px 10px; background: var(--bg); border: 1px solid var(--bdr); border-radius: var(--r2); font-size: 12px; color: var(--txt); }
+.invite-result p { color: var(--t2); }
+.invite-list { list-style: none; margin: 0; padding: 0; }
+.invite-list li { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 8px 10px; margin-bottom: 4px; background: var(--bg); border: 1px solid var(--bdr); border-radius: var(--r2); }
+.invite-list .info { min-width: 0; flex: 1 1 240px; }
+.invite-list .info strong { font-size: 12px; }
+.invite-list .info div { font-family: var(--f-mono); font-size: 10px; }
+.expired { color: var(--acc); font-weight: 500; }
+fieldset { border: 1px solid var(--bdr); border-radius: var(--r2); padding: 8px 12px; margin: 0 0 12px; }
+legend { font-family: var(--f-mono); font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: var(--t3); padding: 0 4px; }
+
+/* ---------- dialog (TD .overlay) ---------- */
+dialog.dialog {
+  border: 1px solid var(--bdr); padding: 0; border-radius: 14px;
+  width: min(560px, calc(100% - 24px)); max-height: calc(100% - 32px);
+  background: var(--sur); color: var(--txt); box-shadow: 0 20px 60px rgba(0, 0, 0, .6);
+}
+dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.dialog-inner { padding: 20px 20px 0; }
+.ov-title { font-family: var(--f-display); font-size: 17px; font-weight: 800; margin-bottom: 16px; }
+.dialog-actions {
+  position: sticky; bottom: 0; z-index: 1;
+  margin: 8px -20px 0; padding: 12px 20px calc(12px + env(safe-area-inset-bottom));
+  background: var(--sur); border-top: 1px solid var(--bdr);
+}
+
+/* ---------- phones (TD switches to a bottom nav at 768px) ---------- */
+@media (max-width: 768px) {
+  /* 16px text in fields stops iOS Safari zooming in on focus */
+  input[type=text], input[type=email], input[type=password], input[type=url],
+  input[type=date], input[type=number], input[type=search], select, textarea { font-size: 16px; min-height: 44px; }
+  .btn { min-height: 40px; }
+  .btn.small { min-height: 36px; padding: 6px 12px; font-size: 12px; }
+  .check { min-height: 40px; }
+
+  .topbar { padding: 0 12px; gap: 8px; }
+  .topbar .tabs { display: none; }
+  .logo { font-size: 15px; }
+  .venture-tag { max-width: 34vw; }
+  .menu-name { display: none; }
+  .user-chip { padding: 3px; }
+  .avatar.sm { width: 32px; height: 32px; font-size: 11px; }
+
+  .bnav {
+    display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 150;
+    height: calc(var(--bnav-h) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom);
+    background: var(--sur); border-top: 1px solid var(--bdr);
+  }
+  .bnav-item {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    border: 0; background: none; cursor: pointer; padding: 4px 0;
+    font-family: var(--f-mono); font-size: 9px; letter-spacing: .3px; text-transform: uppercase; color: var(--t3);
+  }
+  .bnav-item[aria-current=page] { color: var(--acc); }
+  #app:has(.bnav) { padding-bottom: calc(var(--bnav-h) + env(safe-area-inset-bottom)); }
+  body:has(.bnav) .flash { bottom: calc(var(--bnav-h) + 12px + env(safe-area-inset-bottom)); }
+  .flash { right: 12px; left: 12px; width: auto; bottom: calc(12px + env(safe-area-inset-bottom)); }
+
+  .page { padding: 10px 12px 20px; }
+  .toolbar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .toolbar .search { grid-column: 1 / -1; }
+  .toolbar select { width: 100%; }
+  .toolbar .check { padding: 0 2px; }
+  .toolbar .btn.primary { grid-column: 1 / -1; min-height: 44px; }
+  .toolbar .custom-range { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; }
+  .sortgroup { flex: none; }
+  .panel-header { padding: 9px 12px; }
+
+  .row { grid-template-columns: 16px minmax(0, 1fr); padding: 12px; }
+  .meta { grid-column: 2; justify-content: flex-start; gap: 5px; }
+  .deadline { margin-left: auto; min-width: 0; }
+  .detail { padding: 6px 12px 14px; }
+  .facts { grid-template-columns: 1fr; gap: 2px; }
+  .facts dd { margin-bottom: 8px; }
+  .facts select { width: 100%; }
+  .vis-note { display: block; margin: 4px 0 0; }
+
+  .section { padding: 14px 12px; }
+  .cards { grid-template-columns: 1fr; }
+  .cat-row { grid-template-columns: 1fr auto auto; }
+  .cat-row input { grid-column: 1 / -1; }
+  .cat-row .muted { text-align: left; }
+
+  /* add/edit form becomes a bottom sheet; Save stays visible */
+  dialog.dialog {
+    width: 100%; max-width: 100%; max-height: 92vh; margin: auto 0 0;
+    border-radius: 16px 16px 0 0; border-bottom: 0;
+  }
+  .dialog-inner { padding: 18px 16px 0; }
+  .dialog-actions { margin: 8px -16px 0; padding-left: 16px; padding-right: 16px; }
+  .dialog-actions .btn { flex: 1; }
+}
+@media (max-width: 520px) {
+  .grid2 { grid-template-columns: 1fr; }
+  .auth-card { padding: 24px 18px; border-radius: 14px; }
+  .auth-logo { font-size: 26px; }
+}
+@media (max-width: 360px) {
+  .venture-tag { display: none; }
+}
+</style>
+</head>
+<body>
+<div id="flash" class="flash" hidden></div>
+<div id="app"><p class="center muted">Loading…</p></div>
+<noscript><p class="center">Task List Tool needs JavaScript to run.</p></noscript>
+<script>
+'use strict';
+(function () {
+  // ------------------------------------------------------------------------
+  // Configuration. The publishable key is meant to be public: everything it
+  // can reach is protected by Row Level Security in the database.
+  // ------------------------------------------------------------------------
+  const SUPABASE_URL = 'https://lifhnbygeiihgtirbscy.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_03p-NI7sqDyI8jjXHCulAA_LXFs-WA3';
+  const SESSION_KEY = 'tlt.session.v1';
+  const VENTURE_KEY = 'tlt.venture.v1';
+  const PRIORITIES = ['High', 'Medium', 'Low'];
+  const STATUSES = ['Pending', 'In Progress', 'Completed', 'Blocked'];
+  const PRIORITY_RANK = { High: 0, Medium: 1, Low: 2 };
+
+  const appEl = document.getElementById('app');
+  const flashEl = document.getElementById('flash');
+
+  // Refuse to run inside a frame (clickjacking protection; a meta CSP can't
+  // set frame-ancestors).
+  if (window.top !== window.self) {
+    appEl.textContent = 'For your security, Task List Tool cannot be shown inside another page.';
+    return;
+  }
+
+  // ------------------------------------------------------------------------
+  // State
+  // ------------------------------------------------------------------------
+  const S = {
+    view: 'loading',          // loading | auth | join | pick | tasks | admin | error
+    authTab: 'signin',
+    joinCode: '',
+    joinName: '',
+    memberships: [],
+    ventureId: null,
+    me: null,
+    members: [],
+    categories: [],
+    tasks: [],
+    notesByTask: new Map(),
+    filters: freshFilters(),
+    sort: { key: 'activity', reverse: false },
+    expanded: new Set(),
+    activity: new Map(),        // task_id -> { baseline, last_event_at, new_count, recent[] } (task_activity_summary)
+    events: new Map(),          // task_id -> events[] | { error } (loaded only when a task is expanded)
+    highlightSince: new Map(),  // task_id -> my baseline at the moment I opened the task (for "new" highlights)
+    admin: null,              // { access:Set('member|category'), emails:Map, invites:[] }
+    lastInvite: null,
+    errorText: ''
+  };
+  let session = loadSession();
+  let refillList = function () {};
+  function freshFilters() { return { q: '', category: '', status: '', mine: false, created: 'any', from: '', to: '' }; }
+
+  // Invite link: index.html#join=CODE. Read it, then strip it from the address bar.
+  (function readJoinFragment() {
+    const m = /^#join=([^&]*)/.exec(location.hash || '');
+    if (!m) return;
+    let code = m[1];
+    try { code = decodeURIComponent(code); } catch (e) { /* keep raw */ }
+    S.joinCode = code.trim().slice(0, 200);
+    S.authTab = 'join';
+    history.replaceState(null, '', location.pathname + location.search);
+  })();
+
+  // ------------------------------------------------------------------------
+  // Safe DOM builder. User data only ever becomes text nodes / textContent /
+  // attribute values. No HTML-string sinks are used anywhere.
+  // ------------------------------------------------------------------------
+  function h(tag, props) {
+    const el = document.createElement(tag);
+    const kids = Array.prototype.slice.call(arguments, 2);
+    let value;
+    if (props) {
+      Object.keys(props).forEach(function (k) {
+        const v = props[k];
+        if (v === undefined || v === null || v === false) return;
+        if (k === 'class') el.className = v;
+        else if (k === 'text') el.textContent = String(v);
+        else if (k === 'value') value = v;
+        else if (k.slice(0, 2) === 'on' && typeof v === 'function') el.addEventListener(k.slice(2), v);
+        else if (k === 'checked' || k === 'disabled' || k === 'selected' || k === 'hidden' || k === 'required' || k === 'readOnly') el[k] = !!v;
+        else if (k === 'href') { if (safeHttpUrl(v)) el.setAttribute('href', v); }
+        else el.setAttribute(k, v === true ? '' : String(v));
+      });
+    }
+    append(el, kids);
+    if (value !== undefined) el.value = value;   // after children, so <select> works
+    return el;
+  }
+  function append(el, kids) {
+    kids.forEach(function (c) {
+      if (c === null || c === undefined || c === false) return;
+      if (Array.isArray(c)) append(el, c);
+      else if (c instanceof Node) el.appendChild(c);
+      else el.appendChild(document.createTextNode(String(c)));
+    });
+  }
+  function safeHttpUrl(u) {
+    if (typeof u !== 'string' || !/^https?:\/\//i.test(u.trim())) return false;
+    try { const p = new URL(u.trim()); return p.protocol === 'http:' || p.protocol === 'https:'; }
+    catch (e) { return false; }
+  }
+
+  // ------------------------------------------------------------------------
+  // Small helpers
+  // ------------------------------------------------------------------------
+  function readStored(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function writeStored(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) { /* ignore */ } }
+  function slug(s) { return String(s).toLowerCase().replace(/\s+/g, '-'); }
+  function byText(a, b) { return a.localeCompare(b, undefined, { sensitivity: 'base' }); }
+  function initials(name) {
+    const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+    if (!parts.length) return '?';
+    const first = Array.from(parts[0])[0] || '';
+    const last = parts.length > 1 ? (Array.from(parts[parts.length - 1])[0] || '') : '';
+    return (first + last).toUpperCase();
+  }
+  function parseDay(d) { const p = String(d).split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  function today() { const t = new Date(); t.setHours(0, 0, 0, 0); return t; }
+  function fmtDay(d, long) {
+    const dt = parseDay(d);
+    const o = { day: 'numeric', month: 'short' };
+    if (long || dt.getFullYear() !== new Date().getFullYear()) o.year = 'numeric';
+    if (long) o.weekday = 'short';
+    return dt.toLocaleDateString(undefined, o);
+  }
+  function fmtWhen(ts) { return new Date(ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); }
+  function isOverdue(t) { return !!t.deadline && t.status !== 'Completed' && parseDay(t.deadline) < today(); }
+  function memberById(id) { return id ? S.members.find(function (m) { return m.id === id; }) || null : null; }
+  function catById(id) { return S.categories.find(function (c) { return c.id === id; }) || null; }
+  function catName(id) { const c = catById(id); return c ? c.name : 'Category'; }
+  function currentVenture() { return S.memberships.find(function (m) { return m.venture_id === S.ventureId; }) || null; }
+  function chip(text, cls) { return h('span', { class: 'chip' + (cls ? ' ' + cls : ''), text: text, title: text }); }
+  function inviteBaseUrl() { return location.href.split('#')[0]; }
+
+  // ------------------------------------------------------------------------
+  // Messages
+  // ------------------------------------------------------------------------
+  let flashTimer = null;
+  function flash(text, type) {
+    type = type || 'error';
+    clearTimeout(flashTimer);
+    flashEl.replaceChildren(
+      h('span', { text: text }),
+      h('button', { type: 'button', class: 'flash-close', 'aria-label': 'Dismiss', onclick: function () { flashEl.hidden = true; } }, '×')
+    );
+    flashEl.className = 'flash ' + type;
+    flashEl.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    flashEl.hidden = false;
+    if (type === 'ok') flashTimer = setTimeout(function () { flashEl.hidden = true; }, 3500);
+  }
+  function clearFlash() { flashEl.hidden = true; }
+
+  class ApiError extends Error {
+    constructor(message, extra) {
+      super(message);
+      extra = extra || {};
+      this.status = extra.status;
+      this.code = extra.code;
+      this.details = extra.details;
+      this.hint = extra.hint;
+    }
+  }
+
+  // Turn database / auth errors into plain language. Messages raised by our
+  // own triggers and functions are already plain language and pass through.
+  function friendly(err) {
+    if (!(err instanceof ApiError)) return 'Something went wrong: ' + (err && err.message ? err.message : String(err));
+    const code = err.code || '';
+    const msg = err.message || 'Something went wrong.';
+    if (code === 'P0001') return msg;
+    if (code === '42501' || /row-level security/i.test(msg)) return 'You don’t have permission to do that.';
+    if (code === '23505') {
+      if (/categor/i.test(msg)) return 'A category with that name already exists.';
+      if (/venture_members/i.test(msg)) return 'You are already a member of this workspace.';
+      return 'That already exists.';
+    }
+    if (code === '23503') {
+      if (/on table "tasks"/i.test(msg) && /categor/i.test(msg)) return 'This category still has tasks. Move those tasks to another category (or delete them) first, then delete the category.';
+      return 'That refers to something that doesn’t exist in this workspace (it may have been removed). Refresh and try again.';
+    }
+    if (code === '23514') {
+      if (/link/i.test(msg)) return 'The link must start with http:// or https://.';
+      if (/title/i.test(msg)) return 'The title must be 1–200 characters.';
+      if (/body/i.test(msg)) return 'A note must be 1–10,000 characters.';
+      if (/display_name/i.test(msg)) return 'The name must be 1–80 characters.';
+      if (/name/i.test(msg)) return 'The name must be 1–60 characters.';
+      if (/label/i.test(msg)) return 'The label must be at most 100 characters.';
+      if (/venture_members_check|venture_invites_check/i.test(msg)) return 'A superadmin can’t also be external. Turn off External first (or don’t make them a superadmin).';
+      return 'One of the values isn’t allowed.';
+    }
+    if (code === '23502') return 'A required field is missing.';
+    if (code === '22P02' || code === '22007' || code === '22008') return 'One of the values isn’t in a valid format.';
+    return msg;
+  }
+
+  // ------------------------------------------------------------------------
+  // Supabase client (hand-written, fetch only)
+  // ------------------------------------------------------------------------
+  function loadSession() {
+    try {
+      const s = JSON.parse(localStorage.getItem(SESSION_KEY));
+      return s && s.access_token && s.refresh_token && s.user && s.user.id ? s : null;
+    } catch (e) { return null; }
+  }
+  function saveSession(s) {
+    session = s;
+    try { if (s) localStorage.setItem(SESSION_KEY, JSON.stringify(s)); else localStorage.removeItem(SESSION_KEY); }
+    catch (e) { /* storage blocked: session lasts for this page only */ }
+  }
+  function sessionFrom(d) {
+    return {
+      access_token: d.access_token,
+      refresh_token: d.refresh_token,
+      expires_at: d.expires_at || Math.floor(Date.now() / 1000) + (d.expires_in || 3600),
+      user: { id: d.user.id, email: d.user.email }
+    };
+  }
+  async function readJson(res) {
+    const text = await res.text();
+    if (!text) return null;
+    try { return JSON.parse(text); } catch (e) { return null; }
+  }
+  const NETWORK_ERROR = 'Could not reach the server. Check your connection and try again.';
+
+  async function authRequest(path, body, token) {
+    const headers = { apikey: SUPABASE_KEY, 'Content-Type': 'application/json' };
+    if (token) headers.Authorization = 'Bearer ' + token;
+    let res;
+    try {
+      res = await fetch(SUPABASE_URL + '/auth/v1' + path, { method: 'POST', headers: headers, body: JSON.stringify(body || {}) });
+    } catch (e) { throw new ApiError(NETWORK_ERROR); }
+    const data = await readJson(res);
+    if (!res.ok) {
+      const m = data && (data.msg || data.error_description || data.message || data.error);
+      throw new ApiError(m || ('Request failed (' + res.status + ').'), { status: res.status, code: data && (data.error_code || data.code) });
+    }
+    return data;
+  }
+
+  let refreshing = null;
+  function refreshSession() {
+    if (!session) return Promise.reject(new ApiError('Please sign in again.', { status: 401 }));
+    if (!refreshing) {
+      refreshing = authRequest('/token?grant_type=refresh_token', { refresh_token: session.refresh_token })
+        .then(function (d) { saveSession(sessionFrom(d)); })
+        .catch(function (e) {
+          if (e.status >= 400 && e.status < 500) saveSession(null);   // refresh token rejected
+          throw e;
+        })
+        .finally(function () { refreshing = null; });
+    }
+    return refreshing;
+  }
+  async function accessToken() {
+    if (!session) return null;
+    if (session.expires_at - 60 < Date.now() / 1000) await refreshSession();
+    return session ? session.access_token : null;
+  }
+
+  async function rest(path, opts, retried) {
+    opts = opts || {};
+    let token;
+    try { token = await accessToken(); }
+    catch (e) { if (!session) { onSignedOut(); throw new ApiError('Your session has ended. Please sign in again.'); } throw e; }
+    if (!token) { onSignedOut(); throw new ApiError('Your session has ended. Please sign in again.'); }
+    const headers = { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + token, Accept: 'application/json' };
+    if (opts.body !== undefined) headers['Content-Type'] = 'application/json';
+    if (opts.prefer) headers.Prefer = opts.prefer;
+    let res;
+    try {
+      res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+        method: opts.method || 'GET',
+        headers: headers,
+        body: opts.body === undefined ? undefined : JSON.stringify(opts.body)
+      });
+    } catch (e) { throw new ApiError(NETWORK_ERROR); }
+    if (res.status === 401 && !retried) {
+      try { await refreshSession(); }
+      catch (e) { onSignedOut(); throw new ApiError('Your session has ended. Please sign in again.'); }
+      return rest(path, opts, true);
+    }
+    const data = await readJson(res);
+    if (!res.ok) {
+      throw new ApiError((data && data.message) || ('Request failed (' + res.status + ').'),
+        { status: res.status, code: data && data.code, details: data && data.details, hint: data && data.hint });
+    }
+    return data;
+  }
+  // A PATCH/DELETE that RLS silently filtered out returns no rows.
+  function requireRow(rows) {
+    if (!Array.isArray(rows) || !rows.length) {
+      throw new ApiError('Nothing was changed. You may not have permission, or the item no longer exists. Try refreshing.');
+    }
+    return rows[0];
+  }
+  function q(v) { return encodeURIComponent(v); }
+
+  // Another tab signed in/out or refreshed the token: follow it.
+  window.addEventListener('storage', function (e) {
+    if (e.key !== SESSION_KEY) return;
+    const s = loadSession();
+    if (!s && session) { session = null; onSignedOut(true); }
+    else if (s) session = s;
+  });
+
+  // ------------------------------------------------------------------------
+  // Flow
+  // ------------------------------------------------------------------------
+  function resetState() {
+    S.memberships = []; S.ventureId = null; S.me = null; S.members = []; S.categories = [];
+    S.tasks = []; S.notesByTask = new Map(); S.expanded.clear(); S.admin = null; S.lastInvite = null;
+    S.activity = new Map(); S.events = new Map(); S.highlightSince = new Map();
+    S.filters = freshFilters();
+  }
+  function onSignedOut(quiet) {
+    saveSession(null);
+    resetState();
+    S.view = 'auth';
+    render();
+    if (!quiet) flash('Your session has ended. Please sign in again.');
+  }
+  async function signOut() {
+    const token = session && session.access_token;
+    saveSession(null);
+    writeStored(VENTURE_KEY, '');
+    resetState();
+    S.view = 'auth';
+    S.authTab = 'signin';
+    render();
+    if (token) { try { await authRequest('/logout?scope=local', {}, token); } catch (e) { /* already signed out locally */ } }
+  }
+
+  async function boot() {
+    if (!session) { S.view = 'auth'; render(); return; }
+    try { await afterSignIn(); }
+    catch (e) { showError(e); }
+  }
+  function showError(e) {
+    if (!session) { S.view = 'auth'; render(); flash(friendly(e)); return; }
+    S.errorText = friendly(e);
+    S.view = 'error';
+    render();
+  }
+
+  async function loadMemberships() {
+    const rows = await rest('venture_members?select=id,venture_id,display_name,is_superadmin,is_external,ventures(name)&user_id=eq.' + q(session.user.id));
+    S.memberships = (rows || []).map(function (r) {
+      return { id: r.id, venture_id: r.venture_id, display_name: r.display_name, is_superadmin: r.is_superadmin,
+               is_external: r.is_external, venture_name: r.ventures ? r.ventures.name : 'Workspace' };
+    }).sort(function (a, b) { return byText(a.venture_name, b.venture_name); });
+  }
+
+  async function afterSignIn(preferVentureId) {
+    S.view = 'loading'; render();
+    await loadMemberships();
+    if (S.joinCode || !S.memberships.length) { S.view = 'join'; render(); return; }
+    let vid = preferVentureId || readStored(VENTURE_KEY);
+    if (!S.memberships.some(function (m) { return m.venture_id === vid; })) {
+      vid = S.memberships.length === 1 ? S.memberships[0].venture_id : null;
+    }
+    if (!vid) { S.view = 'pick'; render(); return; }
+    await selectVenture(vid);
+  }
+
+  async function selectVenture(vid) {
+    S.ventureId = vid;
+    writeStored(VENTURE_KEY, vid);
+    S.expanded.clear(); S.admin = null; S.lastInvite = null;
+    S.filters = freshFilters();
+    S.view = 'loading'; render();
+    if (!(await loadVentureData())) return;
+    S.view = 'tasks';
+    render();
+  }
+
+  // Tasks always start collapsed; a row opens only when the user clicks it.
+  function collapseAll() { S.expanded.clear(); }
+
+  // Returns false if I'm no longer a member (then routes elsewhere).
+  async function loadVentureData() {
+    collapseAll();   // every (re)load of the list starts collapsed
+    const v = q(S.ventureId);
+    const res = await Promise.all([
+      rest('venture_members?select=id,user_id,display_name,is_superadmin,is_external&venture_id=eq.' + v),
+      rest('categories?select=id,name&venture_id=eq.' + v),
+      rest('tasks?select=id,venture_id,category_id,title,priority,status,deadline,assigned_to,link,is_external,created_by,created_at,updated_at&venture_id=eq.' + v),
+      rest('task_notes?select=id,task_id,author_id,author_name,body,created_at,tasks!inner(venture_id)&tasks.venture_id=eq.' + v + '&order=created_at.asc'),
+      // One small row per visible task: what's new for me, and when it last changed.
+      rest('rpc/task_activity_summary', { method: 'POST', body: { p_venture_id: S.ventureId } })
+        .catch(function (e) { return { loadError: e }; })
+    ]);
+    S.activity = new Map(); S.events = new Map(); S.highlightSince = new Map();
+    if (res[4] && res[4].loadError) {
+      flash('Activity information could not be loaded: ' + friendly(res[4].loadError));
+    } else {
+      (res[4] || []).forEach(function (r) {
+        S.activity.set(r.task_id, { baseline: r.baseline, last_event_at: r.last_event_at,
+          new_count: r.new_count || 0, recent: Array.isArray(r.recent) ? r.recent : [] });
+      });
+    }
+    S.members = (res[0] || []).sort(function (a, b) { return byText(a.display_name, b.display_name); });
+    S.categories = (res[1] || []).sort(function (a, b) { return byText(a.name, b.name); });
+    S.tasks = res[2] || [];
+    S.notesByTask = new Map();
+    (res[3] || []).forEach(function (n) {
+      if (!S.notesByTask.has(n.task_id)) S.notesByTask.set(n.task_id, []);
+      S.notesByTask.get(n.task_id).push(n);
+    });
+    S.me = S.members.find(function (m) { return m.user_id === session.user.id; }) || null;
+    if (!S.me) {
+      writeStored(VENTURE_KEY, '');
+      S.ventureId = null;
+      flash('You are no longer a member of that workspace.');
+      await afterSignIn();
+      return false;
+    }
+    // keep the membership list in sync with any role changes
+    const mine = currentVenture();
+    if (mine) { mine.is_superadmin = S.me.is_superadmin; mine.is_external = S.me.is_external; mine.display_name = S.me.display_name; }
+    return true;
+  }
+
+  async function loadAdminData() {
+    const v = S.ventureId;
+    const res = await Promise.all([
+      loadVentureData(),
+      rest('member_categories?select=member_id,category_id&venture_id=eq.' + q(v)),
+      rest('rpc/admin_member_emails', { method: 'POST', body: { p_venture_id: v } }),
+      rest('venture_invites?select=id,label,is_superadmin,is_external,category_ids,expires_at,created_at,used_by,used_at&venture_id=eq.' + q(v) + '&order=created_at.desc')
+    ]);
+    if (!res[0]) return false;
+    const access = new Set();
+    (res[1] || []).forEach(function (r) { access.add(r.member_id + '|' + r.category_id); });
+    const emails = new Map();
+    (res[2] || []).forEach(function (r) { emails.set(r.member_id, r.email); });
+    S.admin = { access: access, emails: emails, invites: res[3] || [] };
+    return true;
+  }
+
+  async function joinWithCode(code, name) {
+    let vid;
+    try {
+      vid = await rest('rpc/accept_invite', { method: 'POST', body: { p_code: code, p_display_name: name } });
+    } catch (e) {
+      if (!session) throw e;
+      S.joinCode = code; S.joinName = name;
+      try { await loadMemberships(); } catch (e2) { /* ignore */ }
+      S.view = 'join'; render();
+      flash(friendly(e));
+      return;
+    }
+    S.joinCode = ''; S.joinName = '';
+    flash('Welcome! You have joined the workspace.', 'ok');
+    await afterSignIn(vid);
+  }
+
+  // ------------------------------------------------------------------------
+  // Rendering
+  // ------------------------------------------------------------------------
+  function render() {
+    document.querySelectorAll('dialog.dialog').forEach(function (d) { d.close(); });
+    appEl.replaceChildren();
+    const v = currentVenture();
+    document.title = (v && (S.view === 'tasks' || S.view === 'admin')) ? v.venture_name + ' – Task List Tool' : 'Task List Tool';
+    switch (S.view) {
+      case 'auth': appEl.append(renderAuth()); break;
+      case 'join': appEl.append(renderJoin()); break;
+      case 'pick': appEl.append(renderPick()); break;
+      // append() (our helper) skips null. The browser's own appEl.append() would
+      // print a null bottom nav (non-superadmins) as the word "null" (fix D1).
+      case 'tasks': append(appEl, [renderHeader(), renderTasks(), renderBottomNav()]); updateNewIndicators(); break;
+      case 'admin': append(appEl, [renderHeader(), renderAdmin(), renderBottomNav()]); updateNewIndicators(); break;
+      case 'error': appEl.append(renderErrorView()); break;
+      default: appEl.append(h('p', { class: 'center muted', text: 'Loading…' }));
+    }
+  }
+
+  // Wraps a form submit: prevents navigation, disables the submit button,
+  // and shows errors (in the given element, or as a flash message).
+  function onSubmit(fn, errorEl) {
+    return async function (e) {
+      e.preventDefault();
+      const form = e.currentTarget;
+      const btn = form.querySelector('button[type=submit]');
+      if (btn) btn.disabled = true;
+      if (errorEl) errorEl.hidden = true;
+      try { await fn(form); }
+      catch (err) {
+        if (errorEl && errorEl.isConnected) { errorEl.textContent = friendly(err); errorEl.hidden = false; }
+        else flash(friendly(err));
+      }
+      finally { if (btn) btn.disabled = false; }
+    };
+  }
+  async function busy(btn, fn) {
+    if (btn) btn.disabled = true;
+    try { await fn(); }
+    catch (err) { flash(friendly(err)); }
+    finally { if (btn) btn.disabled = false; }
+  }
+  function field(label, input, hint) {
+    return h('label', { class: 'field' }, h('span', { text: label }), input, hint ? h('span', { class: 'hint', text: hint }) : null);
+  }
+  function brandBlock() {
+    return h('div', { class: 'auth-head' }, h('div', { class: 'auth-logo', text: 'Task List Tool' }), h('div', { class: 'auth-sub', text: 'TASK MANAGEMENT' }));
+  }
+
+  // ---------- Sign in / Join with code ----------
+  function renderAuth() {
+    const card = h('div', { class: 'auth-card' }, brandBlock());
+    function tab(id, label) {
+      return h('button', { type: 'button', role: 'tab', 'aria-selected': String(S.authTab === id),
+        onclick: function () { S.authTab = id; clearFlash(); render(); } }, label);
+    }
+    card.append(h('div', { class: 'seg', role: 'tablist' }, tab('signin', 'Sign in'), tab('join', 'Join with an invite code')));
+
+    if (S.authTab === 'signin') {
+      const email = h('input', { type: 'email', name: 'email', autocomplete: 'username', required: true });
+      const pw = h('input', { type: 'password', name: 'password', autocomplete: 'current-password', required: true });
+      card.append(h('form', { onsubmit: onSubmit(async function () {
+          const d = await authRequest('/token?grant_type=password', { email: email.value.trim(), password: pw.value });
+          saveSession(sessionFrom(d));
+          clearFlash();
+          await afterSignIn();
+        }) },
+        field('Email', email),
+        field('Password', pw),
+        h('div', { class: 'actions' }, h('button', { type: 'submit', class: 'btn primary' }, 'Sign in')),
+        h('p', { class: 'muted small', text: 'Forgot your password? Ask your administrator to reset your password.' })
+      ));
+      setTimeout(function () { email.focus(); }, 0);
+    } else {
+      const email = h('input', { type: 'email', name: 'email', autocomplete: 'username', required: true });
+      const pw = h('input', { type: 'password', name: 'new-password', autocomplete: 'new-password', required: true, minlength: '8' });
+      const name = h('input', { type: 'text', name: 'name', autocomplete: 'name', required: true, maxlength: '80', value: S.joinName });
+      const code = h('input', { type: 'text', name: 'code', autocomplete: 'off', spellcheck: 'false', required: true, class: 'mono', value: S.joinCode });
+      card.append(h('form', { onsubmit: onSubmit(async function () {
+          const em = email.value.trim(), pass = pw.value, nm = name.value.trim(), cd = code.value.trim();
+          S.joinName = nm; S.joinCode = cd;
+          let d;
+          try {
+            d = await authRequest('/signup', { email: em, password: pass });
+          } catch (e) {
+            if (e.code === 'user_already_exists' || /already registered|already exists/i.test(e.message)) {
+              try { d = await authRequest('/token?grant_type=password', { email: em, password: pass }); }
+              catch (e2) { throw new ApiError('An account with this email already exists and that password doesn’t match it. Use “Sign in” instead, then join with your code. Forgot your password? Ask your administrator to reset it.'); }
+            } else { throw e; }
+          }
+          const sess = d && d.access_token ? d : (d && d.session ? d.session : null);
+          if (!sess || !sess.user) {
+            throw new ApiError('Your account was created but needs email confirmation before you can sign in. Ask your administrator.');
+          }
+          saveSession(sessionFrom(sess));
+          clearFlash();
+          await joinWithCode(cd, nm);
+        }) },
+        field('Email', email),
+        field('Password', pw, 'At least 8 characters.'),
+        field('Your name', name, 'Shown to other members of the workspace.'),
+        field('Invite code', code, 'From your administrator (or already filled in from your invite link).'),
+        h('div', { class: 'actions' }, h('button', { type: 'submit', class: 'btn primary' }, 'Create account and join')),
+        h('p', { class: 'muted small', text: 'Already have an account? Sign in first, then you can enter the code.' })
+      ));
+      setTimeout(function () { email.focus(); }, 0);
+    }
+    return h('div', { class: 'auth-wrap' }, card);
+  }
+
+  // ---------- Join a workspace (signed in) ----------
+  function renderJoin() {
+    const has = S.memberships.length > 0;
+    const defaultName = S.joinName || (has ? S.memberships[0].display_name : '');
+    const name = h('input', { type: 'text', required: true, maxlength: '80', autocomplete: 'name', value: defaultName });
+    const code = h('input', { type: 'text', required: true, autocomplete: 'off', spellcheck: 'false', class: 'mono', value: S.joinCode });
+    const card = h('div', { class: 'auth-card' }, brandBlock(),
+      h('h1', { text: 'Join a workspace' }),
+      h('p', { class: 'muted', text: has
+        ? 'Enter an invite code to join another workspace.'
+        : 'Your account isn’t part of any workspace yet. Enter the invite code your administrator gave you.' }),
+      h('form', { onsubmit: onSubmit(async function () { await joinWithCode(code.value.trim(), name.value.trim()); }) },
+        field('Your name', name, 'Shown to other members of the workspace.'),
+        field('Invite code', code),
+        h('div', { class: 'actions' },
+          h('button', { type: 'submit', class: 'btn primary' }, 'Join'),
+          has ? h('button', { type: 'button', class: 'btn', onclick: function (e) {
+            S.joinCode = ''; S.joinName = '';
+            busy(e.currentTarget, function () { return afterSignIn(); });
+          } }, 'Back') : null)
+      ),
+      h('p', { class: 'muted small' }, 'Signed in as ', h('strong', { text: session ? session.user.email : '' }), '. ',
+        h('button', { type: 'button', class: 'btn link', onclick: signOut }, 'Sign out'))
+    );
+    setTimeout(function () { (S.joinCode ? name : code).focus(); }, 0);
+    return h('div', { class: 'auth-wrap' }, card);
+  }
+
+  // ---------- Workspace picker ----------
+  function renderPick() {
+    return h('div', { class: 'auth-wrap' }, h('div', { class: 'auth-card' }, brandBlock(),
+      h('h1', { text: 'Choose a workspace' }),
+      h('div', { class: 'pick-list' }, S.memberships.map(function (m) {
+        return h('button', { type: 'button', class: 'btn', onclick: function (e) {
+          busy(e.currentTarget, function () { return selectVenture(m.venture_id); });
+        } }, h('span', { text: m.venture_name }),
+          h('span', { class: 'muted small', text: m.is_superadmin ? 'Superadmin' : (m.is_external ? 'External' : 'Member') }));
+      })),
+      h('div', { class: 'actions' },
+        h('button', { type: 'button', class: 'btn', onclick: function () { S.view = 'join'; render(); } }, 'Join another workspace'),
+        h('button', { type: 'button', class: 'btn', onclick: signOut }, 'Sign out'))
+    ));
+  }
+
+  function renderErrorView() {
+    return h('div', { class: 'auth-wrap' }, h('div', { class: 'auth-card' }, brandBlock(),
+      h('h1', { text: 'Something went wrong' }),
+      h('p', { text: S.errorText }),
+      h('div', { class: 'actions' },
+        h('button', { type: 'button', class: 'btn primary', onclick: function (e) { busy(e.currentTarget, boot); } }, 'Try again'),
+        h('button', { type: 'button', class: 'btn', onclick: signOut }, 'Sign out'))
+    ));
+  }
+
+  // ---------- Header ----------
+  function goTo(view) {
+    if (S.view === view) return;
+    if (view === 'admin') openAdmin(); else { S.view = 'tasks'; S.lastInvite = null; render(); }
+  }
+  // Small inline SVG icons (fixed path data, never user data).
+  function svgIcon(d) {
+    const NS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(NS, 'svg');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('width', '20');
+    svg.setAttribute('height', '20');
+    svg.setAttribute('fill', 'none');
+    svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round');
+    svg.setAttribute('aria-hidden', 'true');
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', d);
+    svg.appendChild(p);
+    return svg;
+  }
+  const ICON_TASKS = 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01';
+  const ICON_ADMIN = 'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6';
+
+  // Phone-only bottom navigation (hidden by CSS on wider screens), as in TD Dashboard.
+  function renderBottomNav() {
+    if (!S.me || !S.me.is_superadmin) return null;
+    function item(label, view, icon) {
+      return h('button', { type: 'button', class: 'bnav-item', 'aria-current': S.view === view ? 'page' : null,
+        onclick: function () { goTo(view); } }, svgIcon(icon), h('span', { text: label }),
+        view === 'tasks' ? newCountBadge() : null);
+    }
+    return h('nav', { class: 'bnav', 'aria-label': 'Sections' }, item('Tasks', 'tasks', ICON_TASKS), item('Admin', 'admin', ICON_ADMIN));
+  }
+
+  function renderHeader() {
+    const v = currentVenture();
+    function tabBtn(label, view) {
+      return h('button', { type: 'button', class: 'tab', 'aria-current': S.view === view ? 'page' : null,
+        onclick: function () { goTo(view); } }, label, view === 'tasks' ? newCountBadge() : null);
+    }
+    const menu = h('details', { class: 'menu' },
+      h('summary', { 'aria-label': 'Account menu', class: 'user-chip' },
+        h('span', { class: 'avatar sm', 'aria-hidden': 'true', text: initials(S.me.display_name) }),
+        h('span', { class: 'menu-name', text: S.me.display_name })),
+      h('div', { class: 'menu-items' },
+        h('div', { class: 'who' }, h('div', { text: S.me.display_name }), h('div', { text: session.user.email })),
+        S.memberships.length > 1 ? h('button', { type: 'button', onclick: function () { S.view = 'pick'; render(); } }, 'Switch workspace') : null,
+        h('button', { type: 'button', onclick: function () { S.view = 'join'; render(); } }, 'Join another workspace'),
+        h('button', { type: 'button', onclick: signOut }, 'Sign out'))
+    );
+    return h('header', { class: 'topbar' },
+      h('div', { class: 'brand' },
+        h('span', { class: 'logo', text: 'Task List Tool' }),
+        h('span', { class: 'venture-tag', text: v ? v.venture_name : '', title: v ? v.venture_name : null })),
+      S.me.is_superadmin ? h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tabBtn('Tasks', 'tasks'), tabBtn('Admin', 'admin')) : null,
+      menu);
+  }
+  // Close the account menu when clicking elsewhere.
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('details.menu[open]').forEach(function (d) { if (!d.contains(e.target)) d.open = false; });
+  });
+
+  // ---------- Activity helpers ----------
+  function ms(ts) { const n = ts ? Date.parse(ts) : NaN; return isNaN(n) ? 0 : n; }
+  function activityOf(id) { return S.activity.get(id) || null; }
+  function hasNew(t) { const a = activityOf(t.id); return !!a && a.new_count > 0; }
+  function newTaskCount() { return S.tasks.filter(hasNew).length; }
+  function taskById(id) { return S.tasks.find(function (x) { return x.id === id; }) || null; }
+  function taskLi(id) { return document.querySelector('li.task[data-id="' + CSS.escape(id) + '"]'); }
+  // Latest moment anything happened to a task (works for tasks with no recorded history too).
+  function lastActivityMs(t) {
+    const a = activityOf(t.id);
+    const notes = S.notesByTask.get(t.id) || [];
+    return Math.max(ms(t.created_at), ms(t.updated_at), a ? ms(a.last_event_at) : 0,
+      notes.length ? ms(notes[notes.length - 1].created_at) : 0);
+  }
+  function relTime(ts) {
+    const diff = Date.now() - ms(ts);
+    if (diff < 60000) return 'just now';
+    const m = Math.floor(diff / 60000);
+    if (m < 60) return m + 'm ago';
+    const hr = Math.floor(m / 60);
+    if (hr < 24) return hr + 'h ago';
+    const dd = Math.floor(hr / 24);
+    if (dd < 7) return dd + 'd ago';
+    return new Date(ms(ts)).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
+  }
+  function orNone(v, word) { return v === null || v === undefined || v === '' ? word : v; }
+  // Plain-language description of one history event (always shown as text).
+  function describeEvent(e, full) {
+    switch (e.kind) {
+      case 'created': return 'created the task';
+      case 'note':
+        if (!full) return 'added a note';
+        return 'added a note: “' + orNone(e.new_value, '') + ((e.new_value || '').length >= 200 ? '…' : '') + '”';
+      case 'title': return 'title “' + orNone(e.old_value, '') + '” → “' + orNone(e.new_value, '') + '”';
+      case 'deadline': return 'deadline ' + (e.old_value ? fmtDay(e.old_value) : 'none') + ' → ' + (e.new_value ? fmtDay(e.new_value) : 'none');
+      case 'assigned': return 'assignee ' + orNone(e.old_value, 'Unassigned') + ' → ' + orNone(e.new_value, 'Unassigned');
+      case 'link':
+        if (full) return 'link ' + orNone(e.old_value, 'none') + ' → ' + orNone(e.new_value, 'none');
+        return !e.old_value ? 'added a link' : (!e.new_value ? 'removed the link' : 'changed the link');
+      case 'status': case 'priority': case 'category': case 'visibility':
+        return e.kind + ' ' + orNone(e.old_value, 'none') + ' → ' + orNone(e.new_value, 'none');
+      default: return String(e.kind);
+    }
+  }
+  // Collapsed-row subtitle: newest first, up to two items, then "+N more" and how long ago.
+  function activitySummary(a) {
+    const parts = [];
+    let prevActor = null;
+    a.recent.forEach(function (e) {
+      const what = describeEvent(e, false);
+      parts.push(e.actor_name !== prevActor ? (e.actor_name || 'Someone') + ': ' + what : what);
+      prevActor = e.actor_name;
+    });
+    if (a.new_count > a.recent.length) parts.push('+' + (a.new_count - a.recent.length) + ' more');
+    if (a.recent.length) parts.push(relTime(a.recent[0].created_at));
+    return parts.join(' · ');
+  }
+  function newCountBadge() {
+    const n = newTaskCount();
+    return h('span', { class: 'tab-badge js-newcount', hidden: n === 0, 'aria-label': n + ' tasks with new activity', text: String(n) });
+  }
+  // Refresh every "new activity" count/badge/button and each row's dot + subtitle.
+  function updateNewIndicators() {
+    const n = newTaskCount();
+    document.querySelectorAll('.js-newcount').forEach(function (el) {
+      el.textContent = String(n); el.hidden = n === 0;
+      el.setAttribute('aria-label', n + ' tasks with new activity');
+    });
+    document.querySelectorAll('.js-newchip').forEach(function (el) { el.textContent = n + ' new'; el.hidden = n === 0; });
+    document.querySelectorAll('.js-markall').forEach(function (el) { el.hidden = n === 0; });
+    document.querySelectorAll('li.task').forEach(function (li) {
+      const t = taskById(li.getAttribute('data-id'));
+      const main = li.querySelector('.row .main');
+      if (t && main && li.classList.contains('has-new') !== hasNew(t)) main.replaceWith(renderRowMain(t, li));
+    });
+  }
+  async function markAllSeen(btn) {
+    await busy(btn, async function () {
+      await rest('rpc/mark_tasks_seen', { method: 'POST', body: { p_venture_id: S.ventureId, p_task_ids: null } });
+      S.activity.forEach(function (a) {
+        a.new_count = 0; a.recent = [];
+        if (a.last_event_at && ms(a.last_event_at) > ms(a.baseline)) a.baseline = a.last_event_at;
+      });
+      updateNewIndicators();
+      flash('All tasks marked as seen.', 'ok');
+    });
+  }
+  // Full history of one task: fetched only when the task is opened.
+  async function loadEvents(id) {
+    try {
+      const rows = await rest('task_events?select=id,actor_id,actor_name,kind,old_value,new_value,created_at&task_id=eq.' + q(id) + '&order=created_at.desc,id.desc');
+      S.events.set(id, rows || []);
+    } catch (e) {
+      S.events.set(id, { error: friendly(e) });
+    }
+    refreshDetailHighlights(id);
+  }
+  // Opening a task: load its history and record it as seen.
+  async function openedTask(id) {
+    await loadEvents(id);
+    try {
+      await rest('rpc/mark_tasks_seen', { method: 'POST', body: { p_venture_id: S.ventureId, p_task_ids: [id] } });
+      const a = activityOf(id);
+      const evs = S.events.get(id);
+      const newest = Array.isArray(evs) && evs.length ? evs[0].created_at : (a ? a.last_event_at : null);
+      if (a) {
+        a.new_count = 0; a.recent = [];
+        if (newest && ms(newest) > ms(a.baseline)) a.baseline = newest;
+      }
+      updateNewIndicators();
+    } catch (e) {
+      flash(friendly(e));
+    }
+  }
+
+  // ---------- Sorting and the created-date filter ----------
+  const STATUS_RANK = { Blocked: 0, 'In Progress': 1, Pending: 2, Completed: 3 };
+  const SORTS = [
+    ['activity', 'Latest activity'],
+    ['created_new', 'Newest created'],
+    ['created_old', 'Oldest created'],
+    ['deadline', 'Deadline (soonest first)'],
+    ['priority', 'Priority (High to Low)'],
+    ['status', 'Status (Blocked first)']
+  ];
+  const CREATED_OPTIONS = [
+    ['any', 'Created: any time'],
+    ['today', 'Created: today'],
+    ['week', 'Created: this week'],
+    ['month', 'Created: this month'],
+    ['30d', 'Created: last 30 days'],
+    ['custom', 'Created: custom…']
+  ];
+  function compareTasks(a, b) {
+    const k = S.sort.key;
+    let r = 0;
+    if (k === 'deadline') {
+      if (a.deadline !== b.deadline) {
+        if (!a.deadline) return 1;      // no deadline: always last, in either direction
+        if (!b.deadline) return -1;
+        r = a.deadline < b.deadline ? -1 : 1;
+      }
+    } else if (k === 'activity') r = lastActivityMs(b) - lastActivityMs(a);
+    else if (k === 'created_new') r = ms(b.created_at) - ms(a.created_at);
+    else if (k === 'created_old') r = ms(a.created_at) - ms(b.created_at);
+    else if (k === 'priority') r = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
+    else if (k === 'status') r = STATUS_RANK[a.status] - STATUS_RANK[b.status];
+    if (r) return S.sort.reverse ? -r : r;
+    return (ms(b.created_at) - ms(a.created_at)) || (a.id < b.id ? -1 : 1);
+  }
+  function addDays(d, n) { const x = new Date(d.getTime()); x.setDate(x.getDate() + n); return x; }
+  // [from, to) in the browser's local time, or null for "any time".
+  function createdRange() {
+    const f = S.filters;
+    const sod = today();
+    switch (f.created) {
+      case 'today': return [sod, addDays(sod, 1)];
+      case 'week': { const mon = addDays(sod, -((sod.getDay() + 6) % 7)); return [mon, addDays(mon, 7)]; }   // Monday to Sunday
+      case 'month': return [new Date(sod.getFullYear(), sod.getMonth(), 1), new Date(sod.getFullYear(), sod.getMonth() + 1, 1)];
+      case '30d': return [addDays(sod, -29), addDays(sod, 1)];   // today and the 29 days before it
+      case 'custom': return [f.from ? parseDay(f.from) : null, f.to ? addDays(parseDay(f.to), 1) : null];
+      default: return null;
+    }
+  }
+  function filteredTasks() {
+    const f = S.filters;
+    const needle = f.q.trim().toLowerCase();
+    const range = createdRange();
+    return S.tasks.filter(function (t) {
+      if (range) {
+        const c = ms(t.created_at);
+        if (range[0] && c < range[0].getTime()) return false;
+        if (range[1] && c >= range[1].getTime()) return false;
+      }
+      if (f.category && t.category_id !== f.category) return false;
+      if (f.status === 'open' && t.status === 'Completed') return false;
+      if (f.status && f.status !== 'open' && t.status !== f.status) return false;
+      if (f.mine && t.assigned_to !== S.me.id) return false;
+      if (needle) {
+        const a = memberById(t.assigned_to);
+        const hay = [t.title, catName(t.category_id), a ? a.display_name : '']
+          .concat((S.notesByTask.get(t.id) || []).map(function (n) { return n.body; }))
+          .join('\n').toLowerCase();
+        if (hay.indexOf(needle) === -1) return false;
+      }
+      return true;
+    }).sort(compareTasks);
+  }
+
+  function renderTasks() {
+    const isAdmin = S.me.is_superadmin;
+    const listEl = h('ul', { class: 'tasklist', 'aria-label': 'Tasks' });
+    const countEl = h('span', { class: 'panel-count' });
+
+    const search = h('input', { type: 'search', class: 'search', placeholder: 'Search tasks and notes', 'aria-label': 'Search', value: S.filters.q,
+      oninput: function (e) { S.filters.q = e.target.value; collapseAll(); fill(); } });
+    const catSel = h('select', { 'aria-label': 'Filter by category', value: S.filters.category,
+      onchange: function (e) { S.filters.category = e.target.value; collapseAll(); fill(); } },
+      h('option', { value: '' }, 'All categories'),
+      S.categories.map(function (c) { return h('option', { value: c.id, text: c.name }); }));
+    const stSel = h('select', { 'aria-label': 'Filter by status', value: S.filters.status,
+      onchange: function (e) { S.filters.status = e.target.value; collapseAll(); fill(); } },
+      h('option', { value: '' }, 'All statuses'),
+      h('option', { value: 'open' }, 'Open (not completed)'),
+      STATUSES.map(function (s) { return h('option', { value: s, text: s }); }));
+    const mine = h('label', { class: 'check' },
+      h('input', { type: 'checkbox', checked: S.filters.mine, onchange: function (e) { S.filters.mine = e.target.checked; collapseAll(); fill(); } }),
+      'Assigned to me');
+    const fromIn = h('input', { type: 'date', 'aria-label': 'Created from', value: S.filters.from,
+      onchange: function (e) { S.filters.from = e.target.value; collapseAll(); fill(); } });
+    const toIn = h('input', { type: 'date', 'aria-label': 'Created to', value: S.filters.to,
+      onchange: function (e) { S.filters.to = e.target.value; collapseAll(); fill(); } });
+    const customRow = h('div', { class: 'custom-range', hidden: S.filters.created !== 'custom' },
+      h('label', { class: 'range-field' }, h('span', { text: 'Created from' }), fromIn),
+      h('label', { class: 'range-field' }, h('span', { text: 'Created to' }), toIn));
+    const createdSel = h('select', { 'aria-label': 'Filter by created date', value: S.filters.created,
+      onchange: function (e) { S.filters.created = e.target.value; customRow.hidden = S.filters.created !== 'custom'; collapseAll(); fill(); } },
+      CREATED_OPTIONS.map(function (o) { return h('option', { value: o[0], text: o[1] }); }));
+    const sortSel = h('select', { 'aria-label': 'Sort by', value: S.sort.key,
+      onchange: function (e) { S.sort.key = e.target.value; collapseAll(); fill(); } },
+      SORTS.map(function (s) { return h('option', { value: s[0], text: 'Sort: ' + s[1] }); }));
+    const dirBtn = h('button', { type: 'button', class: 'btn dir-btn', 'aria-pressed': String(S.sort.reverse),
+      'aria-label': 'Reverse sort order', title: 'Reverse the sort order',
+      onclick: function (e) {
+        S.sort.reverse = !S.sort.reverse;
+        e.currentTarget.setAttribute('aria-pressed', String(S.sort.reverse));
+        e.currentTarget.textContent = S.sort.reverse ? '↑' : '↓';
+        collapseAll(); fill();
+      } }, S.sort.reverse ? '↑' : '↓');
+    const sortGroup = h('div', { class: 'sortgroup' }, sortSel, dirBtn);
+    const newChip = h('span', { class: 'chip ext js-newchip', hidden: true });
+    const markAllBtn = h('button', { type: 'button', class: 'btn small js-markall', hidden: true,
+      onclick: function (e) { markAllSeen(e.currentTarget); } }, 'Mark all as seen');
+    const refreshBtn = h('button', { type: 'button', class: 'btn', title: 'Reload tasks', onclick: function (e) {
+      busy(e.currentTarget, async function () { if (await loadVentureData()) render(); });
+    } }, 'Refresh');
+    const addBtn = isAdmin ? h('button', { type: 'button', class: 'btn primary', onclick: function () { openTaskForm(null); } }, '+ Add task') : null;
+
+    function fill() {
+      const tasks = filteredTasks();
+      countEl.textContent = tasks.length === S.tasks.length
+        ? S.tasks.length + (S.tasks.length === 1 ? ' task' : ' tasks')
+        : tasks.length + ' of ' + S.tasks.length + ' tasks match';
+      listEl.replaceChildren();
+      if (!tasks.length) {
+        listEl.append(h('li', { class: 'empty', text: S.tasks.length
+          ? 'No tasks match these filters.'
+          : (isAdmin ? 'No tasks yet. Use “+ Add task” to create one.' : 'No tasks are visible to you yet.') }));
+      }
+      tasks.forEach(function (t) { listEl.append(renderTaskItem(t)); });
+      updateNewIndicators();
+    }
+    refillList = fill;
+    fill();
+    return h('main', { class: 'page' },
+      h('div', { class: 'toolbar' }, search, catSel, stSel, createdSel, sortGroup, customRow, mine, refreshBtn, addBtn),
+      h('section', { class: 'panel' },
+        h('div', { class: 'panel-header' },
+          h('div', { class: 'panel-head-left' }, h('span', { class: 'panel-title', text: 'Tasks' }), newChip),
+          h('div', { class: 'panel-head-right' }, markAllBtn, countEl)),
+        listEl));
+  }
+
+  function rerenderTask(id) {
+    const old = document.querySelector('li.task[data-id="' + CSS.escape(id) + '"]');
+    const t = S.tasks.find(function (x) { return x.id === id; });
+    if (!old) return;
+    if (!t) { old.remove(); return; }
+    const fresh = renderTaskItem(t);
+    old.replaceWith(fresh);
+    return fresh;
+  }
+  function applyTask(row) {
+    const i = S.tasks.findIndex(function (x) { return x.id === row.id; });
+    if (i >= 0) S.tasks[i] = row; else S.tasks.push(row);
+  }
+
+  // Title + subtitle of a collapsed row. If someone else changed the task since
+  // I last looked: an orange dot, and a summary of the changes as the subtitle.
+  // Otherwise: the latest note preview, as before.
+  function renderRowMain(t, li) {
+    const act = activityOf(t.id);
+    const isNew = !!act && act.new_count > 0;
+    if (li) li.classList.toggle('has-new', isNew);
+    let sub;
+    if (isNew) {
+      sub = activitySummary(act);
+    } else {
+      const notes = S.notesByTask.get(t.id) || [];
+      const last = notes[notes.length - 1];
+      sub = last ? (last.author_name || 'Someone') + ': ' + last.body.replace(/\s+/g, ' ') : 'No notes yet';
+    }
+    return h('div', { class: 'main' },
+      h('div', { class: 'title' },
+        isNew ? h('span', { class: 'new-dot', role: 'img', 'aria-label': 'New activity', title: 'New activity since you last looked' }) : null,
+        t.title),
+      h('div', { class: 'sub' + (isNew ? ' sub-new' : ''), text: sub }));
+  }
+
+  function renderTaskItem(t) {
+    const open = S.expanded.has(t.id);
+    const assignee = memberById(t.assigned_to);
+    const overdue = isOverdue(t);
+    const li = h('li', { class: 'task' + (t.status === 'Completed' ? ' done' : '') + (open ? ' open' : ''), 'data-id': t.id });
+
+    function toggle() {
+      const opening = !S.expanded.has(t.id);
+      if (opening) {
+        S.expanded.add(t.id);
+        // Highlight, for this viewing, what's newer than my last look.
+        const a = activityOf(t.id);
+        S.highlightSince.set(t.id, a ? a.baseline : null);
+        S.events.delete(t.id);
+      } else {
+        S.expanded.delete(t.id);
+        S.highlightSince.delete(t.id);
+      }
+      const fresh = rerenderTask(t.id);
+      if (fresh) fresh.querySelector('.row').focus();
+      if (opening) openedTask(t.id);
+    }
+    li.append(h('div', { class: 'row', role: 'button', tabindex: '0', 'aria-expanded': String(open),
+        onclick: toggle,
+        onkeydown: function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } } },
+      h('span', { class: 'chev', 'aria-hidden': 'true' }, '›'),
+      renderRowMain(t, li),
+      h('div', { class: 'meta' },
+        chip(catName(t.category_id), 'cat'),
+        chip(t.priority, 'pri-' + slug(t.priority)),
+        chip(t.status, 'st-' + slug(t.status)),
+        h('span', { class: 'avatar' + (assignee ? '' : ' none'), title: assignee ? assignee.display_name : 'Unassigned',
+          'aria-label': assignee ? 'Assigned to ' + assignee.display_name : 'Unassigned', text: assignee ? initials(assignee.display_name) : '–' }),
+        h('span', { class: 'deadline' + (overdue ? ' overdue' : ''), title: overdue ? 'Overdue' : null,
+          text: t.deadline ? (overdue ? '⚠ ' : '') + fmtDay(t.deadline) : 'No date' }))
+    ));
+    if (open) li.append(renderTaskDetail(t));
+    return li;
+  }
+
+  // ---------- What's new for me in an open task ----------
+  // Uses only data already loaded: the task's events (fetched when it was
+  // opened) and my baseline captured at that moment (S.highlightSince). "New"
+  // means: by someone else, newer than my previous look. These highlights stay
+  // while the task stays open; collapsing it or reloading clears them.
+  const FIELD_KINDS = ['status', 'assigned', 'deadline', 'category', 'priority', 'link', 'visibility'];
+  function first200(s) { return Array.from(String(s || '')).slice(0, 200).join(''); }   // same as SQL left(body, 200)
+  function newInfo(t) {
+    const since = S.highlightSince.get(t.id);
+    const ev = S.events.get(t.id);
+    const info = { events: [], byKind: new Map(), noteKeys: new Set() };
+    if (!since || !Array.isArray(ev)) return info;
+    const me = session.user.id;
+    info.events = ev.filter(function (e) { return ms(e.created_at) > ms(since) && e.actor_id !== me; });
+    info.events.forEach(function (e) {   // events are newest first: keep the latest per field
+      if (!info.byKind.has(e.kind)) info.byKind.set(e.kind, e);
+      if (e.kind === 'note') info.noteKeys.add(String(e.actor_id) + '|' + (e.new_value || ''));
+    });
+    return info;
+  }
+  // A note is new when a NEW "note" event by the same author matches it.
+  // (Notes from before history was recorded have no event, so they are never new.)
+  function isNewNote(n, info) {
+    return n.author_id !== session.user.id && info.noteKeys.has(String(n.author_id) + '|' + first200(n.body));
+  }
+  function changeValues(e) {
+    if (e.kind === 'deadline') return (e.old_value ? fmtDay(e.old_value) : 'none') + ' → ' + (e.new_value ? fmtDay(e.new_value) : 'none');
+    if (e.kind === 'assigned') return orNone(e.old_value, 'Unassigned') + ' → ' + orNone(e.new_value, 'Unassigned');
+    return orNone(e.old_value, 'none') + ' → ' + orNone(e.new_value, 'none');
+  }
+  function shortItem(e) {
+    if (e.kind === 'note') return 'note';
+    if (e.kind === 'created') return 'created';
+    return describeEvent(e, false);
+  }
+
+  // Each part of the expanded task lives in its own element so it can be
+  // redrawn in place when the history arrives (a half-typed note is kept).
+  function renderNewSummary(t, info) {
+    const box = h('div', { class: 'new-slot' });
+    const n = info.events.length;
+    if (!n) return box;
+    const items = info.events.slice(0, 4).map(shortItem);
+    if (n > 4) items.push('+' + (n - 4) + ' more');
+    box.append(h('div', { class: 'new-summary', role: 'status' },
+      h('span', { class: 'new-dot', 'aria-hidden': 'true' }),
+      h('span', { text: n + ' new since you last looked: ' + items.join(' · ') })));
+    return box;
+  }
+
+  function renderFacts(t, info) {
+    const canAct = S.me.is_superadmin || (t.assigned_to && t.assigned_to === S.me.id);
+    const assignee = memberById(t.assigned_to);
+
+    let statusNode;
+    if (canAct) {
+      statusNode = h('select', { 'aria-label': 'Status', value: t.status, onchange: async function (e) {
+        const sel = e.target;
+        sel.disabled = true;
+        try {
+          const rows = await rest('tasks?id=eq.' + q(t.id), { method: 'PATCH', body: { status: sel.value }, prefer: 'return=representation' });
+          applyTask(requireRow(rows));
+          rerenderTask(t.id);
+          loadEvents(t.id);   // show my change in the Activity section
+          flash('Status updated.', 'ok');
+        } catch (err) {
+          sel.value = t.status;
+          sel.disabled = false;
+          flash(friendly(err));
+        }
+      } }, STATUSES.map(function (s) { return h('option', { value: s, text: s }); }));
+    } else {
+      statusNode = chip(t.status, 'st-' + slug(t.status));
+    }
+
+    let linkNode;
+    if (t.link && safeHttpUrl(t.link)) linkNode = h('a', { href: t.link.trim(), target: '_blank', rel: 'noopener noreferrer', text: t.link });
+    else if (t.link) linkNode = h('span', { text: t.link });
+    else linkNode = h('span', { class: 'muted', text: 'None' });
+
+    const vis = t.is_external
+      ? h('span', {}, chip('External', 'ext'), h('span', { class: 'vis-note', text: 'Visible to external contractors with access to this category.' }))
+      : h('span', {}, chip('Internal', 'int'), h('span', { class: 'vis-note', text: 'Internal members only.' }));
+
+    // One row of the grid; if someone else changed this field since my
+    // previous look: an orange marker and "Changed by …: old → new · when".
+    function row(label, kind, value, ddClass) {
+      const e = kind ? info.byKind.get(kind) : null;
+      return [
+        h('dt', { class: e ? 'changed' : null, text: label }),
+        h('dd', { class: (ddClass || '') + (e ? ' changed' : '') || null },
+          value,
+          e ? h('span', { class: 'change-line', text: 'Changed by ' + (e.actor_name || 'someone') + ': ' + changeValues(e) + ' · ' + relTime(e.created_at) }) : null)
+      ];
+    }
+    return h('dl', { class: 'facts' },
+      row('Status', 'status', statusNode),
+      row('Assigned to', 'assigned', assignee ? assignee.display_name + (assignee.is_external ? ' (external)' : '') : 'Unassigned'),
+      row('Deadline', 'deadline', t.deadline ? fmtDay(t.deadline, true) + (isOverdue(t) ? ' – overdue' : '') : 'None', isOverdue(t) ? 'expired' : ''),
+      row('Category', 'category', catName(t.category_id)),
+      row('Priority', 'priority', t.priority),
+      row('Link', 'link', linkNode),
+      row('Visibility', 'visibility', vis),
+      row('Last updated', null, h('span', { class: 'muted', text: fmtWhen(t.updated_at) })));
+  }
+
+  function renderNotesList(t, info) {
+    const notes = S.notesByTask.get(t.id) || [];
+    const box = h('div', { class: 'notes-slot' }, h('h3', { text: 'Notes (' + notes.length + ')' }));
+    if (!notes.length) {
+      box.append(h('p', { class: 'muted', text: 'No notes yet.' }));
+      return box;
+    }
+    box.append(h('ol', { class: 'notes' }, notes.map(function (n) {
+      const isNew = isNewNote(n, info);
+      return h('li', { class: 'note' + (isNew ? ' new' : '') },
+        h('div', { class: 'note-head' },
+          h('strong', { text: n.author_name || 'Unknown' }),
+          isNew ? chip('NEW', 'ext') : null,
+          h('time', { datetime: n.created_at, text: fmtWhen(n.created_at) })),
+        h('p', { class: 'note-body', text: n.body }));
+    })));
+    return box;
+  }
+
+  function renderTaskDetail(t) {
+    const isAdmin = S.me.is_superadmin;
+    const canAct = isAdmin || (t.assigned_to && t.assigned_to === S.me.id);
+    const info = newInfo(t);
+
+    const d = h('div', { class: 'detail' }, renderNewSummary(t, info), renderFacts(t, info));
+
+    if (isAdmin) {
+      d.append(h('div', { class: 'detail-actions' },
+        h('button', { type: 'button', class: 'btn small', onclick: function () { openTaskForm(t); } }, 'Edit'),
+        h('button', { type: 'button', class: 'btn small danger', onclick: function (e) {
+          if (!window.confirm('Delete the task “' + t.title + '”?\n\nIts notes will be deleted too. This cannot be undone.')) return;
+          busy(e.currentTarget, async function () {
+            requireRow(await rest('tasks?id=eq.' + q(t.id), { method: 'DELETE', prefer: 'return=representation' }));
+            S.tasks = S.tasks.filter(function (x) { return x.id !== t.id; });
+            S.notesByTask.delete(t.id);
+            S.activity.delete(t.id); S.events.delete(t.id); S.highlightSince.delete(t.id);
+            collapseAll();
+            refillList();
+            flash('Task deleted.', 'ok');
+          });
+        } }, 'Delete')));
+    }
+
+    d.append(renderNotesList(t, info));
+
+    if (canAct) {
+      const ta = h('textarea', { rows: '3', maxlength: '10000', placeholder: 'Add a note…', 'aria-label': 'New note', required: true });
+      d.append(h('form', { class: 'note-form', onsubmit: onSubmit(async function () {
+          const body = ta.value.trim();
+          if (!body) return;
+          const row = requireRow(await rest('task_notes', { method: 'POST', body: { task_id: t.id, body: body }, prefer: 'return=representation' }));
+          if (!S.notesByTask.has(t.id)) S.notesByTask.set(t.id, []);
+          S.notesByTask.get(t.id).push(row);
+          rerenderTask(t.id);
+          loadEvents(t.id);   // show my note in the Activity section
+          flash('Note added.', 'ok');
+        }) },
+        ta,
+        h('div', { class: 'actions' }, h('button', { type: 'submit', class: 'btn primary small' }, 'Add note'),
+          h('span', { class: 'muted small', text: 'Notes are permanent and can’t be edited or deleted.' }))));
+    }
+    d.append(renderActivity(t, info));
+    return d;
+  }
+
+  // Redraw the "new" parts of an open task in place (after its history loads).
+  function refreshDetailHighlights(id) {
+    const li = taskLi(id);
+    const t = taskById(id);
+    if (!li || !t || !li.querySelector('.detail')) return;
+    const info = newInfo(t);
+    const swap = function (sel, el) { const old = li.querySelector(sel); if (old) old.replaceWith(el); };
+    swap('.new-slot', renderNewSummary(t, info));
+    const facts = li.querySelector('.facts');
+    const statusSel = facts && facts.querySelector('select');
+    if (!(statusSel && document.activeElement === statusSel)) swap('.facts', renderFacts(t, info));   // don't yank a select I'm using
+    swap('.notes-slot', renderNotesList(t, info));
+    swap('.activity', renderActivity(t, info));
+  }
+
+  // Expanded row: the full history, newest first. New events (by others,
+  // newer than my previous look) get an orange edge and a NEW label.
+  function renderActivity(t, info) {
+    info = info || newInfo(t);
+    const box = h('div', { class: 'activity' });
+    const ev = S.events.get(t.id);
+    if (ev === undefined) {
+      box.append(h('h3', { text: 'Activity' }), h('p', { class: 'muted small', text: 'Loading activity…' }));
+      return box;
+    }
+    if (!Array.isArray(ev)) {
+      box.append(h('h3', { text: 'Activity' }), h('p', { class: 'muted small', text: 'Couldn’t load activity: ' + ev.error }));
+      return box;
+    }
+    box.append(h('h3', { text: 'Activity (' + ev.length + ')' }));
+    if (!ev.length) {
+      box.append(h('p', { class: 'muted', text: 'No activity recorded yet.' }));
+      return box;
+    }
+    const fresh = new Set(info.events);
+    box.append(h('ol', { class: 'events' }, ev.map(function (e) {
+      const isNew = fresh.has(e);
+      return h('li', { class: 'event' + (isNew ? ' new' : '') },
+        h('div', { class: 'event-head' },
+          h('strong', { text: e.actor_name || 'Unknown' }),
+          isNew ? chip('NEW', 'ext') : null,
+          h('time', { datetime: e.created_at, title: relTime(e.created_at), text: fmtWhen(e.created_at) })),
+        h('p', { class: 'event-what', text: describeEvent(e, true) }));
+    })));
+    return box;
+  }
+
+  // ---------- Task form (superadmins) ----------
+  function openDialog(title) {
+    const inner = h('div', { class: 'dialog-inner' }, h('h2', { class: 'ov-title', text: title }));
+    const dlg = h('dialog', { class: 'dialog', 'aria-label': title }, inner);
+    dlg.addEventListener('close', function () { dlg.remove(); });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });  // backdrop
+    document.body.appendChild(dlg);
+    dlg.showModal();
+    return { dlg: dlg, inner: inner };
+  }
+
+  function openTaskForm(t) {
+    if (!S.categories.length) { flash('Create a category first (Admin → Categories).'); return; }
+    const editing = !!t;
+    const D = openDialog(editing ? 'Edit task' : 'Add task');
+    const err = h('div', { class: 'inline-error', hidden: true, role: 'alert' });
+
+    const title = h('input', { type: 'text', required: true, maxlength: '200', value: editing ? t.title : '' });
+    const cat = h('select', { required: true, value: editing ? t.category_id : (S.filters.category || S.categories[0].id) },
+      S.categories.map(function (c) { return h('option', { value: c.id, text: c.name }); }));
+    const pri = h('select', { value: editing ? t.priority : 'Medium' }, PRIORITIES.map(function (p) { return h('option', { value: p, text: p }); }));
+    const st = h('select', { value: editing ? t.status : 'Pending' }, STATUSES.map(function (s) { return h('option', { value: s, text: s }); }));
+    const deadline = h('input', { type: 'date', value: editing && t.deadline ? t.deadline : '' });
+    const link = h('input', { type: 'url', placeholder: 'https://…', maxlength: '2000', value: editing && t.link ? t.link : '' });
+    const ext = h('input', { type: 'checkbox', checked: editing ? t.is_external : false });
+    const assign = h('select', {});
+    const assignHint = h('span', { class: 'hint' });
+
+    function fillAssignees(initial) {
+      const cur = initial !== undefined ? initial : assign.value;
+      const external = ext.checked;
+      assign.replaceChildren();
+      append(assign, [h('option', { value: '' }, '— Unassigned —'),
+        S.members.map(function (m) {
+          const label = m.display_name + (m.is_external ? (external ? ' (external)' : ' (external – tick External first)') : '');
+          return h('option', { value: m.id, disabled: m.is_external && !external, text: label });
+        })]);
+      assign.value = cur || '';
+      updateHint();
+    }
+    function updateHint() {
+      const m = memberById(assign.value);
+      assignHint.textContent = (m && m.is_external && !ext.checked)
+        ? 'This person is external, so the task must be marked External before it can be assigned to them.'
+        : 'Internal tasks can only be assigned to internal members.';
+    }
+    // D2: making an EXISTING internal task external exposes everything already
+    // recorded on it, so ask first if it has notes or any history beyond
+    // creation. Never asked when creating a new task.
+    ext.addEventListener('change', async function () {
+      if (editing && !t.is_external && ext.checked) {
+        let hasHistory = (S.notesByTask.get(t.id) || []).length > 0;
+        if (!hasHistory) {
+          ext.disabled = true;
+          try {
+            const rows = await rest('task_events?select=id&task_id=eq.' + q(t.id) + '&kind=neq.created&limit=1');
+            hasHistory = Array.isArray(rows) && rows.length > 0;
+          } catch (e) {
+            hasHistory = true;   // can't tell: ask anyway
+          }
+          ext.disabled = false;
+        }
+        if (hasHistory && !window.confirm('Everything already recorded on this task, including notes and change history, will become visible to external contractors with access to this category. Continue?')) {
+          ext.checked = false;
+        }
+      }
+      fillAssignees();
+    });
+    assign.addEventListener('change', updateHint);
+    fillAssignees(editing ? (t.assigned_to || '') : '');
+
+    D.inner.append(h('form', { onsubmit: onSubmit(async function () {
+        const linkVal = link.value.trim();
+        if (linkVal && !safeHttpUrl(linkVal)) throw new ApiError('The link must start with http:// or https://.');
+        const body = {
+          title: title.value.trim(),
+          category_id: cat.value,
+          priority: pri.value,
+          status: st.value,
+          deadline: deadline.value || null,
+          assigned_to: assign.value || null,
+          link: linkVal || null,
+          is_external: ext.checked
+        };
+        if (!body.title) throw new ApiError('Please enter a title.');
+        let row;
+        if (editing) {
+          row = requireRow(await rest('tasks?id=eq.' + q(t.id), { method: 'PATCH', body: body, prefer: 'return=representation' }));
+        } else {
+          body.venture_id = S.ventureId;
+          row = requireRow(await rest('tasks', { method: 'POST', body: body, prefer: 'return=representation' }));
+        }
+        applyTask(row);
+        D.dlg.close();
+        collapseAll();
+        refillList();
+        flash(editing ? 'Task saved.' : 'Task added.', 'ok');
+      }, err) },
+      err,
+      field('Title', title),
+      h('div', { class: 'grid2' }, field('Category', cat), field('Deadline', deadline)),
+      h('div', { class: 'grid2' }, field('Priority', pri), field('Status', st)),
+      h('label', { class: 'check field' }, ext, h('span', { text: 'External (visible to external contractors)' })),
+      h('p', { class: 'muted small', text: 'Off = internal only. Turn this on only for tasks that contractors should see.' }),
+      h('label', { class: 'field' }, h('span', { text: 'Assigned to' }), assign, assignHint),
+      field('Link', link, 'Optional. Must start with http:// or https://.'),
+      h('div', { class: 'actions end dialog-actions' },
+        h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Cancel'),
+        h('button', { type: 'submit', class: 'btn primary' }, editing ? 'Save' : 'Add task'))
+    ));
+    title.focus();
+  }
+
+  // ---------- Admin ----------
+  async function openAdmin() {
+    S.view = 'admin';
+    S.admin = null;
+    render();
+    try { if (await loadAdminData()) render(); }
+    catch (e) { flash(friendly(e)); }
+  }
+  async function reloadAdmin() {
+    if (await loadAdminData()) {
+      if (!S.me.is_superadmin) { S.view = 'tasks'; render(); flash('You are no longer a superadmin of this workspace.'); return; }
+      render();
+    }
+  }
+
+  function renderAdmin() {
+    const main = h('main', { class: 'page' });
+    if (!S.me.is_superadmin) { main.append(h('p', { class: 'center muted', text: 'Only superadmins can see this page.' })); return main; }
+    if (!S.admin) { main.append(h('p', { class: 'center muted', text: 'Loading…' })); return main; }
+    main.append(renderMembersSection(), renderCategoriesSection(), renderInvitesSection());
+    return main;
+  }
+
+  async function patchMember(m, patch, input) {
+    input.disabled = true;
+    try {
+      requireRow(await rest('venture_members?id=eq.' + q(m.id), { method: 'PATCH', body: patch, prefer: 'return=representation' }));
+      await reloadAdmin();
+      flash('Member updated.', 'ok');
+    } catch (e) {
+      input.checked = !input.checked;
+      input.disabled = false;
+      flash(friendly(e));
+    }
+  }
+  async function setAccess(m, c, on, input) {
+    input.disabled = true;
+    try {
+      if (on) {
+        await rest('member_categories', { method: 'POST', body: { member_id: m.id, category_id: c.id }, prefer: 'return=minimal' });
+        S.admin.access.add(m.id + '|' + c.id);
+      } else {
+        requireRow(await rest('member_categories?member_id=eq.' + q(m.id) + '&category_id=eq.' + q(c.id), { method: 'DELETE', prefer: 'return=representation' }));
+        S.admin.access.delete(m.id + '|' + c.id);
+      }
+      flash((on ? 'Access granted: ' : 'Access removed: ') + c.name, 'ok');
+    } catch (e) {
+      input.checked = !on;
+      flash(friendly(e));
+    } finally {
+      input.disabled = false;
+    }
+  }
+
+  function renderMembersSection() {
+    return h('section', { class: 'section' },
+      h('div', { class: 'section-head' }, h('h2', { class: 'adm-title', text: 'Members (' + S.members.length + ')' })),
+      h('p', { class: 'muted small', text: 'External members only see tasks marked External in the categories you give them, plus tasks assigned to them. Superadmins see everything. Nobody can change their own role or access.' }),
+      h('div', { class: 'cards' }, S.members.map(memberCard)));
+  }
+  function memberCard(m) {
+    const self = m.id === S.me.id;
+    const email = S.admin.emails.get(m.id) || '';
+    const ext = h('input', { type: 'checkbox', checked: m.is_external, disabled: self,
+      onchange: function (e) { patchMember(m, { is_external: e.target.checked }, e.target); } });
+    const sa = h('input', { type: 'checkbox', checked: m.is_superadmin, disabled: self,
+      onchange: function (e) { patchMember(m, { is_superadmin: e.target.checked }, e.target); } });
+    const catDisabled = self || m.is_superadmin;
+    const cats = S.categories.map(function (c) {
+      return h('label', { class: 'check' + (catDisabled ? ' disabled' : '') },
+        h('input', { type: 'checkbox', checked: m.is_superadmin || S.admin.access.has(m.id + '|' + c.id), disabled: catDisabled,
+          onchange: function (e) { setAccess(m, c, e.target.checked, e.target); } }),
+        h('span', { text: c.name }));
+    });
+    return h('div', { class: 'card' },
+      h('div', {},
+        h('div', { class: 'card-head' }, h('strong', { text: m.display_name }),
+          self ? chip('You', 'you') : null,
+          m.is_superadmin ? chip('Superadmin', 'sa') : null,
+          chip(m.is_external ? 'External' : 'Internal', m.is_external ? 'ext' : 'int')),
+        h('div', { class: 'email', text: email })),
+      h('div', { class: 'toggles' },
+        h('label', { class: 'check' + (self ? ' disabled' : '') }, ext, h('span', { text: 'External' })),
+        h('label', { class: 'check' + (self ? ' disabled' : '') }, sa, h('span', { text: 'Superadmin' }))),
+      h('div', {},
+        h('p', { class: 'subhead', text: 'Category access' }),
+        m.is_superadmin ? h('p', { class: 'muted small', text: 'Superadmins see all categories.' }) : null,
+        !S.categories.length ? h('p', { class: 'muted small', text: 'No categories yet.' }) : null,
+        h('div', { class: 'catgrid' }, cats)),
+      self ? h('p', { class: 'muted small', text: 'You can’t change your own role, access or membership.' })
+           : h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn small danger', onclick: function (e) {
+               const v = currentVenture();
+               if (!window.confirm('Remove ' + m.display_name + ' from ' + (v ? v.venture_name : 'this workspace') + '?\n\nTheir tasks will become unassigned. They can only rejoin with a new invite.')) return;
+               busy(e.currentTarget, async function () {
+                 requireRow(await rest('venture_members?id=eq.' + q(m.id), { method: 'DELETE', prefer: 'return=representation' }));
+                 await reloadAdmin();
+                 flash('Member removed.', 'ok');
+               });
+             } }, 'Remove from workspace')));
+  }
+
+  function renderCategoriesSection() {
+    const counts = new Map();
+    S.tasks.forEach(function (t) { counts.set(t.category_id, (counts.get(t.category_id) || 0) + 1); });
+    const newName = h('input', { type: 'text', maxlength: '60', placeholder: 'New category name', 'aria-label': 'New category name', required: true });
+    return h('section', { class: 'section' },
+      h('h2', { class: 'adm-title', text: 'Categories (' + S.categories.length + ')' }),
+      h('p', { class: 'muted small', text: 'A category that still has tasks can’t be deleted. Move its tasks to another category (or delete them) first.' }),
+      h('div', {}, S.categories.map(function (c) {
+        const n = counts.get(c.id) || 0;
+        const input = h('input', { type: 'text', maxlength: '60', value: c.name, 'aria-label': 'Category name' });
+        return h('div', { class: 'cat-row' },
+          input,
+          h('span', { class: 'muted small', text: n + (n === 1 ? ' task' : ' tasks') }),
+          h('button', { type: 'button', class: 'btn small', onclick: function (e) {
+            const name = input.value.trim();
+            if (!name || name === c.name) return;
+            busy(e.currentTarget, async function () {
+              requireRow(await rest('categories?id=eq.' + q(c.id), { method: 'PATCH', body: { name: name }, prefer: 'return=representation' }));
+              await reloadAdmin();
+              flash('Category renamed.', 'ok');
+            });
+          } }, 'Rename'),
+          h('button', { type: 'button', class: 'btn small danger', onclick: function (e) {
+            if (!window.confirm('Delete the category “' + c.name + '”?')) return;
+            busy(e.currentTarget, async function () {
+              requireRow(await rest('categories?id=eq.' + q(c.id), { method: 'DELETE', prefer: 'return=representation' }));
+              await reloadAdmin();
+              flash('Category deleted.', 'ok');
+            });
+          } }, 'Delete'));
+      })),
+      h('form', { class: 'inline-form', onsubmit: onSubmit(async function () {
+          const name = newName.value.trim();
+          if (!name) return;
+          await rest('categories', { method: 'POST', body: { venture_id: S.ventureId, name: name }, prefer: 'return=minimal' });
+          await reloadAdmin();
+          flash('Category added.', 'ok');
+        }) }, newName, h('button', { type: 'submit', class: 'btn primary' }, 'Add category')));
+  }
+
+  function copyText(text, fallbackInput) {
+    function fallback() {
+      if (fallbackInput) { fallbackInput.focus(); fallbackInput.select(); }
+      flash('Couldn’t copy automatically. The text is selected: press Ctrl+C (or long-press and Copy).');
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { flash('Copied to clipboard.', 'ok'); }, fallback);
+    } else fallback();
+  }
+
+  function renderInvitesSection() {
+    const sec = h('section', { class: 'section' }, h('h2', { class: 'adm-title', text: 'Invites' }));
+
+    // Newly created invite: its code is shown here once.
+    if (S.lastInvite) {
+      const li = S.lastInvite;
+      const linkInput = h('input', { type: 'text', readOnly: true, value: li.link, 'aria-label': 'Invite link', class: 'mono' });
+      sec.append(h('div', { class: 'invite-result', role: 'status' },
+        h('strong', { text: 'Invite created' + (li.label ? ' for ' + li.label : '') + '. Copy it now: the code isn’t shown again.' }),
+        h('code', { text: li.code }),
+        linkInput,
+        h('div', { class: 'actions' },
+          h('button', { type: 'button', class: 'btn primary', onclick: function () { copyText(li.link, linkInput); } }, 'Copy invite link'),
+          h('button', { type: 'button', class: 'btn', onclick: function () { copyText(li.code, linkInput); } }, 'Copy code only'),
+          h('button', { type: 'button', class: 'btn link', onclick: function () { S.lastInvite = null; render(); } }, 'Done')),
+        h('p', { class: 'muted small', text: 'Send it to the person yourself (email, chat, etc.). They open the link, create an account and join. It works once and expires on ' + fmtWhen(li.expires_at) + '.' })));
+    }
+
+    // Create form
+    const label = h('input', { type: 'text', maxlength: '100', placeholder: 'e.g. Ali – developer' });
+    const sa = h('input', { type: 'checkbox' });
+    const ex = h('input', { type: 'checkbox' });
+    const days = h('input', { type: 'number', min: '1', max: '30', step: '1', value: '7', required: true });
+    const catBoxes = S.categories.map(function (c) {
+      const cb = h('input', { type: 'checkbox', value: c.id });
+      return { cb: cb, el: h('label', { class: 'check' }, cb, h('span', { text: c.name })) };
+    });
+    const catSet = h('fieldset', {}, h('legend', { text: 'Categories they can browse' }),
+      catBoxes.length ? h('div', { class: 'catgrid' }, catBoxes.map(function (x) { return x.el; })) : h('p', { class: 'muted small', text: 'No categories yet.' }),
+      h('span', { class: 'hint muted small', text: 'You can change this later on the member’s card. Tasks assigned to them are always visible to them.' }));
+    function syncRole(changed) {
+      if (changed === sa && sa.checked) ex.checked = false;
+      if (changed === ex && ex.checked) sa.checked = false;
+      catSet.hidden = sa.checked;
+    }
+    sa.addEventListener('change', function () { syncRole(sa); });
+    ex.addEventListener('change', function () { syncRole(ex); });
+
+    sec.append(h('h3', { text: 'Create an invite' }),
+      h('form', { onsubmit: onSubmit(async function () {
+          const d = parseInt(days.value, 10);
+          if (!(d >= 1 && d <= 30)) throw new ApiError('Expiry must be between 1 and 30 days.');
+          // keep just inside the database's 30-day limit
+          const ms = d * 86400000 - (d === 30 ? 5 * 60000 : 0);
+          const body = {
+            venture_id: S.ventureId,
+            label: label.value.trim() || null,
+            is_superadmin: sa.checked,
+            is_external: ex.checked,
+            category_ids: sa.checked ? [] : catBoxes.filter(function (x) { return x.cb.checked; }).map(function (x) { return x.cb.value; }),
+            expires_at: new Date(Date.now() + ms).toISOString()
+          };
+          const row = requireRow(await rest('venture_invites', { method: 'POST', body: body, prefer: 'return=representation' }));
+          S.lastInvite = { code: row.code, label: row.label, expires_at: row.expires_at, link: inviteBaseUrl() + '#join=' + row.code };
+          await reloadAdmin();
+        }) },
+        field('Label (who is it for?)', label),
+        h('div', { class: 'toggles field' },
+          h('label', { class: 'check' }, sa, h('span', { text: 'Superadmin' })),
+          h('label', { class: 'check' }, ex, h('span', { text: 'External contractor' }))),
+        catSet,
+        h('div', { class: 'grid2' }, field('Expires after (days)', days, '1 to 30. Default 7.')),
+        h('div', { class: 'actions' }, h('button', { type: 'submit', class: 'btn primary' }, 'Create invite'))));
+
+    // Lists
+    const invites = S.admin.invites;
+    const unused = invites.filter(function (i) { return !i.used_at; });
+    const used = invites.filter(function (i) { return i.used_at; });
+    function roleText(i) {
+      if (i.is_superadmin) return 'Superadmin';
+      const names = (i.category_ids || []).map(function (id) { const c = catById(id); return c ? c.name : null; }).filter(Boolean);
+      return (i.is_external ? 'External' : 'Internal') + ' · ' + (names.length ? names.join(', ') : 'no categories');
+    }
+    sec.append(h('h3', { text: 'Unused invites (' + unused.length + ')' }));
+    if (!unused.length) sec.append(h('p', { class: 'muted small', text: 'None.' }));
+    else sec.append(h('ul', { class: 'invite-list' }, unused.map(function (i) {
+      const expired = new Date(i.expires_at) <= new Date();
+      return h('li', {},
+        h('div', { class: 'info' },
+          h('strong', { text: i.label || '(no label)' }),
+          h('div', { class: 'muted small', text: roleText(i) }),
+          h('div', { class: 'small' + (expired ? ' expired' : ' muted'), text: (expired ? 'Expired ' : 'Expires ') + fmtWhen(i.expires_at) })),
+        h('button', { type: 'button', class: 'btn small danger', onclick: function (e) {
+          if (!window.confirm('Revoke the invite' + (i.label ? ' for ' + i.label : '') + '? The code will stop working.')) return;
+          busy(e.currentTarget, async function () {
+            requireRow(await rest('venture_invites?id=eq.' + q(i.id), { method: 'DELETE', prefer: 'return=representation' }));
+            await reloadAdmin();
+            flash('Invite revoked.', 'ok');
+          });
+        } }, 'Revoke'));
+    })));
+
+    sec.append(h('h3', { text: 'Used invites (' + used.length + ')' }));
+    if (!used.length) sec.append(h('p', { class: 'muted small', text: 'None yet.' }));
+    else sec.append(h('ul', { class: 'invite-list' }, used.map(function (i) {
+      const m = S.members.find(function (x) { return x.user_id === i.used_by; });
+      const who = m ? m.display_name + (S.admin.emails.get(m.id) ? ' (' + S.admin.emails.get(m.id) + ')' : '') : 'a user who has since been removed';
+      return h('li', {},
+        h('div', { class: 'info' },
+          h('strong', { text: i.label || '(no label)' }),
+          h('div', { class: 'muted small', text: roleText(i) }),
+          h('div', { class: 'small', text: 'Joined by ' + who + ' on ' + fmtWhen(i.used_at) })));
+    })));
+    return sec;
+  }
+
+  // ------------------------------------------------------------------------
+  boot();
+})();
+</script>
+</body>
+</html>
