@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PF8FKQjsoQxra0MTKihY3N9ysnZJ+l/j1oTQT7dOFeM='; style-src 'sha256-/aJVz6NPByrATWqvupAps0RSaM72ODd9YMYBm6Hp+OA='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-c12deIkNWasF3CQ2HPRzzK88Ep/KdJygo3n0gk1+RYU='; style-src 'sha256-LnMHwlrIbWxVRc6zdATS33Y64vBgObgcI3MQ7UBriT8='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <title>Task List Tool</title>
@@ -81,6 +81,16 @@ input[type=date], input[type=number], input[type=search], select, textarea {
 }
 input::placeholder, textarea::placeholder { color: var(--t3); }
 input.mono { font-family: var(--f-mono); }
+/* show/hide password eye (TD Dashboard style), inside the right end of the field */
+.pw-wrap { position: relative; display: block; }
+.pw-wrap input { padding-right: 46px; }
+.pw-toggle {
+  position: absolute; top: 0; right: 0; bottom: 0; width: 44px; min-height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border: 0; background: none; padding: 0; cursor: pointer; color: var(--t3);
+  border-radius: 0 var(--r2) var(--r2) 0; touch-action: manipulation;
+}
+.pw-toggle:hover, .pw-toggle[aria-pressed=true] { color: var(--t2); }
 textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--acc); }
 button:focus-visible, .row:focus-visible, summary:focus-visible, input[type=checkbox]:focus-visible {
@@ -1010,7 +1020,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
           await afterSignIn();
         }) },
         field('Email', email),
-        field('Password', pw),
+        field('Password', passwordField(pw)),
         h('div', { class: 'actions' }, h('button', { type: 'submit', class: 'btn primary' }, 'Sign in')),
         h('p', { class: 'muted small', text: 'Forgot your password? Ask your administrator to reset your password.' })
       ));
@@ -1041,7 +1051,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
           await joinWithCode(cd, nm);
         }) },
         field('Email', email),
-        field('Password', pw, 'At least 8 characters.'),
+        field('Password', passwordField(pw), 'At least 8 characters.'),
         field('Your name', name, 'Shown to other members of the workspace.'),
         field('Invite code', code, 'From your administrator (or already filled in from your invite link).'),
         h('div', { class: 'actions' }, h('button', { type: 'submit', class: 'btn primary' }, 'Create account and join')),
@@ -1112,12 +1122,12 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     if (view === 'admin') openAdmin(); else { S.view = 'tasks'; S.lastInvite = null; render(); }
   }
   // Small inline SVG icons (fixed path data, never user data).
-  function svgIcon(d) {
+  function svgIcon(d, size) {
     const NS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('width', '20');
-    svg.setAttribute('height', '20');
+    svg.setAttribute('width', String(size || 20));
+    svg.setAttribute('height', String(size || 20));
     svg.setAttribute('fill', 'none');
     svg.setAttribute('stroke', 'currentColor');
     svg.setAttribute('stroke-width', '2');
@@ -1131,6 +1141,30 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   }
   const ICON_TASKS = 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01';
   const ICON_ADMIN = 'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6';
+  // Eye / eye-off line icons (same shapes as the TD Dashboard login).
+  const ICON_EYE = 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z';
+  const ICON_EYE_OFF = 'M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22';
+
+  // Wraps a password input with a show/hide eye button. Display only: it
+  // switches the input between type=password and type=text and never reads,
+  // stores or copies the value. Every render builds a fresh, hidden field, so
+  // the password is hidden again whenever the screen changes.
+  function passwordField(input) {
+    const btn = h('button', { type: 'button', class: 'pw-toggle', tabindex: '-1', 'aria-label': 'Show password', title: 'Show password', 'aria-pressed': 'false' },
+      svgIcon(ICON_EYE, 18));
+    // Keep focus (and the caret) in the field when the eye is clicked or tapped.
+    btn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    btn.addEventListener('click', function () {
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      const label = show ? 'Hide password' : 'Show password';
+      btn.setAttribute('aria-label', label);
+      btn.title = label;
+      btn.setAttribute('aria-pressed', String(show));
+      btn.replaceChildren(svgIcon(show ? ICON_EYE_OFF : ICON_EYE, 18));
+    });
+    return h('span', { class: 'pw-wrap' }, input, btn);
+  }
 
   // Phone-only bottom navigation (hidden by CSS on wider screens), as in TD Dashboard.
   function renderBottomNav() {
