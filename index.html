@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6T/8SlJ2bqwseuSKhH04nOwHhijLj7gRj2pOEKcyNS4='; style-src 'sha256-XyhB1dJ3/olI7xZsrM/C0dKRDYhhpOVPIYWqz55NAXg='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-DIsBS4+MZTAsUTIfDbzYviLrbNbkuCgFg3UOqfAKf4k='; style-src 'sha256-yEkPngOeRye6j+B7P2S5LXrF6coBW1Od4L7cx86Du50='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <title>Task List</title>
@@ -427,6 +427,32 @@ label { display: block; }
 .lk-host { font-weight: 600; }
 .lk-path { opacity: .75; }
 
+/* ---------- activity toggle inside a task ---------- */
+.activity-toggle { gap: 6px; }
+.activity-toggle .chev { font-size: 14px; transition: transform .15s; }
+.activity.open .activity-toggle .chev { transform: rotate(90deg); }
+.activity-toggle.has-new { color: var(--acc); border-color: rgba(249, 115, 22, .45); }
+.activity-body { margin-top: 10px; }
+.limited-hint { margin: 0 0 14px; }
+
+/* ---------- Admin > Activity ---------- */
+.admin-seg { max-width: 420px; margin-bottom: 14px; }
+.feed-filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) repeat(2, minmax(0, 170px)) auto; gap: 8px; align-items: end; margin: 6px 0 14px; }
+.feed-filters .range-field input { width: 100%; }
+.feed-list { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+.feed-row { display: grid; grid-template-columns: 190px minmax(0, 220px) minmax(0, 1fr); gap: 4px 14px; align-items: baseline;
+  padding: 8px 12px; background: var(--bg); border: 1px solid var(--bdr); border-radius: var(--r2); }
+.feed-meta { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.feed-meta time { font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
+.feed-who { font-size: 12px; color: var(--txt); overflow-wrap: anywhere; }
+.feed-task { font-size: 12px; font-weight: 600; overflow-wrap: anywhere; }
+.feed-what { font-size: 12px; color: var(--t2); overflow-wrap: anywhere; white-space: pre-wrap; }
+@media (max-width: 900px) {
+  .feed-filters { grid-template-columns: 1fr 1fr; }
+  .feed-reset { grid-column: 1 / -1; }
+  .feed-row { grid-template-columns: 1fr; }
+}
+
 /* ---------- admin (TD .adm-card) ---------- */
 .section { background: var(--sur); border: 1px solid var(--bdr); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -610,6 +636,9 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     highlightSince: new Map(),  // task_id -> my baseline at the moment I opened the task (for "new" highlights)
     admin: null,              // { access:Set('member|category'), emails:Map, invites:[] }
     lastInvite: null,
+    activityOpen: new Set(),    // task ids whose Activity list is expanded (collapsed by default)
+    adminTab: 'manage',         // Admin: 'manage' (members, categories, invites) or 'activity'
+    feed: null,                 // Admin > Activity: { filters, rows, done, loading, error }
     errorText: ''
   };
   let session = loadSession();
@@ -940,7 +969,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   }
 
   // Tasks always start collapsed; a row opens only when the user clicks it.
-  function collapseAll() { S.expanded.clear(); }
+  function collapseAll() { S.expanded.clear(); S.activityOpen.clear(); }
 
   // Returns false if I'm no longer a member (then routes elsewhere).
   async function loadVentureData() {
@@ -1350,11 +1379,12 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   }
   const TIPS = {
     dot: 'Someone else changed this task since you last opened it. Open it to see what changed.',
-    notes: 'Notes are permanent: nobody can edit or delete them in the app. Everyone who can see this task can read them.',
+    notes: 'Anyone who can see this task can add a note and read the notes. Notes are permanent: nobody can edit or delete them in the app.',
     created: 'Shows tasks by the date they were created, in your local time. This week runs Monday to Sunday.',
     mine: 'Shows only tasks assigned to you.',
     taskExternal: 'Off: only superadmins, internal members with access to this category, and the person it\u2019s assigned to can see this task. On: contractors with access to this category can see it, including its notes and change history.',
-    assignedTo: 'The person assigned can change the status and add notes. An internal task can only be assigned to an internal member.',
+    assignedTo: 'Only a superadmin chooses who a task is assigned to. Anyone who can see the task can change its status, title, priority, deadline and link, and add notes. An internal task can only be assigned to an internal member.',
+    editRule: 'Anyone who can see this task can change its status, title, priority, deadline and link. Only a superadmin can change its category, who it\u2019s assigned to or whether it\u2019s External.',
     inviteSuperadmin: 'Superadmins see every task and manage tasks, members, categories and invites. A superadmin can\u2019t also be external.',
     inviteExternal: 'External contractors see only tasks marked External in the categories you tick below, plus tasks assigned to them.'
   };
@@ -1404,14 +1434,21 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       ] : [
         'Tasks in the categories your administrator has given you, internal and external, plus any task assigned to you.'
       ]),
-      sec('What you can do', [
-        sa ? 'Add, edit and delete tasks, and change any field. In Admin, manage members, categories, who can browse which category, and invites.' : null,
-        sa ? 'Add notes on any task.' : 'On a task assigned to you, you can change its status and add notes. Only a superadmin can change anything else.',
+      sec('What you can do', sa ? [
+        'Create, edit and delete tasks, and change any field. In Admin, manage members, categories, who can browse which category, and invites.',
+        'Everyone who can see a task can also change its status, title, priority, deadline and link, and add notes. Only superadmins can change its category, who it\u2019s assigned to or whether it\u2019s External, and only superadmins create or delete tasks.',
+        'Admin \u2192 Activity shows every change in this workspace, newest first.',
+        'Notes are permanent: nobody can edit or delete them in the app. They are removed only if a superadmin deletes the whole task.'
+      ] : [
+        'On any task you can see, you can change its status, title, priority, deadline and link, and add notes.',
+        'Only a superadmin can change a task\u2019s category, who it\u2019s assigned to or whether it\u2019s External, and only a superadmin can create or delete tasks.',
+        'Every change you make is recorded with your name in the task\u2019s activity.',
         'Notes are permanent: nobody can edit or delete them in the app. They are removed only if a superadmin deletes the whole task.'
       ]),
       sec('Staying up to date', [
         'An orange dot on a task means someone else changed it since you last opened it. Open the task to see what changed: new items are marked NEW and shown in orange.',
         'Opening a task, or Mark all as seen, clears the dot. Your own changes are never marked as new.',
+        'Inside a task, \u201cShow activity\u201d lists every change: who, what and when.',
         'The list updates when you load the page or press Refresh.'
       ]),
       sa ? sec('Sharing with contractors', [
@@ -1744,6 +1781,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       } else {
         S.expanded.delete(t.id);
         S.highlightSince.delete(t.id);
+        S.activityOpen.delete(t.id);
       }
       const fresh = rerenderTask(t.id);
       if (fresh) fresh.querySelector('.row').focus();
@@ -1818,7 +1856,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   }
 
   function renderFacts(t, info) {
-    const canAct = S.me.is_superadmin || (t.assigned_to && t.assigned_to === S.me.id);
+    // Every task shown is one the database lets me see, so I may change its status.
+    const canAct = true;
     const assignee = memberById(t.assigned_to);
 
     let statusNode;
@@ -1941,15 +1980,16 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
 
   function renderTaskDetail(t) {
     const isAdmin = S.me.is_superadmin;
-    const canAct = isAdmin || (t.assigned_to && t.assigned_to === S.me.id);
+    const canAct = true;   // anyone who can see the task may add notes (the database enforces it)
     const info = newInfo(t);
 
     const d = h('div', { class: 'detail' }, renderNewSummary(t, info), renderFacts(t, info));
 
-    if (isAdmin) {
-      d.append(h('div', { class: 'detail-actions' },
-        h('button', { type: 'button', class: 'btn small', onclick: function () { openTaskForm(t); } }, 'Edit'),
-        h('button', { type: 'button', class: 'btn small danger', onclick: function (e) {
+    // Everyone who can see the task gets Edit (non-superadmins: status, title,
+    // priority, deadline and link only). Delete is for superadmins.
+    d.append(h('div', { class: 'detail-actions' },
+      h('button', { type: 'button', class: 'btn small', onclick: function () { openTaskForm(t); } }, 'Edit'),
+      isAdmin ? h('button', { type: 'button', class: 'btn small danger', onclick: function (e) {
           if (!window.confirm('Delete the task “' + t.title + '”?\n\nIts notes will be deleted too. This cannot be undone.')) return;
           busy(e.currentTarget, async function () {
             requireRow(await rest('tasks?id=eq.' + q(t.id), { method: 'DELETE', prefer: 'return=representation' }));
@@ -1960,8 +2000,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
             refillList();
             flash('Task deleted.', 'ok');
           });
-        } }, 'Delete')));
-    }
+        } }, 'Delete') : null));
 
     d.append(renderNotesList(t, info));
 
@@ -2002,25 +2041,41 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
 
   // Expanded row: the full history, newest first. New events (by others,
   // newer than my previous look) get an orange edge and a NEW label.
+  // The list is collapsed by default behind a "Show activity (N)" toggle.
   function renderActivity(t, info) {
     info = info || newInfo(t);
-    const box = h('div', { class: 'activity' });
     const ev = S.events.get(t.id);
+    const open = S.activityOpen.has(t.id);
+    const count = Array.isArray(ev) ? ev.length : null;
+    const newCount = info.events.length;
+    const box = h('div', { class: 'activity' + (open ? ' open' : '') });
+    const label = (open ? 'Hide activity' : 'Show activity') +
+      (count === null ? '' : ' (' + count + (newCount && !open ? ' \u00b7 ' + newCount + ' new' : '') + ')');
+    box.append(h('button', { type: 'button', class: 'btn small activity-toggle' + (newCount && !open ? ' has-new' : ''),
+      'aria-expanded': String(open),
+      onclick: function () {
+        if (S.activityOpen.has(t.id)) S.activityOpen.delete(t.id); else S.activityOpen.add(t.id);
+        const fresh = renderActivity(t);
+        box.replaceWith(fresh);
+        fresh.querySelector('.activity-toggle').focus();
+      } },
+      h('span', { class: 'chev', 'aria-hidden': 'true' }, '\u203A'), h('span', { text: label })));
+    const body = h('div', { class: 'activity-body', hidden: !open });
+    box.append(body);
     if (ev === undefined) {
-      box.append(h('h3', { text: 'Activity' }), h('p', { class: 'muted small', text: 'Loading activity…' }));
+      body.append(h('p', { class: 'muted small', text: 'Loading activity\u2026' }));
       return box;
     }
     if (!Array.isArray(ev)) {
-      box.append(h('h3', { text: 'Activity' }), h('p', { class: 'muted small', text: 'Couldn’t load activity: ' + ev.error }));
+      body.append(h('p', { class: 'muted small', text: 'Couldn\u2019t load activity: ' + ev.error }));
       return box;
     }
-    box.append(h('h3', { text: 'Activity (' + ev.length + ')' }));
     if (!ev.length) {
-      box.append(h('p', { class: 'muted', text: 'No activity recorded yet.' }));
+      body.append(h('p', { class: 'muted', text: 'No activity recorded yet.' }));
       return box;
     }
     const fresh = new Set(info.events);
-    box.append(h('ol', { class: 'events' }, ev.map(function (e) {
+    body.append(h('ol', { class: 'events' }, ev.map(function (e) {
       const isNew = fresh.has(e);
       return h('li', { class: 'event' + (isNew ? ' new' : '') },
         h('div', { class: 'event-head' },
@@ -2044,6 +2099,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   }
 
   function openTaskForm(t) {
+    // Non-superadmins edit only status, title, priority, deadline and link.
+    if (t && !S.me.is_superadmin) { openLimitedTaskForm(t); return; }
     if (!S.categories.length) { flash('Create a category first (Admin → Categories).'); return; }
     const editing = !!t;
     const D = openDialog(editing ? 'Edit task' : 'Add task');
@@ -2104,6 +2161,12 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     });
     assign.addEventListener('change', updateHint);
     fillAssignees(editing ? (t.assigned_to || '') : '');
+    function restoreFields() {
+      const cur = taskById(t.id) || t;
+      title.value = cur.title; cat.value = cur.category_id; pri.value = cur.priority; st.value = cur.status;
+      deadline.value = cur.deadline || ''; link.value = cur.link || ''; ext.checked = cur.is_external;
+      fillAssignees(cur.assigned_to || '');
+    }
 
     D.inner.append(h('form', { onsubmit: onSubmit(async function () {
         const linkVal = normalizeLink(link.value);
@@ -2122,7 +2185,12 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         if (!body.title) throw new ApiError('Please enter a title.');
         let row;
         if (editing) {
-          row = requireRow(await rest('tasks?id=eq.' + q(t.id), { method: 'PATCH', body: body, prefer: 'return=representation' }));
+          try {
+            row = requireRow(await rest('tasks?id=eq.' + q(t.id), { method: 'PATCH', body: body, prefer: 'return=representation' }));
+          } catch (e) {
+            restoreFields();   // the database refused: put every field back to its saved value
+            throw e;
+          }
         } else {
           body.venture_id = S.ventureId;
           row = requireRow(await rest('tasks', { method: 'POST', body: body, prefer: 'return=representation' }));
@@ -2149,10 +2217,60 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     title.focus();
   }
 
+  // Edit form for anyone who can see a task but isn't a superadmin. Category,
+  // assignee and External aren't shown (the database refuses them anyway).
+  function openLimitedTaskForm(t) {
+    const D = openDialog('Edit task');
+    const err = h('div', { class: 'inline-error', hidden: true, role: 'alert' });
+    const title = h('input', { type: 'text', required: true, maxlength: '200' });
+    const pri = h('select', {}, PRIORITIES.map(function (p) { return h('option', { value: p, text: p }); }));
+    const st = h('select', {}, STATUSES.map(function (x) { return h('option', { value: x, text: x }); }));
+    const deadline = h('input', { type: 'date' });
+    const link = h('input', { type: 'text', inputmode: 'url', autocapitalize: 'off', spellcheck: 'false', placeholder: 'https://\u2026', maxlength: '2000' });
+    function restoreFields() {
+      const cur = taskById(t.id) || t;
+      title.value = cur.title; pri.value = cur.priority; st.value = cur.status;
+      deadline.value = cur.deadline || ''; link.value = cur.link || '';
+    }
+    restoreFields();
+    D.inner.append(h('form', { onsubmit: onSubmit(async function () {
+        const linkVal = normalizeLink(link.value);
+        link.value = linkVal;
+        if (linkVal && !safeHttpUrl(linkVal)) throw new ApiError('The link must start with http:// or https://.');
+        const body = { title: title.value.trim(), priority: pri.value, status: st.value,
+                       deadline: deadline.value || null, link: linkVal || null };
+        if (!body.title) throw new ApiError('Please enter a title.');
+        let row;
+        try {
+          row = requireRow(await rest('tasks?id=eq.' + q(t.id), { method: 'PATCH', body: body, prefer: 'return=representation' }));
+        } catch (e) {
+          restoreFields();   // the database refused: put every field back to its saved value
+          throw e;
+        }
+        applyTask(row);
+        D.dlg.close();
+        collapseAll();
+        refillList();
+        flash('Task saved.', 'ok');
+      }, err) },
+      err,
+      h('p', { class: 'hint-line limited-hint' }, h('span', { text: 'You can change the status, title, priority, deadline and link. Only a superadmin can change the category, assignee or External setting.' })),
+      field('Title', title),
+      h('div', { class: 'grid2' }, field('Priority', pri), field('Status', st)),
+      h('div', { class: 'grid2' }, field('Deadline', deadline)),
+      field('Link', link, 'Optional. A web address; https:// is added if you leave it out.'),
+      h('div', { class: 'actions end dialog-actions' },
+        h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Cancel'),
+        h('button', { type: 'submit', class: 'btn primary' }, 'Save'))
+    ));
+    title.focus();
+  }
+
   // ---------- Admin ----------
   async function openAdmin() {
     S.view = 'admin';
     S.admin = null;
+    S.feed = null;   // reload the Activity feed fresh each time Admin is opened
     render();
     try { if (await loadAdminData()) render(); }
     catch (e) { flash(friendly(e)); }
@@ -2168,8 +2286,113 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     const main = h('main', { class: 'page' });
     if (!S.me.is_superadmin) { main.append(h('p', { class: 'center muted', text: 'Only superadmins can see this page.' })); return main; }
     if (!S.admin) { main.append(h('p', { class: 'center muted', text: 'Loading…' })); return main; }
-    main.append(renderMembersSection(), renderCategoriesSection(), renderInvitesSection());
+    function tab(id, label) {
+      return h('button', { type: 'button', role: 'tab', 'aria-selected': String(S.adminTab === id), onclick: function () {
+        if (S.adminTab === id) return;
+        S.adminTab = id;
+        render();
+        if (id === 'activity' && !S.feed) loadFeed(true);
+      } }, label);
+    }
+    main.append(h('div', { class: 'seg admin-seg', role: 'tablist', 'aria-label': 'Admin sections' },
+      tab('manage', 'Members & settings'), tab('activity', 'Activity')));
+    if (S.adminTab === 'activity') main.append(renderFeed());
+    else main.append(renderMembersSection(), renderCategoriesSection(), renderInvitesSection());
     return main;
+  }
+
+  // ---------- Admin > Activity (workspace-wide history, superadmins) ----------
+  // Reads task_events for this venture, newest first, 50 at a time. The
+  // database only returns history of tasks the reader can see (superadmins:
+  // every task). Everything is shown as plain text.
+  const FEED_PAGE = 50;
+  const KIND_LABELS = [
+    ['created', 'Task created'], ['status', 'Status'], ['title', 'Title'], ['priority', 'Priority'],
+    ['deadline', 'Deadline'], ['link', 'Link'], ['note', 'Note added'], ['assigned', 'Assignee'],
+    ['category', 'Category'], ['visibility', 'Internal / External']
+  ];
+  function freshFeed() { return { filters: { actor: '', task: '', kind: '', from: '', to: '' }, rows: [], done: false, loading: false, error: null }; }
+  async function loadFeed(reset) {
+    if (!S.feed || reset) S.feed = Object.assign(freshFeed(), { filters: S.feed ? S.feed.filters : freshFeed().filters });
+    const F = S.feed;
+    if (F.loading) return;
+    F.loading = true; F.error = null;
+    updateFeed();
+    const f = F.filters;
+    let path = 'task_events?select=id,task_id,actor_id,actor_name,kind,old_value,new_value,created_at' +
+      '&venture_id=eq.' + q(S.ventureId) + '&order=created_at.desc,id.desc' +
+      '&limit=' + (FEED_PAGE + 1) + '&offset=' + F.rows.length;
+    if (f.actor === 'db') path += '&actor_id=is.null';
+    else if (f.actor) path += '&actor_id=eq.' + q(f.actor);
+    if (f.task) path += '&task_id=eq.' + q(f.task);
+    if (f.kind) path += '&kind=eq.' + q(f.kind);
+    if (f.from) path += '&created_at=gte.' + q(parseDay(f.from).toISOString());               // local midnight
+    if (f.to) path += '&created_at=lt.' + q(addDays(parseDay(f.to), 1).toISOString());          // to-date included
+    try {
+      const rows = await rest(path) || [];
+      if (S.feed !== F) return;   // filters changed meanwhile
+      F.done = rows.length <= FEED_PAGE;
+      F.rows = F.rows.concat(rows.slice(0, FEED_PAGE));
+    } catch (e) {
+      F.error = friendly(e);
+    } finally {
+      F.loading = false;
+    }
+    updateFeed();
+  }
+  function updateFeed() {
+    const old = document.querySelector('.feed-results');
+    if (old) old.replaceWith(renderFeedResults());
+  }
+  function renderFeed() {
+    if (!S.feed) { S.feed = freshFeed(); setTimeout(function () { loadFeed(true); }, 0); }
+    const f = S.feed.filters;
+    function changed(key) { return function (e) { f[key] = e.target.value; loadFeed(true); }; }
+    const people = S.members.slice().sort(function (a, b) { return byText(a.display_name, b.display_name); });
+    const tasks = S.tasks.slice().sort(function (a, b) { return byText(a.title, b.title); });
+    const filters = h('div', { class: 'feed-filters' },
+      h('select', { 'aria-label': 'Filter by person', value: f.actor, onchange: changed('actor') },
+        h('option', { value: '' }, 'Everyone'),
+        people.map(function (m) { return h('option', { value: m.user_id, text: m.display_name }); }),
+        h('option', { value: 'db' }, 'Database administrator')),
+      h('select', { 'aria-label': 'Filter by task', value: f.task, onchange: changed('task') },
+        h('option', { value: '' }, 'All tasks'),
+        tasks.map(function (t) { return h('option', { value: t.id, text: t.title }); })),
+      h('select', { 'aria-label': 'Filter by type of change', value: f.kind, onchange: changed('kind') },
+        h('option', { value: '' }, 'All changes'),
+        KIND_LABELS.map(function (k) { return h('option', { value: k[0], text: k[1] }); })),
+      h('label', { class: 'range-field' }, h('span', { text: 'From' }), h('input', { type: 'date', value: f.from, onchange: changed('from') })),
+      h('label', { class: 'range-field' }, h('span', { text: 'To' }), h('input', { type: 'date', value: f.to, onchange: changed('to') })),
+      h('button', { type: 'button', class: 'btn small feed-reset', onclick: function () { S.feed = freshFeed(); render(); loadFeed(true); } }, 'Clear filters'));
+    return h('section', { class: 'section feed' },
+      h('div', { class: 'section-head' }, h('h2', { class: 'adm-title', text: 'Activity' })),
+      h('p', { class: 'muted small', text: 'Every recorded change in this workspace, newest first. History starts from when activity tracking was switched on.' }),
+      filters,
+      renderFeedResults());
+  }
+  function renderFeedResults() {
+    const F = S.feed || freshFeed();
+    const box = h('div', { class: 'feed-results' });
+    if (F.error) box.append(h('p', { class: 'inline-error', text: 'Couldn\u2019t load activity: ' + F.error }));
+    if (!F.rows.length && !F.loading && !F.error) box.append(h('p', { class: 'muted', text: 'No activity matches these filters.' }));
+    if (F.rows.length) {
+      box.append(h('ol', { class: 'feed-list' }, F.rows.map(function (e) {
+        const task = taskById(e.task_id);
+        return h('li', { class: 'feed-row' },
+          h('div', { class: 'feed-meta' },
+            h('time', { datetime: e.created_at, title: relTime(e.created_at), text: fmtWhen(e.created_at) }),
+            h('strong', { class: 'feed-who', text: e.actor_name || 'Unknown' })),
+          h('div', { class: 'feed-task', text: task ? task.title : '(task no longer listed)' }),
+          h('div', { class: 'feed-what', text: describeEvent(e, true) }));
+      })));
+    }
+    if (F.loading) box.append(h('p', { class: 'muted small', text: 'Loading\u2026' }));
+    else if (F.rows.length && !F.done) {
+      box.append(h('div', { class: 'actions' }, h('button', { type: 'button', class: 'btn feed-more', onclick: function () { loadFeed(false); } }, 'Load more')));
+    } else if (F.rows.length) {
+      box.append(h('p', { class: 'muted small', text: 'That\u2019s everything (' + F.rows.length + (F.rows.length === 1 ? ' change' : ' changes') + ').' }));
+    }
+    return box;
   }
 
   async function patchMember(m, patch, input) {
