@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-c12deIkNWasF3CQ2HPRzzK88Ep/KdJygo3n0gk1+RYU='; style-src 'sha256-LnMHwlrIbWxVRc6zdATS33Y64vBgObgcI3MQ7UBriT8='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-6T/8SlJ2bqwseuSKhH04nOwHhijLj7gRj2pOEKcyNS4='; style-src 'sha256-XyhB1dJ3/olI7xZsrM/C0dKRDYhhpOVPIYWqz55NAXg='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
-<title>Task List Tool</title>
+<title>Task List</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f97316'/%3E%3Cpath d='M9 16.5l4.5 4.5L23 11' stroke='white' stroke-width='3.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
 /* Visual language matched to TD Dashboard (tdreports): dark palette, orange
@@ -39,6 +39,7 @@
   --f-body: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --f-mono: 'DM Mono', ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, 'Liberation Mono', monospace;
   --bnav-h: 56px;
+  --link: #7aa7ff;
 }
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }
@@ -157,7 +158,7 @@ label { display: block; }
 }
 
 /* ---------- auth / join / pick (TD .auth-box) ---------- */
-.auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+.auth-wrap { min-height: calc(100vh - 48px); display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
 .auth-card { width: 100%; max-width: 380px; background: var(--sur); border: 1px solid var(--bdr); border-radius: 16px; padding: 32px; }
 .auth-head { text-align: center; margin-bottom: 24px; }
 .auth-logo { font-family: var(--f-display); font-size: 30px; font-weight: 800; color: var(--acc); letter-spacing: -1.2px; line-height: 1.1; margin-bottom: 6px; }
@@ -183,13 +184,6 @@ label { display: block; }
   display: flex; align-items: center; gap: 10px;
   height: 48px; padding: 0 18px;
   background: var(--sur); border-bottom: 1px solid var(--bdr);
-}
-.topbar .brand { display: flex; align-items: center; gap: 8px; min-width: 0; margin-right: 6px; }
-.logo { font-family: var(--f-display); font-weight: 800; font-size: 17px; color: var(--acc); letter-spacing: -.5px; white-space: nowrap; }
-.venture-tag {
-  font-family: var(--f-mono); font-size: 10px; font-weight: 500; letter-spacing: .5px;
-  padding: 1px 7px; border-radius: 8px; background: var(--acc-t); color: var(--acc);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;
 }
 .tabs { display: flex; align-self: stretch; }
 .tab {
@@ -364,6 +358,75 @@ label { display: block; }
   font-family: var(--f-mono); font-size: 10px; color: var(--t3); text-transform: uppercase; letter-spacing: .6px;
 }
 
+/* ---------- header wordmark (venture) + product name ---------- */
+.brand { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-width: 0; margin-right: 6px; line-height: 1.1; }
+.brand-switch { border: 0; background: none; color: inherit; cursor: pointer; padding: 2px 6px 2px 0; text-align: left; border-radius: var(--r2); }
+.brand-switch:hover .venture-name, .brand-switch:hover .switch-caret { opacity: .85; }
+.wordmark { display: flex; align-items: center; gap: 5px; min-width: 0; max-width: 100%; }
+.venture-name {
+  font-family: var(--f-display); font-weight: 800; font-size: 18px; letter-spacing: -.5px; color: var(--acc);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 46vw;
+}
+.switch-caret { color: var(--acc); font-size: 12px; }
+.product-name { font-family: var(--f-mono); font-size: 9px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--t3); margin-top: 2px; }
+
+/* ---------- footer ---------- */
+.site-footer {
+  text-align: center; padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: .5px; color: var(--t3);
+}
+
+/* ---------- info popovers and hints ---------- */
+.info-btn {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 28px; height: 28px; margin: -4px 0; padding: 0; border: 0; border-radius: 50%;
+  background: none; color: var(--t3); cursor: pointer; vertical-align: middle;
+}
+.info-btn:hover, .info-btn[aria-expanded=true] { color: var(--t2); background: var(--sur3); }
+.info-btn.dot-tip { width: 22px; height: 22px; margin: -6px 2px -6px -6px; }
+.info-btn.dot-tip:hover, .info-btn.dot-tip[aria-expanded=true] { background: var(--acc-t); }
+.info-btn.dot-tip .new-dot { margin: 0; }
+.info-pop {
+  position: fixed; z-index: 1000; width: max-content; max-width: min(300px, calc(100vw - 16px));
+  padding: 10px 12px; background: var(--sur3); color: var(--txt); border: 1px solid var(--bdr);
+  border-radius: var(--r); box-shadow: 0 10px 30px rgba(0, 0, 0, .55);
+  font-family: var(--f-body); font-size: 12px; font-weight: 400; line-height: 1.5;
+  text-transform: none; letter-spacing: 0; white-space: normal; text-align: left;
+}
+.with-tip { display: flex; align-items: center; gap: 2px; min-width: 0; }
+.toolbar .with-tip select { flex: 1; width: auto; min-width: 0; }
+.toolbar > .with-tip { flex: 0 1 220px; }
+.with-tip-h { display: flex; align-items: center; gap: 4px; }
+.field > span:first-child .info-btn { margin: -8px 0 -8px 2px; width: 26px; height: 26px; }
+.hint-line { margin: 0; font-size: 11px; color: var(--t2); line-height: 1.45; }
+.invite-hint { margin: -6px 0 12px; }
+
+/* ---------- About / Help ---------- */
+.about { text-align: center; padding: 8px 0 4px; }
+.about-name { font-family: var(--f-display); font-weight: 800; font-size: 26px; letter-spacing: -1px; color: var(--acc); }
+.about-by { margin: 4px 0 10px; color: var(--t2); }
+.about-version { font-family: var(--f-mono); font-size: 11px; color: var(--t3); }
+.about-line { margin: 0 0 8px; line-height: 1.45; overflow-wrap: anywhere; }
+.about-label { color: var(--t3); }
+.about-app { font-family: var(--f-display); font-weight: 800; font-size: 20px; color: var(--acc); }
+.about-app .about-label { font-family: var(--f-body); font-weight: 400; font-size: 13px; }
+.help { font-size: 13px; }
+.help-intro { color: var(--t2); }
+.help-sec { margin-top: 12px; }
+.help-sec h3 { margin-bottom: 4px; }
+.help-sec ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--txt); }
+.help-sec li { line-height: 1.5; }
+
+/* ---------- links ---------- */
+.ext-link, .note-link { color: var(--link); }
+.link-btn { color: var(--link); max-width: 100%; }
+.link-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.link-btn:hover { color: var(--link); border-color: var(--link); }
+.note-link { text-decoration: none; border-bottom: 1px solid rgba(122, 167, 255, .4); overflow-wrap: anywhere; }
+.note-link:hover { border-bottom-color: var(--link); }
+.lk-host { font-weight: 600; }
+.lk-path { opacity: .75; }
+
 /* ---------- admin (TD .adm-card) ---------- */
 .section { background: var(--sur); border: 1px solid var(--bdr); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -423,8 +486,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
 
   .topbar { padding: 0 12px; gap: 8px; }
   .topbar .tabs { display: none; }
-  .logo { font-size: 15px; }
-  .venture-tag { max-width: 34vw; }
+  .venture-name { font-size: 16px; max-width: 52vw; }
   .menu-name { display: none; }
   .user-chip { padding: 3px; }
   .avatar.sm { width: 32px; height: 32px; font-size: 11px; }
@@ -483,15 +545,12 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   .auth-card { padding: 24px 18px; border-radius: 14px; }
   .auth-logo { font-size: 26px; }
 }
-@media (max-width: 360px) {
-  .venture-tag { display: none; }
-}
 </style>
 </head>
 <body>
 <div id="flash" class="flash" hidden></div>
 <div id="app"><p class="center muted">Loading…</p></div>
-<noscript><p class="center">Task List Tool needs JavaScript to run.</p></noscript>
+<noscript><p class="center">Task List needs JavaScript to run.</p></noscript>
 <script>
 'use strict';
 (function () {
@@ -501,6 +560,17 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   // ------------------------------------------------------------------------
   const SUPABASE_URL = 'https://lifhnbygeiihgtirbscy.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_03p-NI7sqDyI8jjXHCulAA_LXFs-WA3';
+  // Release version, shown in the profile menu > About. Update with each release.
+  const APP_VERSION = '2026-10-07';
+  const APP_NAME = 'Task List';
+  const COMPANY_NAME = 'Matwa Group';
+  const COMPANY_URL = 'https://matwagroup.com';
+  const ABOUT_BY = 'Matwa Group Venture Club';
+  // About > "For:" line. Keyed by the EXACT venture name; add one entry per venture.
+  // A venture with no entry shows just its name.
+  const VENTURE_TAGLINES = {
+    'Tab Counsel': 'College Counseling Built Around Your Story, Not a Template'
+  };
   const SESSION_KEY = 'tlt.session.v1';
   const VENTURE_KEY = 'tlt.venture.v1';
   const PRIORITIES = ['High', 'Medium', 'Low'];
@@ -513,7 +583,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   // Refuse to run inside a frame (clickjacking protection; a meta CSP can't
   // set frame-ancestors).
   if (window.top !== window.self) {
-    appEl.textContent = 'For your security, Task List Tool cannot be shown inside another page.';
+    appEl.textContent = 'For your security, Task List cannot be shown inside another page.';
     return;
   }
 
@@ -957,7 +1027,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     document.querySelectorAll('dialog.dialog').forEach(function (d) { d.close(); });
     appEl.replaceChildren();
     const v = currentVenture();
-    document.title = (v && (S.view === 'tasks' || S.view === 'admin')) ? v.venture_name + ' – Task List Tool' : 'Task List Tool';
+    document.title = (v && (S.view === 'tasks' || S.view === 'admin')) ? v.venture_name + ' – ' + APP_NAME : APP_NAME;
     switch (S.view) {
       case 'auth': appEl.append(renderAuth()); break;
       case 'join': appEl.append(renderJoin()); break;
@@ -969,6 +1039,9 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       case 'error': appEl.append(renderErrorView()); break;
       default: appEl.append(h('p', { class: 'center muted', text: 'Loading…' }));
     }
+    // Small footer on every screen. It sits in the normal page flow (never fixed),
+    // so it can't cover content, the phone bottom bar or the home indicator.
+    appEl.append(h('footer', { class: 'site-footer', text: 'Powered by ' + COMPANY_NAME }));
   }
 
   // Wraps a form submit: prevents navigation, disables the submit button,
@@ -998,7 +1071,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     return h('label', { class: 'field' }, h('span', { text: label }), input, hint ? h('span', { class: 'hint', text: hint }) : null);
   }
   function brandBlock() {
-    return h('div', { class: 'auth-head' }, h('div', { class: 'auth-logo', text: 'Task List Tool' }), h('div', { class: 'auth-sub', text: 'TASK MANAGEMENT' }));
+    return h('div', { class: 'auth-head' }, h('div', { class: 'auth-logo', text: APP_NAME }), h('div', { class: 'auth-sub', text: 'TASK MANAGEMENT' }));
   }
 
   // ---------- Sign in / Join with code ----------
@@ -1022,7 +1095,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         field('Email', email),
         field('Password', passwordField(pw)),
         h('div', { class: 'actions' }, h('button', { type: 'submit', class: 'btn primary' }, 'Sign in')),
-        h('p', { class: 'muted small', text: 'Forgot your password? Ask your administrator to reset your password.' })
+        h('p', { class: 'muted small', text: 'Forgot your password? Ask your administrator. They can ask Matwa Group to reset it.' })
       ));
       setTimeout(function () { email.focus(); }, 0);
     } else {
@@ -1039,7 +1112,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
           } catch (e) {
             if (e.code === 'user_already_exists' || /already registered|already exists/i.test(e.message)) {
               try { d = await authRequest('/token?grant_type=password', { email: em, password: pass }); }
-              catch (e2) { throw new ApiError('An account with this email already exists and that password doesn’t match it. Use “Sign in” instead, then join with your code. Forgot your password? Ask your administrator to reset it.'); }
+              catch (e2) { throw new ApiError('An account with this email already exists and that password doesn’t match it. Use “Sign in” instead, then join with your code. Forgot your password? Ask your administrator. They can ask Matwa Group to reset it.'); }
             } else { throw e; }
           }
           const sess = d && d.access_token ? d : (d && d.session ? d.session : null);
@@ -1183,27 +1256,173 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       return h('button', { type: 'button', class: 'tab', 'aria-current': S.view === view ? 'page' : null,
         onclick: function () { goTo(view); } }, label, view === 'tasks' ? newCountBadge() : null);
     }
+    // Profile menu: a <details> element, so it opens by tap, click, Enter or
+    // Space; Esc and outside clicks close it (listeners below).
+    function menuItem(label, fn) {
+      return h('button', { type: 'button', onclick: function (e) { closeMenus(); fn(e); } }, label);
+    }
     const menu = h('details', { class: 'menu' },
-      h('summary', { 'aria-label': 'Account menu', class: 'user-chip' },
+      h('summary', { 'aria-label': 'Profile menu', class: 'user-chip' },
         h('span', { class: 'avatar sm', 'aria-hidden': 'true', text: initials(S.me.display_name) }),
         h('span', { class: 'menu-name', text: S.me.display_name })),
       h('div', { class: 'menu-items' },
         h('div', { class: 'who' }, h('div', { text: S.me.display_name }), h('div', { text: session.user.email })),
-        S.memberships.length > 1 ? h('button', { type: 'button', onclick: function () { S.view = 'pick'; render(); } }, 'Switch workspace') : null,
-        h('button', { type: 'button', onclick: function () { S.view = 'join'; render(); } }, 'Join another workspace'),
-        h('button', { type: 'button', onclick: signOut }, 'Sign out'))
+        menuItem('About', openAbout),
+        menuItem('Help', openHelp),
+        menuItem('Join another workspace', function () { S.view = 'join'; render(); }),
+        menuItem('Sign out', signOut))
     );
+    // Wordmark: the venture name, with the product name under it. With more
+    // than one venture it is also the workspace picker.
+    const ventureName = v ? v.venture_name : APP_NAME;
+    const multi = S.memberships.length > 1;
+    const brandKids = [
+      h('span', { class: 'wordmark' }, h('span', { class: 'venture-name', text: ventureName }),
+        multi ? h('span', { class: 'switch-caret', 'aria-hidden': 'true', text: '\u25be' }) : null),
+      h('span', { class: 'product-name', text: APP_NAME })
+    ];
+    const brand = multi
+      ? h('button', { type: 'button', class: 'brand brand-switch', title: 'Switch workspace',
+          'aria-label': 'Switch workspace (current: ' + ventureName + ')',
+          onclick: function () { S.view = 'pick'; render(); } }, brandKids)
+      : h('div', { class: 'brand' }, brandKids);
     return h('header', { class: 'topbar' },
-      h('div', { class: 'brand' },
-        h('span', { class: 'logo', text: 'Task List Tool' }),
-        h('span', { class: 'venture-tag', text: v ? v.venture_name : '', title: v ? v.venture_name : null })),
+      brand,
       S.me.is_superadmin ? h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tabBtn('Tasks', 'tasks'), tabBtn('Admin', 'admin')) : null,
       menu);
   }
-  // Close the account menu when clicking elsewhere.
+  function closeMenus() {
+    document.querySelectorAll('details.menu[open]').forEach(function (d) { d.open = false; });
+  }
+  // Close the profile menu and any info popover when clicking elsewhere.
   document.addEventListener('click', function (e) {
     document.querySelectorAll('details.menu[open]').forEach(function (d) { if (!d.contains(e.target)) d.open = false; });
+    if (openTip && !openTip.btn.contains(e.target) && !openTip.pop.contains(e.target)) closeTip(false);
   });
+  // Esc closes an open info popover first, otherwise the profile menu.
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (openTip) { e.preventDefault(); e.stopPropagation(); closeTip(true); return; }
+    const m = document.querySelector('details.menu[open]');
+    if (m) { e.preventDefault(); m.open = false; m.querySelector('summary').focus(); }
+  }, true);
+  window.addEventListener('resize', function () { closeTip(false); });
+  window.addEventListener('scroll', function () { closeTip(false); }, true);
+
+  // ---------- Info popovers (open on click/tap, never hover) ----------
+  // A small button next to a control; its popover holds plain static text.
+  const ICON_INFO = 'M12 2a10 10 0 1 0 0 20a10 10 0 1 0 0-20zM12 16v-5M12 8h.01';
+  let openTip = null;
+  let tipSeq = 0;
+  function closeTip(focusBack) {
+    if (!openTip) return;
+    const t = openTip;
+    openTip = null;
+    t.pop.remove();
+    t.btn.setAttribute('aria-expanded', 'false');
+    if (focusBack) t.btn.focus();
+  }
+  function infoTip(text, label, trigger, extraClass) {
+    const id = 'tip-' + (++tipSeq);
+    const btn = h('button', { type: 'button', class: 'info-btn' + (extraClass ? ' ' + extraClass : ''),
+      'aria-label': 'More information: ' + label, 'aria-expanded': 'false', 'aria-controls': id },
+      trigger || svgIcon(ICON_INFO, 15));
+    // Don't let the click/keys reach a surrounding label (checkbox) or task row.
+    btn.addEventListener('keydown', function (e) { if (e.key !== 'Escape') e.stopPropagation(); });
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (openTip && openTip.btn === btn) { closeTip(false); return; }
+      closeTip(false);
+      const pop = h('div', { class: 'info-pop', id: id, role: 'note', text: text });
+      (btn.closest('dialog') || document.body).appendChild(pop);   // inside an open dialog, stay in its layer
+      const r = btn.getBoundingClientRect();
+      const w = pop.offsetWidth, ht = pop.offsetHeight;
+      let left = Math.max(8, Math.min(r.left + r.width / 2 - w / 2, window.innerWidth - w - 8));
+      let top = r.bottom + 6;
+      if (top + ht > window.innerHeight - 8) top = Math.max(8, r.top - 6 - ht);
+      pop.style.left = left + 'px';
+      pop.style.top = top + 'px';
+      btn.setAttribute('aria-expanded', 'true');
+      openTip = { btn: btn, pop: pop };
+    });
+    return btn;
+  }
+  const TIPS = {
+    dot: 'Someone else changed this task since you last opened it. Open it to see what changed.',
+    notes: 'Notes are permanent: nobody can edit or delete them in the app. Everyone who can see this task can read them.',
+    created: 'Shows tasks by the date they were created, in your local time. This week runs Monday to Sunday.',
+    mine: 'Shows only tasks assigned to you.',
+    taskExternal: 'Off: only superadmins, internal members with access to this category, and the person it\u2019s assigned to can see this task. On: contractors with access to this category can see it, including its notes and change history.',
+    assignedTo: 'The person assigned can change the status and add notes. An internal task can only be assigned to an internal member.',
+    inviteSuperadmin: 'Superadmins see every task and manage tasks, members, categories and invites. A superadmin can\u2019t also be external.',
+    inviteExternal: 'External contractors see only tasks marked External in the categories you tick below, plus tasks assigned to them.'
+  };
+
+  // ---------- About and Help (from the profile menu) ----------
+  function dialogClose(D) {
+    return h('div', { class: 'actions end dialog-actions' },
+      h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Close'));
+  }
+  function openAbout() {
+    const D = openDialog('About');
+    const v = currentVenture();
+    const ventureName = v ? v.venture_name : '';
+    const tagline = Object.prototype.hasOwnProperty.call(VENTURE_TAGLINES, ventureName) ? VENTURE_TAGLINES[ventureName] : '';
+    function line(label, value, cls) {
+      return h('p', { class: 'about-line' + (cls ? ' ' + cls : '') },
+        h('span', { class: 'about-label', text: label + ': ' }), h('span', { text: value }));
+    }
+    D.inner.append(
+      h('div', { class: 'about' },
+        line('App', APP_NAME, 'about-app'),
+        ventureName ? line('For', tagline ? ventureName + ' \u2013 ' + tagline : ventureName) : null,
+        line('By', ABOUT_BY),
+        h('p', { class: 'about-line' }, h('a', { href: COMPANY_URL, target: '_blank', rel: 'noopener noreferrer', class: 'ext-link', text: 'matwagroup.com' })),
+        line('Version', APP_VERSION, 'about-version')),
+      dialogClose(D));
+  }
+  function openHelp() {
+    const sa = S.me.is_superadmin;
+    const ext = !sa && S.me.is_external;
+    const v = currentVenture();
+    const role = sa ? 'a superadmin' : (ext ? 'an external contractor' : 'an internal member');
+    const D = openDialog('Help');
+    function sec(title, items) {
+      return h('section', { class: 'help-sec' }, h('h3', { text: title }),
+        h('ul', {}, items.filter(Boolean).map(function (t) { return h('li', { text: t }); })));
+    }
+    D.inner.append(h('div', { class: 'help' },
+      h('p', { class: 'help-intro', text: 'You\u2019re signed in to ' + (v ? v.venture_name : 'this workspace') + ' as ' + role + '.' }),
+      sec('What you can see', sa ? [
+        'Every task in this workspace, with all its notes and history.',
+        'Internal members see the tasks in the categories they have access to, plus tasks assigned to them.',
+        'External contractors see only tasks marked External in the categories they have access to, plus tasks assigned to them. They never see internal tasks or their notes and history.'
+      ] : ext ? [
+        'Only tasks marked External in the categories your administrator has given you, plus tasks assigned to you.',
+        'Internal tasks, and their notes and history, are never shown to you.'
+      ] : [
+        'Tasks in the categories your administrator has given you, internal and external, plus any task assigned to you.'
+      ]),
+      sec('What you can do', [
+        sa ? 'Add, edit and delete tasks, and change any field. In Admin, manage members, categories, who can browse which category, and invites.' : null,
+        sa ? 'Add notes on any task.' : 'On a task assigned to you, you can change its status and add notes. Only a superadmin can change anything else.',
+        'Notes are permanent: nobody can edit or delete them in the app. They are removed only if a superadmin deletes the whole task.'
+      ]),
+      sec('Staying up to date', [
+        'An orange dot on a task means someone else changed it since you last opened it. Open the task to see what changed: new items are marked NEW and shown in orange.',
+        'Opening a task, or Mark all as seen, clears the dot. Your own changes are never marked as new.',
+        'The list updates when you load the page or press Refresh.'
+      ]),
+      sa ? sec('Sharing with contractors', [
+        'Categories control what people can browse. Set them on each member\u2019s card in Admin.',
+        'A new task is internal by default. Tick External to share it with contractors who have access to its category.',
+        'Ticking External on a task that already has notes or history shows all of it to those contractors. You\u2019ll be asked to confirm.',
+        'An internal task can\u2019t be assigned to a contractor. Mark it External first.'
+      ]) : null,
+      sec('Passwords', ['Forgot your password? Ask your administrator. They can ask Matwa Group to reset it.'])),
+      dialogClose(D));
+  }
 
   // ---------- Activity helpers ----------
   function ms(ts) { const n = ts ? Date.parse(ts) : NaN; return isNaN(n) ? 0 : n; }
@@ -1460,7 +1679,11 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     refillList = fill;
     fill();
     return h('main', { class: 'page' },
-      h('div', { class: 'toolbar' }, search, catSel, stSel, createdSel, sortGroup, customRow, mine, refreshBtn, addBtn),
+      h('div', { class: 'toolbar' }, search, catSel, stSel,
+        h('div', { class: 'with-tip' }, createdSel, infoTip(TIPS.created, 'Created filter')),
+        sortGroup, customRow,
+        h('div', { class: 'with-tip' }, mine, infoTip(TIPS.mine, 'Assigned to me')),
+        refreshBtn, addBtn),
       h('section', { class: 'panel' },
         h('div', { class: 'panel-header' },
           h('div', { class: 'panel-head-left' }, h('span', { class: 'panel-title', text: 'Tasks' }), newChip),
@@ -1499,7 +1722,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     }
     return h('div', { class: 'main' },
       h('div', { class: 'title' },
-        isNew ? h('span', { class: 'new-dot', role: 'img', 'aria-label': 'New activity', title: 'New activity since you last looked' }) : null,
+        isNew ? infoTip(TIPS.dot, 'New activity since you last looked', h('span', { class: 'new-dot', 'aria-hidden': 'true' }), 'dot-tip') : null,
         t.title),
       h('div', { class: 'sub' + (isNew ? ' sub-new' : ''), text: sub }));
   }
@@ -1620,7 +1843,10 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     }
 
     let linkNode;
-    if (t.link && safeHttpUrl(t.link)) linkNode = h('a', { href: t.link.trim(), target: '_blank', rel: 'noopener noreferrer', text: t.link });
+    if (t.link && safeHttpUrl(t.link)) {
+      linkNode = h('a', { href: t.link.trim(), target: '_blank', rel: 'noopener noreferrer', class: 'btn small link-btn', title: t.link.trim() },
+        svgIcon(ICON_EXTERNAL, 14), h('span', { text: 'Open link \u00b7 ' + linkHost(t.link) }));
+    }
     else if (t.link) linkNode = h('span', { text: t.link });
     else linkNode = h('span', { class: 'muted', text: 'None' });
 
@@ -1652,7 +1878,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
 
   function renderNotesList(t, info) {
     const notes = S.notesByTask.get(t.id) || [];
-    const box = h('div', { class: 'notes-slot' }, h('h3', { text: 'Notes (' + notes.length + ')' }));
+    const box = h('div', { class: 'notes-slot' }, h('h3', { class: 'with-tip-h' }, 'Notes (' + notes.length + ')', infoTip(TIPS.notes, 'Notes')));
     if (!notes.length) {
       box.append(h('p', { class: 'muted', text: 'No notes yet.' }));
       return box;
@@ -1664,9 +1890,53 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
           h('strong', { text: n.author_name || 'Unknown' }),
           isNew ? chip('NEW', 'ext') : null,
           h('time', { datetime: n.created_at, text: fmtWhen(n.created_at) })),
-        h('p', { class: 'note-body', text: n.body }));
+        h('p', { class: 'note-body' }, linkify(n.body)));
     })));
     return box;
+  }
+
+  // ---------- Links ----------
+  const ICON_EXTERNAL = 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3';
+  function linkHost(u) {
+    try { return new URL(String(u).trim()).host.replace(/^www\./i, ''); } catch (e) { return 'link'; }
+  }
+  // Task form: add https:// to something that is clearly a web address typed
+  // without one (www.\u2026 or a domain like drive.google.com/\u2026). Anything else is
+  // left exactly as typed; the database's http/https rule is the final check.
+  function normalizeLink(v) {
+    const s = String(v || '').trim();
+    if (!s || /^https?:\/\//i.test(s) || /\s/.test(s)) return s;
+    if (/^www\./i.test(s)) return 'https://' + s;
+    if (/^[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}(:\d{1,5})?([\/?#]\S*)?$/i.test(s)) return 'https://' + s;
+    return s;
+  }
+  // Notes: turn http:// and https:// addresses into links (and nothing else),
+  // built from DOM nodes and text nodes only. The domain is shown in bold and a
+  // long path is shortened; the full address is in the title.
+  function linkify(text) {
+    const out = [];
+    const re = /https?:\/\/[^\s<>"'`]+/gi;
+    let last = 0, m;
+    while ((m = re.exec(text))) {
+      let url = m[0];
+      const trail = /[.,;:!?)\]}]+$/.exec(url);   // trailing punctuation stays text
+      if (trail) url = url.slice(0, url.length - trail[0].length);
+      if (!url || !safeHttpUrl(url)) continue;
+      if (m.index > last) out.push(document.createTextNode(text.slice(last, m.index)));
+      out.push(noteLink(url));
+      last = m.index + url.length;
+    }
+    if (last < text.length) out.push(document.createTextNode(text.slice(last)));
+    return out;
+  }
+  function noteLink(url) {
+    const u = new URL(url);
+    let rest = (u.pathname === '/' ? '' : u.pathname) + u.search + u.hash;
+    const chars = Array.from(rest);
+    if (chars.length > 24) rest = chars.slice(0, 23).join('') + '\u2026';
+    return h('a', { href: url, target: '_blank', rel: 'noopener noreferrer', class: 'note-link', title: url },
+      h('span', { class: 'lk-host', text: u.host.replace(/^www\./i, '') }),
+      rest ? h('span', { class: 'lk-path', text: rest }) : null);
   }
 
   function renderTaskDetail(t) {
@@ -1709,7 +1979,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         }) },
         ta,
         h('div', { class: 'actions' }, h('button', { type: 'submit', class: 'btn primary small' }, 'Add note'),
-          h('span', { class: 'muted small', text: 'Notes are permanent and can’t be edited or deleted.' }))));
+          h('span', { class: 'muted small', text: 'Notes are permanent: nobody can edit or delete them in the app.' }))));
     }
     d.append(renderActivity(t, info));
     return d;
@@ -1785,7 +2055,9 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     const pri = h('select', { value: editing ? t.priority : 'Medium' }, PRIORITIES.map(function (p) { return h('option', { value: p, text: p }); }));
     const st = h('select', { value: editing ? t.status : 'Pending' }, STATUSES.map(function (s) { return h('option', { value: s, text: s }); }));
     const deadline = h('input', { type: 'date', value: editing && t.deadline ? t.deadline : '' });
-    const link = h('input', { type: 'url', placeholder: 'https://…', maxlength: '2000', value: editing && t.link ? t.link : '' });
+    // A text field (with the web-address keyboard on phones) rather than type=url: the browser's
+    // url check would block 'www.example.com' before normalizeLink() can add https://.
+    const link = h('input', { type: 'text', inputmode: 'url', autocapitalize: 'off', spellcheck: 'false', placeholder: 'https://…', maxlength: '2000', value: editing && t.link ? t.link : '' });
     const ext = h('input', { type: 'checkbox', checked: editing ? t.is_external : false });
     const assign = h('select', {});
     const assignHint = h('span', { class: 'hint' });
@@ -1834,7 +2106,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     fillAssignees(editing ? (t.assigned_to || '') : '');
 
     D.inner.append(h('form', { onsubmit: onSubmit(async function () {
-        const linkVal = link.value.trim();
+        const linkVal = normalizeLink(link.value);
+        link.value = linkVal;
         if (linkVal && !safeHttpUrl(linkVal)) throw new ApiError('The link must start with http:// or https://.');
         const body = {
           title: title.value.trim(),
@@ -1864,10 +2137,11 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       field('Title', title),
       h('div', { class: 'grid2' }, field('Category', cat), field('Deadline', deadline)),
       h('div', { class: 'grid2' }, field('Priority', pri), field('Status', st)),
-      h('label', { class: 'check field' }, ext, h('span', { text: 'External (visible to external contractors)' })),
+      h('label', { class: 'check field' }, ext, h('span', { text: 'External (visible to external contractors)' }),
+        infoTip(TIPS.taskExternal, 'External')),
       h('p', { class: 'muted small', text: 'Off = internal only. Turn this on only for tasks that contractors should see.' }),
-      h('label', { class: 'field' }, h('span', { text: 'Assigned to' }), assign, assignHint),
-      field('Link', link, 'Optional. Must start with http:// or https://.'),
+      h('label', { class: 'field' }, h('span', {}, 'Assigned to', infoTip(TIPS.assignedTo, 'Assigned to')), assign, assignHint),
+      field('Link', link, 'Optional. A web address; https:// is added if you leave it out.'),
       h('div', { class: 'actions end dialog-actions' },
         h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Cancel'),
         h('button', { type: 'submit', class: 'btn primary' }, editing ? 'Save' : 'Add task'))
@@ -1959,8 +2233,10 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       h('div', { class: 'toggles' },
         h('label', { class: 'check' + (self ? ' disabled' : '') }, ext, h('span', { text: 'External' })),
         h('label', { class: 'check' + (self ? ' disabled' : '') }, sa, h('span', { text: 'Superadmin' }))),
+      h('p', { class: 'hint-line', text: 'External: sees only tasks marked External in their categories, plus tasks assigned to them.' }),
       h('div', {},
         h('p', { class: 'subhead', text: 'Category access' }),
+        m.is_superadmin ? null : h('p', { class: 'hint-line', text: 'The categories this person can browse. Tasks assigned to them are always visible to them.' }),
         m.is_superadmin ? h('p', { class: 'muted small', text: 'Superadmins see all categories.' }) : null,
         !S.categories.length ? h('p', { class: 'muted small', text: 'No categories yet.' }) : null,
         h('div', { class: 'catgrid' }, cats)),
@@ -2084,8 +2360,9 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         }) },
         field('Label (who is it for?)', label),
         h('div', { class: 'toggles field' },
-          h('label', { class: 'check' }, sa, h('span', { text: 'Superadmin' })),
-          h('label', { class: 'check' }, ex, h('span', { text: 'External contractor' }))),
+          h('label', { class: 'check' }, sa, h('span', { text: 'Superadmin' }), infoTip(TIPS.inviteSuperadmin, 'Superadmin')),
+          h('label', { class: 'check' }, ex, h('span', { text: 'External contractor' }), infoTip(TIPS.inviteExternal, 'External contractor'))),
+        h('p', { class: 'hint-line invite-hint', text: 'Leave both boxes unticked to invite an internal employee.' }),
         catSet,
         h('div', { class: 'grid2' }, field('Expires after (days)', days, '1 to 30. Default 7.')),
         h('div', { class: 'actions' }, h('button', { type: 'submit', class: 'btn primary' }, 'Create invite'))));
