@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-DIsBS4+MZTAsUTIfDbzYviLrbNbkuCgFg3UOqfAKf4k='; style-src 'sha256-yEkPngOeRye6j+B7P2S5LXrF6coBW1Od4L7cx86Du50='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-BprxaJuK4A5jvRIAKugYH5s+aKI+9RczgPy6TrD8otE='; style-src 'sha256-pp1ilgWn4V+20jU7SRmt7z/KKDFAcAh1BDFnum5hfIc='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <title>Task List</title>
@@ -453,6 +453,24 @@ label { display: block; }
   .feed-row { grid-template-columns: 1fr; }
 }
 
+/* ---------- personal tasks ---------- */
+.tab-lock { display: inline-flex; margin-right: 1px; }
+.chip.personal { display: inline-flex; gap: 4px; background: var(--pur-t); color: var(--pur); }
+.chip.personal svg { flex: none; }
+.personal-toolbar { align-items: center; }
+.personal-intro { display: flex; align-items: center; gap: 6px; flex: 1 1 260px; margin: 0; font-size: 12px; color: var(--t2); }
+.personal-intro svg { color: var(--pur); flex: none; }
+.panel-lock { display: inline-flex; color: var(--pur); }
+.make-public { color: var(--pur); }
+.make-public:hover { border-color: var(--pur); color: var(--pur); }
+.publish-title { font-weight: 600; margin-bottom: 8px; overflow-wrap: anywhere; }
+.publish-warn { margin: 0 0 14px; padding: 10px 12px 10px 28px; background: var(--acc-t); border-left: 3px solid var(--acc); border-radius: 0 var(--r2) var(--r2) 0; font-size: 12px; display: grid; gap: 6px; }
+input[type=radio] { width: 18px; height: 18px; accent-color: var(--acc); margin: 0; flex: none; }
+.invite-actions { margin: 6px 0 12px; }
+@media (max-width: 768px) {
+  .personal-toolbar .personal-intro { grid-column: 1 / -1; }
+}
+
 /* ---------- admin (TD .adm-card) ---------- */
 .section { background: var(--sur); border: 1px solid var(--bdr); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -587,7 +605,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   const SUPABASE_URL = 'https://lifhnbygeiihgtirbscy.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_03p-NI7sqDyI8jjXHCulAA_LXFs-WA3';
   // Release version, shown in the profile menu > About. Update with each release.
-  const APP_VERSION = '2026-10-07';
+  const APP_VERSION = '2026-10-13';
   const APP_NAME = 'Task List';
   const COMPANY_NAME = 'Matwa Group';
   const COMPANY_URL = 'https://matwagroup.com';
@@ -646,15 +664,32 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   function freshFilters() { return { q: '', category: '', status: '', mine: false, created: 'any', from: '', to: '' }; }
 
   // Invite link: index.html#join=CODE. Read it, then strip it from the address bar.
-  (function readJoinFragment() {
+  function takeJoinCode() {
     const m = /^#join=([^&]*)/.exec(location.hash || '');
-    if (!m) return;
+    if (!m) return '';
     let code = m[1];
     try { code = decodeURIComponent(code); } catch (e) { /* keep raw */ }
-    S.joinCode = code.trim().slice(0, 200);
-    S.authTab = 'join';
     history.replaceState(null, '', location.pathname + location.search);
+    return code.trim().slice(0, 200);
+  }
+  (function readJoinFragment() {
+    const code = takeJoinCode();
+    if (!code) return;
+    S.joinCode = code;
+    S.authTab = 'join';
+    // Opened while already signed in: ask before doing anything with it.
+    S.inviteWhileSignedIn = !!session;
   })();
+  // The address changed to a #join link without a page reload.
+  window.addEventListener('hashchange', function () {
+    const code = takeJoinCode();
+    if (!code) return;
+    S.joinCode = code;
+    if (!session) { S.authTab = 'join'; S.view = 'auth'; render(); return; }
+    S.inviteWhileSignedIn = true;
+    S.view = S.memberships.length ? 'invite' : 'join';
+    render();
+  });
 
   // ------------------------------------------------------------------------
   // Safe DOM builder. User data only ever becomes text nodes / textContent /
@@ -948,6 +983,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   async function afterSignIn(preferVentureId) {
     S.view = 'loading'; render();
     await loadMemberships();
+    // An invite link opened while already signed in (with a workspace): ask first.
+    if (S.joinCode && S.inviteWhileSignedIn && S.memberships.length) { S.view = 'invite'; render(); return; }
     if (S.joinCode || !S.memberships.length) { S.view = 'join'; render(); return; }
     let vid = preferVentureId || readStored(VENTURE_KEY);
     if (!S.memberships.some(function (m) { return m.venture_id === vid; })) {
@@ -978,7 +1015,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     const res = await Promise.all([
       rest('venture_members?select=id,user_id,display_name,is_superadmin,is_external&venture_id=eq.' + v),
       rest('categories?select=id,name&venture_id=eq.' + v),
-      rest('tasks?select=id,venture_id,category_id,title,priority,status,deadline,assigned_to,link,is_external,created_by,created_at,updated_at&venture_id=eq.' + v),
+      rest('tasks?select=id,venture_id,category_id,title,priority,status,deadline,assigned_to,link,is_external,is_personal,created_by,created_at,updated_at&venture_id=eq.' + v),
       rest('task_notes?select=id,task_id,author_id,author_name,body,created_at,tasks!inner(venture_id)&tasks.venture_id=eq.' + v + '&order=created_at.asc'),
       // One small row per visible task: what's new for me, and when it last changed.
       rest('rpc/task_activity_summary', { method: 'POST', body: { p_venture_id: S.ventureId } })
@@ -1066,6 +1103,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       case 'tasks': append(appEl, [renderHeader(), renderTasks(), renderBottomNav()]); updateNewIndicators(); break;
       case 'admin': append(appEl, [renderHeader(), renderAdmin(), renderBottomNav()]); updateNewIndicators(); break;
       case 'error': appEl.append(renderErrorView()); break;
+      case 'invite': appEl.append(renderInviteSignedIn()); break;
+      case 'personal': append(appEl, [renderHeader(), renderPersonal(), renderBottomNav()]); updateNewIndicators(); break;
       default: appEl.append(h('p', { class: 'center muted', text: 'Loading…' }));
     }
     // Small footer on every screen. It sits in the normal page flow (never fixed),
@@ -1218,10 +1257,39 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     ));
   }
 
+  // An invite link was opened while someone is already signed in.
+  function renderInviteSignedIn() {
+    const mine = currentVenture() || S.memberships[0];
+    const who = (mine ? mine.display_name + ' (' + session.user.email + ')' : session.user.email);
+    function cancel() {
+      S.joinCode = ''; S.inviteWhileSignedIn = false;
+      if (S.ventureId && S.me) { S.view = 'tasks'; render(); } else { afterSignIn().catch(showError); }
+    }
+    return h('div', { class: 'auth-wrap' }, h('div', { class: 'auth-card' }, brandBlock(),
+      h('h1', { text: 'You opened an invite link' }),
+      h('p', { text: 'You\u2019re signed in as ' + who + '. To use this invite, sign out first.' }),
+      h('div', { class: 'actions invite-actions' },
+        h('button', { type: 'button', class: 'btn primary', onclick: function () {
+          const code = S.joinCode;
+          signOut();                       // signs out and shows the sign-in screen...
+          S.joinCode = code;               // ...then switch it to Join, with the code filled in
+          S.authTab = 'join';
+          S.inviteWhileSignedIn = false;
+          render();
+        } }, 'Sign out and use this invite'),
+        h('button', { type: 'button', class: 'btn', onclick: cancel }, 'Cancel')),
+      h('p', { class: 'muted small' }, 'Want to add that workspace to this same account instead? ',
+        h('button', { type: 'button', class: 'btn link', onclick: function () {
+          S.inviteWhileSignedIn = false; S.view = 'join'; render();
+        } }, 'Use the invite with this account'))
+    ));
+  }
+
   // ---------- Header ----------
   function goTo(view) {
     if (S.view === view) return;
-    if (view === 'admin') openAdmin(); else { S.view = 'tasks'; S.lastInvite = null; render(); }
+    if (view === 'admin') openAdmin();
+    else { S.view = view === 'personal' ? 'personal' : 'tasks'; S.lastInvite = null; collapseAll(); render(); }
   }
   // Small inline SVG icons (fixed path data, never user data).
   function svgIcon(d, size) {
@@ -1243,6 +1311,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   }
   const ICON_TASKS = 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01';
   const ICON_ADMIN = 'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6';
+  const ICON_LOCK = 'M6 11h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1zM8 11V7a4 4 0 0 1 8 0v4';
   // Eye / eye-off line icons (same shapes as the TD Dashboard login).
   const ICON_EYE = 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z';
   const ICON_EYE_OFF = 'M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22';
@@ -1270,20 +1339,23 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
 
   // Phone-only bottom navigation (hidden by CSS on wider screens), as in TD Dashboard.
   function renderBottomNav() {
-    if (!S.me || !S.me.is_superadmin) return null;
+    if (!S.me) return null;
     function item(label, view, icon) {
       return h('button', { type: 'button', class: 'bnav-item', 'aria-current': S.view === view ? 'page' : null,
         onclick: function () { goTo(view); } }, svgIcon(icon), h('span', { text: label }),
         view === 'tasks' ? newCountBadge() : null);
     }
-    return h('nav', { class: 'bnav', 'aria-label': 'Sections' }, item('Tasks', 'tasks', ICON_TASKS), item('Admin', 'admin', ICON_ADMIN));
+    return h('nav', { class: 'bnav', 'aria-label': 'Sections' }, item('Tasks', 'tasks', ICON_TASKS), item('Personal', 'personal', ICON_LOCK),
+      S.me.is_superadmin ? item('Admin', 'admin', ICON_ADMIN) : null);
   }
 
   function renderHeader() {
     const v = currentVenture();
     function tabBtn(label, view) {
       return h('button', { type: 'button', class: 'tab', 'aria-current': S.view === view ? 'page' : null,
-        onclick: function () { goTo(view); } }, label, view === 'tasks' ? newCountBadge() : null);
+        onclick: function () { goTo(view); } },
+        view === 'personal' ? h('span', { class: 'tab-lock' }, svgIcon(ICON_LOCK, 13)) : null,
+        label, view === 'tasks' ? newCountBadge() : null);
     }
     // Profile menu: a <details> element, so it opens by tap, click, Enter or
     // Space; Esc and outside clicks close it (listeners below).
@@ -1317,7 +1389,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       : h('div', { class: 'brand' }, brandKids);
     return h('header', { class: 'topbar' },
       brand,
-      S.me.is_superadmin ? h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tabBtn('Tasks', 'tasks'), tabBtn('Admin', 'admin')) : null,
+      h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tabBtn('Tasks', 'tasks'), tabBtn('Personal', 'personal'),
+        S.me.is_superadmin ? tabBtn('Admin', 'admin') : null),
       menu);
   }
   function closeMenus() {
@@ -1384,6 +1457,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     mine: 'Shows only tasks assigned to you.',
     taskExternal: 'Off: only superadmins, internal members with access to this category, and the person it\u2019s assigned to can see this task. On: contractors with access to this category can see it, including its notes and change history.',
     assignedTo: 'Only a superadmin chooses who a task is assigned to. Anyone who can see the task can change its status, title, priority, deadline and link, and add notes. An internal task can only be assigned to an internal member.',
+    personal: 'Only you can see your personal tasks: not other members, and not even superadmins. \u201cMake public\u201d turns one into a normal task in a category you choose. That can\u2019t be undone.',
     editRule: 'Anyone who can see this task can change its status, title, priority, deadline and link. Only a superadmin can change its category, who it\u2019s assigned to or whether it\u2019s External.',
     inviteSuperadmin: 'Superadmins see every task and manage tasks, members, categories and invites. A superadmin can\u2019t also be external.',
     inviteExternal: 'External contractors see only tasks marked External in the categories you tick below, plus tasks assigned to them.'
@@ -1441,6 +1515,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         'Notes are permanent: nobody can edit or delete them in the app. They are removed only if a superadmin deletes the whole task.'
       ] : [
         'On any task you can see, you can change its status, title, priority, deadline and link, and add notes.',
+        'You can create your own private tasks in the Personal tab.',
         'Only a superadmin can change a task\u2019s category, who it\u2019s assigned to or whether it\u2019s External, and only a superadmin can create or delete tasks.',
         'Every change you make is recorded with your name in the task\u2019s activity.',
         'Notes are permanent: nobody can edit or delete them in the app. They are removed only if a superadmin deletes the whole task.'
@@ -1457,6 +1532,11 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         'Ticking External on a task that already has notes or history shows all of it to those contractors. You\u2019ll be asked to confirm.',
         'An internal task can\u2019t be assigned to a contractor. Mark it External first.'
       ]) : null,
+      sec('Personal tasks', [
+        'The Personal tab is your private list. Personal tasks are visible only to you: not to other members, and not even to superadmins.',
+        'You can edit them, add notes and delete them. Their notes and history are private too.',
+        'Make public turns a personal task into a normal task in a category you choose, Internal or External. Its earlier notes and history become visible to everyone who can see it, and it can\u2019t be made private again.'
+      ]),
       sec('Passwords', ['Forgot your password? Ask your administrator. They can ask Matwa Group to reset it.'])),
       dialogClose(D));
   }
@@ -1465,7 +1545,11 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   function ms(ts) { const n = ts ? Date.parse(ts) : NaN; return isNaN(n) ? 0 : n; }
   function activityOf(id) { return S.activity.get(id) || null; }
   function hasNew(t) { const a = activityOf(t.id); return !!a && a.new_count > 0; }
-  function newTaskCount() { return S.tasks.filter(hasNew).length; }
+  // Personal tasks (mine only; the database never returns anyone else's) are kept
+  // in S.tasks too, but never appear in the shared list, its counts or badges.
+  function sharedTasks() { return S.tasks.filter(function (t) { return !t.is_personal; }); }
+  function personalTasks() { return S.tasks.filter(function (t) { return t.is_personal; }); }
+  function newTaskCount() { return sharedTasks().filter(hasNew).length; }
   function taskById(id) { return S.tasks.find(function (x) { return x.id === id; }) || null; }
   function taskLi(id) { return document.querySelector('li.task[data-id="' + CSS.escape(id) + '"]'); }
   // Latest moment anything happened to a task (works for tasks with no recorded history too).
@@ -1629,7 +1713,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     const f = S.filters;
     const needle = f.q.trim().toLowerCase();
     const range = createdRange();
-    return S.tasks.filter(function (t) {
+    return sharedTasks().filter(function (t) {
       if (range) {
         const c = ms(t.created_at);
         if (range[0] && c < range[0].getTime()) return false;
@@ -1701,14 +1785,15 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
 
     function fill() {
       const tasks = filteredTasks();
-      countEl.textContent = tasks.length === S.tasks.length
-        ? S.tasks.length + (S.tasks.length === 1 ? ' task' : ' tasks')
-        : tasks.length + ' of ' + S.tasks.length + ' tasks match';
+      const total = sharedTasks().length;
+      countEl.textContent = tasks.length === total
+        ? total + (total === 1 ? ' task' : ' tasks')
+        : tasks.length + ' of ' + total + ' tasks match';
       listEl.replaceChildren();
       if (!tasks.length) {
-        listEl.append(h('li', { class: 'empty', text: S.tasks.length
+        listEl.append(h('li', { class: 'empty', text: total
           ? 'No tasks match these filters.'
-          : (isAdmin ? 'No tasks yet. Use “+ Add task” to create one.' : 'No tasks are visible to you yet.') }));
+          : (isAdmin ? 'No tasks yet. Use “+ Add task” to create one.' : 'No tasks are visible to you yet. You can keep your own tasks in Personal.') }));
       }
       tasks.forEach(function (t) { listEl.append(renderTaskItem(t)); });
       updateNewIndicators();
@@ -1793,10 +1878,11 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       h('span', { class: 'chev', 'aria-hidden': 'true' }, '›'),
       renderRowMain(t, li),
       h('div', { class: 'meta' },
-        chip(catName(t.category_id), 'cat'),
+        t.is_personal ? h('span', { class: 'chip personal', title: 'Personal: only you can see it' }, svgIcon(ICON_LOCK, 11), h('span', { text: 'Personal' }))
+                      : chip(catName(t.category_id), 'cat'),
         chip(t.priority, 'pri-' + slug(t.priority)),
         chip(t.status, 'st-' + slug(t.status)),
-        h('span', { class: 'avatar' + (assignee ? '' : ' none'), title: assignee ? assignee.display_name : 'Unassigned',
+        t.is_personal ? null : h('span', { class: 'avatar' + (assignee ? '' : ' none'), title: assignee ? assignee.display_name : 'Unassigned',
           'aria-label': assignee ? 'Assigned to ' + assignee.display_name : 'Unassigned', text: assignee ? initials(assignee.display_name) : '–' }),
         h('span', { class: 'deadline' + (overdue ? ' overdue' : ''), title: overdue ? 'Overdue' : null,
           text: t.deadline ? (overdue ? '⚠ ' : '') + fmtDay(t.deadline) : 'No date' }))
@@ -1904,6 +1990,16 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
           e ? h('span', { class: 'change-line', text: 'Changed by ' + (e.actor_name || 'someone') + ': ' + changeValues(e) + ' · ' + relTime(e.created_at) }) : null)
       ];
     }
+    if (t.is_personal) {
+      return h('dl', { class: 'facts' },
+        row('Status', 'status', statusNode),
+        row('Deadline', 'deadline', t.deadline ? fmtDay(t.deadline, true) + (isOverdue(t) ? ' \u2013 overdue' : '') : 'None', isOverdue(t) ? 'expired' : ''),
+        row('Priority', 'priority', t.priority),
+        row('Link', 'link', linkNode),
+        row('Visibility', null, h('span', {}, h('span', { class: 'chip personal' }, svgIcon(ICON_LOCK, 11), h('span', { text: 'Personal' })),
+          h('span', { class: 'vis-note', text: 'Only you can see this task, not other members and not superadmins.' }))),
+        row('Last updated', null, h('span', { class: 'muted', text: fmtWhen(t.updated_at) })));
+    }
     return h('dl', { class: 'facts' },
       row('Status', 'status', statusNode),
       row('Assigned to', 'assigned', assignee ? assignee.display_name + (assignee.is_external ? ' (external)' : '') : 'Unassigned'),
@@ -1987,10 +2083,13 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
 
     // Everyone who can see the task gets Edit (non-superadmins: status, title,
     // priority, deadline and link only). Delete is for superadmins.
+    // Personal tasks: the owner gets Edit, Make public and Delete.
+    const canDelete = t.is_personal || isAdmin;
     d.append(h('div', { class: 'detail-actions' },
       h('button', { type: 'button', class: 'btn small', onclick: function () { openTaskForm(t); } }, 'Edit'),
-      isAdmin ? h('button', { type: 'button', class: 'btn small danger', onclick: function (e) {
-          if (!window.confirm('Delete the task “' + t.title + '”?\n\nIts notes will be deleted too. This cannot be undone.')) return;
+      t.is_personal ? h('button', { type: 'button', class: 'btn small make-public', onclick: function () { openMakePublic(t); } }, 'Make public') : null,
+      canDelete ? h('button', { type: 'button', class: 'btn small danger', onclick: function (e) {
+          if (!window.confirm((t.is_personal ? 'Delete your personal task “' : 'Delete the task “') + t.title + '”?\n\nIts notes will be deleted too. This cannot be undone.')) return;
           busy(e.currentTarget, async function () {
             requireRow(await rest('tasks?id=eq.' + q(t.id), { method: 'DELETE', prefer: 'return=representation' }));
             S.tasks = S.tasks.filter(function (x) { return x.id !== t.id; });
@@ -2100,7 +2199,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
 
   function openTaskForm(t) {
     // Non-superadmins edit only status, title, priority, deadline and link.
-    if (t && !S.me.is_superadmin) { openLimitedTaskForm(t); return; }
+    if (t && (t.is_personal || !S.me.is_superadmin)) { openLimitedTaskForm(t); return; }
     if (!S.categories.length) { flash('Create a category first (Admin → Categories).'); return; }
     const editing = !!t;
     const D = openDialog(editing ? 'Edit task' : 'Add task');
@@ -2219,8 +2318,11 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
 
   // Edit form for anyone who can see a task but isn't a superadmin. Category,
   // assignee and External aren't shown (the database refuses them anyway).
+  // t = null creates a new PERSONAL task (anyone can).
   function openLimitedTaskForm(t) {
-    const D = openDialog('Edit task');
+    const creating = !t;
+    const personal = creating || t.is_personal;
+    const D = openDialog(creating ? 'Add personal task' : (personal ? 'Edit personal task' : 'Edit task'));
     const err = h('div', { class: 'inline-error', hidden: true, role: 'alert' });
     const title = h('input', { type: 'text', required: true, maxlength: '200' });
     const pri = h('select', {}, PRIORITIES.map(function (p) { return h('option', { value: p, text: p }); }));
@@ -2228,6 +2330,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     const deadline = h('input', { type: 'date' });
     const link = h('input', { type: 'text', inputmode: 'url', autocapitalize: 'off', spellcheck: 'false', placeholder: 'https://\u2026', maxlength: '2000' });
     function restoreFields() {
+      if (creating) { pri.value = 'Medium'; st.value = 'Pending'; return; }
       const cur = taskById(t.id) || t;
       title.value = cur.title; pri.value = cur.priority; st.value = cur.status;
       deadline.value = cur.deadline || ''; link.value = cur.link || '';
@@ -2241,29 +2344,115 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
                        deadline: deadline.value || null, link: linkVal || null };
         if (!body.title) throw new ApiError('Please enter a title.');
         let row;
-        try {
-          row = requireRow(await rest('tasks?id=eq.' + q(t.id), { method: 'PATCH', body: body, prefer: 'return=representation' }));
-        } catch (e) {
-          restoreFields();   // the database refused: put every field back to its saved value
-          throw e;
+        if (creating) {
+          body.venture_id = S.ventureId;
+          body.is_personal = true;
+          row = requireRow(await rest('tasks', { method: 'POST', body: body, prefer: 'return=representation' }));
+        } else {
+          try {
+            row = requireRow(await rest('tasks?id=eq.' + q(t.id), { method: 'PATCH', body: body, prefer: 'return=representation' }));
+          } catch (e) {
+            restoreFields();   // the database refused: put every field back to its saved value
+            throw e;
+          }
         }
         applyTask(row);
         D.dlg.close();
         collapseAll();
         refillList();
-        flash('Task saved.', 'ok');
+        flash(creating ? 'Personal task added. Only you can see it.' : 'Task saved.', 'ok');
       }, err) },
       err,
-      h('p', { class: 'hint-line limited-hint' }, h('span', { text: 'You can change the status, title, priority, deadline and link. Only a superadmin can change the category, assignee or External setting.' })),
+      h('p', { class: 'hint-line limited-hint' }, h('span', { text: personal
+        ? 'Personal task: only you can see it, not other members and not superadmins.'
+        : 'You can change the status, title, priority, deadline and link. Only a superadmin can change the category, assignee or External setting.' })),
       field('Title', title),
       h('div', { class: 'grid2' }, field('Priority', pri), field('Status', st)),
       h('div', { class: 'grid2' }, field('Deadline', deadline)),
       field('Link', link, 'Optional. A web address; https:// is added if you leave it out.'),
       h('div', { class: 'actions end dialog-actions' },
         h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Cancel'),
-        h('button', { type: 'submit', class: 'btn primary' }, 'Save'))
+        h('button', { type: 'submit', class: 'btn primary' }, creating ? 'Add personal task' : 'Save'))
     ));
     title.focus();
+  }
+
+  // ---------- Personal tasks ----------
+  function renderPersonal() {
+    const listEl = h('ul', { class: 'tasklist', 'aria-label': 'Personal tasks' });
+    const countEl = h('span', { class: 'panel-count' });
+    function fill() {
+      const mine = personalTasks().sort(compareTasks);
+      countEl.textContent = mine.length + (mine.length === 1 ? ' task' : ' tasks');
+      listEl.replaceChildren();
+      if (!mine.length) {
+        listEl.append(h('li', { class: 'empty', text: 'No personal tasks yet. Use \u201c+ Add personal task\u201d to create one. Only you will see it.' }));
+      }
+      mine.forEach(function (t) { listEl.append(renderTaskItem(t)); });
+    }
+    refillList = fill;
+    fill();
+    const refreshBtn = h('button', { type: 'button', class: 'btn', title: 'Reload tasks', onclick: function (e) {
+      busy(e.currentTarget, async function () { if (await loadVentureData()) render(); });
+    } }, 'Refresh');
+    const addBtn = h('button', { type: 'button', class: 'btn primary', onclick: function () { openLimitedTaskForm(null); } }, '+ Add personal task');
+    return h('main', { class: 'page' },
+      h('div', { class: 'toolbar personal-toolbar' },
+        h('p', { class: 'personal-intro' }, svgIcon(ICON_LOCK, 14),
+          h('span', { text: 'Only you can see these tasks, not other members and not superadmins.' }),
+          infoTip(TIPS.personal, 'Personal tasks')),
+        refreshBtn, addBtn),
+      h('section', { class: 'panel' },
+        h('div', { class: 'panel-header' },
+          h('div', { class: 'panel-head-left' }, h('span', { class: 'panel-lock' }, svgIcon(ICON_LOCK, 13)), h('span', { class: 'panel-title', text: 'Personal' })),
+          h('div', { class: 'panel-head-right' }, countEl)),
+        listEl));
+  }
+
+  // "Make public": the owner picks a category and Internal/External; the
+  // database function make_task_public does the change (and checks it all).
+  function openMakePublic(t) {
+    const D = openDialog('Make this task public?');
+    const err = h('div', { class: 'inline-error', hidden: true, role: 'alert' });
+    const cats = S.categories.slice().sort(function (a, b) { return byText(a.name, b.name); });
+    const warn = h('ul', { class: 'publish-warn' },
+      h('li', { text: 'It becomes a normal task in the category you choose. Its earlier notes and history become visible to everyone who can see it.' }),
+      h('li', { text: 'This can\u2019t be undone: it can\u2019t be made private again.' }),
+      h('li', { text: 'If you pick a category you can\u2019t browse, or you\u2019re an external contractor and pick Internal, you won\u2019t be able to see it afterwards.' }));
+    if (!cats.length) {
+      D.inner.append(warn, h('p', { class: 'inline-error', text: 'You don\u2019t have access to any category, so this task can\u2019t be made public. Ask a superadmin.' }), dialogClose(D));
+      return;
+    }
+    const cat = h('select', { 'aria-label': 'Category' },
+      h('option', { value: '' }, 'Choose a category\u2026'),
+      cats.map(function (c) { return h('option', { value: c.id, text: c.name }); }));
+    const visName = 'vis-' + t.id;
+    const rInt = h('input', { type: 'radio', name: visName, value: 'internal' });
+    const rExt = h('input', { type: 'radio', name: visName, value: 'external' });
+    D.inner.append(h('form', { onsubmit: onSubmit(async function () {
+        if (!cat.value) throw new ApiError('Choose a category.');
+        if (!rInt.checked && !rExt.checked) throw new ApiError('Choose Internal or External.');
+        await rest('rpc/make_task_public', { method: 'POST', body: { p_task_id: t.id, p_category_id: cat.value, p_is_external: rExt.checked } });
+        D.dlg.close();
+        if (!(await loadVentureData())) return;
+        S.view = 'tasks';
+        render();
+        const now = taskById(t.id);
+        flash(now && !now.is_personal
+          ? 'Task made public. It\u2019s now in Tasks.'
+          : 'Task made public. Under the normal rules you can no longer see it.', 'ok');
+      }, err) },
+      err,
+      h('p', { class: 'publish-title', text: '\u201c' + t.title + '\u201d' }),
+      warn,
+      field('Category', cat),
+      h('fieldset', {}, h('legend', { text: 'Who can see it' }),
+        h('label', { class: 'check' }, rInt, h('span', { text: 'Internal: internal members with access to the category' })),
+        h('label', { class: 'check' }, rExt, h('span', { text: 'External: also external contractors with access to the category' }))),
+      h('div', { class: 'actions end dialog-actions' },
+        h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Cancel'),
+        h('button', { type: 'submit', class: 'btn primary' }, 'Make public'))
+    ));
   }
 
   // ---------- Admin ----------
@@ -2319,7 +2508,10 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     F.loading = true; F.error = null;
     updateFeed();
     const f = F.filters;
-    let path = 'task_events?select=id,task_id,actor_id,actor_name,kind,old_value,new_value,created_at' +
+    // tasks!inner(...) + tasks.is_personal=is.false: never include personal tasks,
+    // not even my own, and filter them out in the database so paging stays right.
+    let path = 'task_events?select=id,task_id,actor_id,actor_name,kind,old_value,new_value,created_at,tasks!inner(is_personal)' +
+      '&tasks.is_personal=is.false' +
       '&venture_id=eq.' + q(S.ventureId) + '&order=created_at.desc,id.desc' +
       '&limit=' + (FEED_PAGE + 1) + '&offset=' + F.rows.length;
     if (f.actor === 'db') path += '&actor_id=is.null';
@@ -2349,7 +2541,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     const f = S.feed.filters;
     function changed(key) { return function (e) { f[key] = e.target.value; loadFeed(true); }; }
     const people = S.members.slice().sort(function (a, b) { return byText(a.display_name, b.display_name); });
-    const tasks = S.tasks.slice().sort(function (a, b) { return byText(a.title, b.title); });
+    const tasks = sharedTasks().sort(function (a, b) { return byText(a.title, b.title); });
     const filters = h('div', { class: 'feed-filters' },
       h('select', { 'aria-label': 'Filter by person', value: f.actor, onchange: changed('actor') },
         h('option', { value: '' }, 'Everyone'),
