@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-vMgzpX/MK6t1lEu8ftD/O5aD0pZ73ZAyoly3Eql6n6k='; style-src 'sha256-VCNm/DASA/DOrNIHXi72yracN+gYVlvo+SajbPK5JM4='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-on3Gh8oQYieyawmz8kVD+ctd6NYVVmx24eN7R9ZI150='; style-src 'sha256-o2fKZalvSy26upyK+LYziQhFpMSMMBq3DUvxmJz2oIY='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <title>Task List</title>
@@ -402,14 +402,30 @@ label { display: block; }
 .invite-hint { margin: -6px 0 12px; }
 
 /* ---------- About / Help ---------- */
-.about { text-align: center; padding: 8px 0 4px; }
-.about-name { font-family: var(--f-display); font-weight: 800; font-size: 26px; letter-spacing: -1px; color: var(--acc); }
-.about-by { margin: 4px 0 10px; color: var(--t2); }
-.about-version { font-family: var(--f-mono); font-size: 11px; color: var(--t3); }
-.about-line { margin: 0 0 8px; line-height: 1.45; overflow-wrap: anywhere; }
-.about-label { color: var(--t3); }
-.about-app { font-family: var(--f-display); font-weight: 800; font-size: 20px; color: var(--acc); }
-.about-app .about-label { font-family: var(--f-body); font-weight: 400; font-size: 13px; }
+/* About page: centred card with a soft orange tint at the top */
+dialog.dialog.about-dialog { width: min(460px, calc(100% - 24px)); }
+.about-dialog .dialog-inner { padding: 0; }
+.about-dialog .dialog-actions { margin: 0; }
+.about-top {
+  text-align: center; padding: 28px 24px 22px; border-top: 2px solid var(--acc);
+  background: linear-gradient(180deg, rgba(249, 115, 22, .14), rgba(249, 115, 22, .03) 70%, transparent);
+}
+.about-kicker {
+  margin: 0 0 12px; font-family: var(--f-mono); font-size: 10px; letter-spacing: 2.5px; color: var(--t3);
+}
+.about-venture {
+  margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 34px; line-height: 1.15; letter-spacing: -1px;
+  color: var(--acc); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.about-tagline { margin: 10px 0 0; font-size: 14px; color: var(--txt); line-height: 1.45; overflow-wrap: anywhere; }
+.about-desc { margin: 12px auto 0; max-width: 340px; font-size: 13px; color: var(--t2); line-height: 1.55; overflow-wrap: anywhere; }
+.about-site { display: inline-block; margin-top: 14px; color: var(--acc); font-weight: 600; text-decoration: none; }
+.about-site:hover, .about-site:focus-visible { text-decoration: underline; }
+.about-foot { text-align: center; padding: 16px 24px 18px; border-top: 1px solid var(--bdr); }
+.about-powered { margin: 0; font-size: 12px; color: var(--t2); overflow-wrap: anywhere; }
+.about-powered a { color: var(--acc); text-decoration: none; }
+.about-powered a:hover, .about-powered a:focus-visible { text-decoration: underline; }
+.about-version { margin: 6px 0 0; font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
 .help { font-size: 13px; }
 .help-intro { color: var(--t2); }
 .help-sec { margin-top: 12px; }
@@ -480,6 +496,12 @@ input[type=radio] { width: 18px; height: 18px; accent-color: var(--acc); margin:
 .ann-head time { font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
 .ann-title { font-size: 14px; margin: 2px 0 4px; overflow-wrap: anywhere; }
 .ann-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; }
+.ann.has-new {
+  cursor: pointer; box-shadow: inset 2px 0 0 var(--acc);
+  background: linear-gradient(90deg, var(--acc-t), transparent 60%);
+}
+.ann.has-new:focus-visible { outline: 2px solid var(--acc); outline-offset: -2px; }
+.ann.has-new .ann-title { color: var(--acc); }
 .ann-list .empty { padding: 28px 16px; text-align: center; color: var(--t3); font-family: var(--f-mono); font-size: 11px; }
 .chip.aud-int { background: var(--blu-t); color: var(--blu); }
 .chip.aud-ext { background: var(--acc-t); color: var(--acc); }
@@ -628,6 +650,13 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   .dialog-inner { padding: 18px 16px 0; }
   .dialog-actions { margin: 8px -16px 0; padding-left: 16px; padding-right: 16px; }
   .dialog-actions .btn { flex: 1; }
+  /* About stays a centred card on phones */
+  dialog.dialog.about-dialog { width: calc(100% - 24px); margin: auto; border-radius: 14px; border-bottom: 1px solid var(--bdr); }
+  .about-dialog .dialog-actions { margin: 0; padding: 12px 16px; }
+  .about-dialog .dialog-actions .btn { flex: none; min-width: 96px; }
+  .about-top { padding: 24px 16px 18px; }
+  .about-venture { font-size: 30px; }
+  .about-foot { padding: 14px 16px 16px; }
 }
 @media (max-width: 520px) {
   .grid2 { grid-template-columns: 1fr; }
@@ -655,10 +684,13 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   const COMPANY_NAME = 'Matwa Group';
   const COMPANY_URL = 'https://matwagroup.com';
   const ABOUT_BY = 'Matwa Group Venture Club';
-  // About > "For:" line. Keyed by the EXACT venture name; add one entry per venture.
-  // A venture with no entry shows just its name.
+  // About page tagline and website. Keyed by the EXACT venture name; add one
+  // entry per venture. With no entry, the tagline / website link is left out.
   const VENTURE_TAGLINES = {
     'Tab Counsel': 'College Counseling Built Around Your Story, Not a Template'
+  };
+  const VENTURE_WEBSITES = {
+    'Tab Counsel': 'https://tabcounsel.com'
   };
   const SESSION_KEY = 'tlt.session.v1';
   const VENTURE_KEY = 'tlt.venture.v1';
@@ -701,6 +733,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     lastInvite: null,
     announcements: [],          // what the database lets me read in this venture, newest first
     annQuery: '',               // Announcements search box
+    annActivity: new Map(),     // announcement_id -> { baseline, changed_at, is_new } (announcement_activity_summary)
     activityOpen: new Set(),    // task ids whose Activity list is expanded (collapsed by default)
     adminTab: 'manage',         // Admin: 'manage' (members, categories, invites) or 'activity'
     feed: null,                 // Admin > Activity: { filters, rows, done, loading, error }
@@ -1069,6 +1102,9 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         .catch(function (e) { return { loadError: e }; }),
       // Announcements the database lets me read (newest first).
       rest(ANN_SELECT + '&venture_id=eq.' + v + '&order=created_at.desc')
+        .catch(function (e) { return { loadError: e }; }),
+      // One small row per readable announcement: is it new for me?
+      rest('rpc/announcement_activity_summary', { method: 'POST', body: { p_venture_id: S.ventureId } })
         .catch(function (e) { return { loadError: e }; })
     ]);
     if (res[5] && res[5].loadError) {
@@ -1077,6 +1113,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     } else {
       S.announcements = res[5] || [];
     }
+    setAnnActivity(res[6]);
     S.activity = new Map(); S.events = new Map(); S.highlightSince = new Map();
     if (res[4] && res[4].loadError) {
       flash('Activity information could not be loaded: ' + friendly(res[4].loadError));
@@ -1402,7 +1439,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     function item(label, view, icon) {
       return h('button', { type: 'button', class: 'bnav-item', 'aria-current': S.view === view ? 'page' : null,
         onclick: function () { goTo(view); } }, svgIcon(icon), h('span', { text: label }),
-        view === 'tasks' ? newCountBadge() : null);
+        view === 'tasks' ? newCountBadge() : (view === 'announcements' ? annCountBadge() : null));
     }
     return h('nav', { class: 'bnav', 'aria-label': 'Sections' }, item('Tasks', 'tasks', ICON_TASKS), item('Announcements', 'announcements', ICON_MEGAPHONE), item('Personal', 'personal', ICON_LOCK),
       S.me.is_superadmin ? item('Admin', 'admin', ICON_ADMIN) : null);
@@ -1414,7 +1451,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       return h('button', { type: 'button', class: 'tab', 'aria-current': S.view === view ? 'page' : null,
         onclick: function () { goTo(view); } },
         view === 'personal' ? h('span', { class: 'tab-lock' }, svgIcon(ICON_LOCK, 13)) : null,
-        label, view === 'tasks' ? newCountBadge() : null);
+        label, view === 'tasks' ? newCountBadge() : (view === 'announcements' ? annCountBadge() : null));
     }
     // Profile menu: a <details> element, so it opens by tap, click, Enter or
     // Space; Esc and outside clicks close it (listeners below).
@@ -1512,7 +1549,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   const TIPS = {
     dot: 'Someone else changed this task since you last opened it. Open it to see what changed.',
     notes: 'Anyone who can see this task can add a note and read the notes. A note\u2019s author and superadmins can edit or delete it, or post it as an announcement.',
-    announce: 'Announcements are news for the whole workspace, not tied to any task or category. Internal: internal members. External: external contractors. Both: everyone. Superadmins see every announcement, and you always see your own.',
+    announce: 'Announcements are news for the whole workspace, not tied to any task or category. Internal: internal members. External: external contractors. Both: everyone. Superadmins see every announcement, and you always see your own. An orange dot marks one that is new to you.',
+    annDot: 'Someone else posted or changed this announcement since you last looked. Tap it, or use Mark all as seen, to clear the dot.',
     created: 'Shows tasks by the date they were created, in your local time. This week runs Monday to Sunday.',
     mine: 'Shows only tasks assigned to you.',
     taskExternal: 'Off: only superadmins, internal members with access to this category, and the person it\u2019s assigned to can see this task. On: contractors with access to this category can see it, including its notes and change history.',
@@ -1528,23 +1566,34 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     return h('div', { class: 'actions end dialog-actions' },
       h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Close'));
   }
+  function ownEntry(map, key) { return Object.prototype.hasOwnProperty.call(map, key) ? map[key] : ''; }
   function openAbout() {
     const D = openDialog('About');
+    D.dlg.classList.add('about-dialog');
+    D.inner.querySelector('.ov-title').remove();
     const v = currentVenture();
     const ventureName = v ? v.venture_name : '';
-    const tagline = Object.prototype.hasOwnProperty.call(VENTURE_TAGLINES, ventureName) ? VENTURE_TAGLINES[ventureName] : '';
-    function line(label, value, cls) {
-      return h('p', { class: 'about-line' + (cls ? ' ' + cls : '') },
-        h('span', { class: 'about-label', text: label + ': ' }), h('span', { text: value }));
-    }
+    const tagline = ownEntry(VENTURE_TAGLINES, ventureName);
+    const site = ownEntry(VENTURE_WEBSITES, ventureName);
+    const siteOk = site && safeHttpUrl(site);
+    const nameEl = h('h2', { class: 'about-venture', text: ventureName || APP_NAME });
     D.inner.append(
-      h('div', { class: 'about' },
-        line('App', APP_NAME, 'about-app'),
-        ventureName ? line('For', tagline ? ventureName + ' \u2013 ' + tagline : ventureName) : null,
-        line('By', ABOUT_BY),
-        h('p', { class: 'about-line' }, h('a', { href: COMPANY_URL, target: '_blank', rel: 'noopener noreferrer', class: 'ext-link', text: 'matwagroup.com' })),
-        line('Version', APP_VERSION, 'about-version')),
+      h('div', { class: 'about-top' },
+        h('p', { class: 'about-kicker', text: 'TASK LIST \u00b7 WORKSPACE' }),
+        nameEl,
+        tagline ? h('p', { class: 'about-tagline', text: tagline }) : null,
+        h('p', { class: 'about-desc', text: 'Task List keeps the ' + (ventureName ? ventureName + ' ' : '') +
+          'team up to date with the latest tasks and announcements, so everyone stays in the loop.' }),
+        siteOk ? h('a', { class: 'about-site', href: site, target: '_blank', rel: 'noopener noreferrer',
+          text: new URL(site).hostname.replace(/^www\./, '') }) : null),
+      h('div', { class: 'about-foot' },
+        h('p', { class: 'about-powered' }, 'Powered by ' + ABOUT_BY + ' \u00b7 ',
+          h('a', { href: COMPANY_URL, target: '_blank', rel: 'noopener noreferrer', text: 'matwagroup.com' })),
+        h('p', { class: 'about-version', text: 'Version ' + APP_VERSION })),
       dialogClose(D));
+    // Keep the name on one line: shrink it until it fits (long names, narrow phones).
+    let size = parseFloat(getComputedStyle(nameEl).fontSize);
+    while (nameEl.scrollWidth > nameEl.clientWidth && size > 14) { size -= 1; nameEl.style.fontSize = size + 'px'; }
   }
   function openHelp() {
     const sa = S.me.is_superadmin;
@@ -1584,6 +1633,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         'An orange dot on a task means someone else changed it since you last opened it. Open the task to see what changed: new items are marked NEW and shown in orange.',
         'Opening a task, or Mark all as seen, clears the dot. Your own changes are never marked as new.',
         'Inside a task, \u201cShow activity\u201d lists every change: who, what and when.',
+        'The Announcements tab has its own orange count of new announcements.',
         'The list updates when you load the page or press Refresh.'
       ]),
       sa ? sec('Sharing with contractors', [
@@ -1596,6 +1646,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         'The Announcements tab is for news to the whole workspace. It isn\u2019t tied to tasks or categories.',
         'Anyone can post. Choose who it\u2019s for: Internal (internal members), External (external contractors) or Both. Superadmins see every announcement, and you always see your own.',
         'The person who posted it and superadmins can edit or delete it.',
+        'The orange number on the Announcements tab counts announcements that are new to you. New ones have an orange dot. Tap one, or use Mark all as seen, to clear it. If someone else edits an announcement later, it shows as new again. Your own posts and edits never do.',
         '\u201cPost as announcement\u201d on a note copies its text into a new announcement; the note stays in the task. Careful: people who can\u2019t see that task will be able to read the text.'
       ]),
       sec('Personal tasks', [
@@ -2246,10 +2297,70 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   const ANN_SELECT = 'announcements?select=id,venture_id,title,body,audience,created_by,author_name,created_at,edited_at,posted_from_note_id';
   const AUDIENCE_LABEL = { internal: 'Internal', external: 'External', both: 'Everyone' };
   async function loadAnnouncements() {
-    try {
-      S.announcements = (await rest(ANN_SELECT + '&venture_id=eq.' + q(S.ventureId) + '&order=created_at.desc')) || [];
-    } catch (e) { flash('Announcements could not be loaded: ' + friendly(e)); return; }
+    const res = await Promise.all([
+      rest(ANN_SELECT + '&venture_id=eq.' + q(S.ventureId) + '&order=created_at.desc').catch(function (e) { return { loadError: e }; }),
+      rest('rpc/announcement_activity_summary', { method: 'POST', body: { p_venture_id: S.ventureId } }).catch(function (e) { return { loadError: e }; })
+    ]);
+    if (res[0] && res[0].loadError) { flash('Announcements could not be loaded: ' + friendly(res[0].loadError)); return; }
+    S.announcements = res[0] || [];
+    setAnnActivity(res[1]);
     if (S.view === 'announcements') refillList();
+    updateAnnIndicators();
+  }
+  // Only the "new" markers (after posting, editing or deleting).
+  async function loadAnnSummary() {
+    setAnnActivity(await rest('rpc/announcement_activity_summary', { method: 'POST', body: { p_venture_id: S.ventureId } })
+      .catch(function (e) { return { loadError: e }; }));
+    updateAnnIndicators();
+  }
+  function setAnnActivity(rows) {
+    S.annActivity = new Map();
+    if (rows && rows.loadError) { flash('New-announcement markers could not be loaded: ' + friendly(rows.loadError)); return; }
+    (rows || []).forEach(function (r) {
+      S.annActivity.set(r.announcement_id, { baseline: r.baseline, changed_at: r.changed_at, is_new: !!r.is_new });
+    });
+  }
+  // "New" = posted or changed by someone else since I last marked it seen
+  // (worked out by the database; my own posts and edits never count).
+  function annIsNew(a) { const x = S.annActivity.get(a.id); return !!x && x.is_new; }
+  function newAnnCount() { return S.announcements.filter(annIsNew).length; }
+  function annCountBadge() {
+    const n = newAnnCount();
+    return h('span', { class: 'tab-badge js-anncount', hidden: n === 0, 'aria-label': n + ' new announcements', text: String(n) });
+  }
+  function updateAnnIndicators() {
+    const n = newAnnCount();
+    document.querySelectorAll('.js-anncount').forEach(function (el) {
+      el.textContent = String(n); el.hidden = n === 0;
+      el.setAttribute('aria-label', n + ' new announcements');
+    });
+    document.querySelectorAll('.js-annchip').forEach(function (el) { el.textContent = n + ' new'; el.hidden = n === 0; });
+    document.querySelectorAll('.js-annmarkall').forEach(function (el) { el.hidden = n === 0; });
+    document.querySelectorAll('li.ann').forEach(function (li) {
+      const a = S.announcements.find(function (x) { return x.id === li.getAttribute('data-id'); });
+      if (a && li.classList.contains('has-new') !== annIsNew(a)) li.replaceWith(renderAnnouncement(a));
+    });
+  }
+  // ids: a list of announcement ids, or null for all I can read ("Mark all as seen").
+  async function markAnnouncementsSeen(ids) {
+    await rest('rpc/mark_announcements_seen', { method: 'POST', body: { p_venture_id: S.ventureId, p_announcement_ids: ids } });
+    S.annActivity.forEach(function (x, id) {
+      if (ids && ids.indexOf(id) === -1) return;
+      x.is_new = false;
+      if (x.changed_at && ms(x.changed_at) > ms(x.baseline)) x.baseline = x.changed_at;
+    });
+    updateAnnIndicators();
+  }
+  function markAllAnnSeen(btn) {
+    busy(btn, async function () {
+      await markAnnouncementsSeen(null);
+      flash('All announcements marked as seen.', 'ok');
+    });
+  }
+  // Opening a new announcement (tap or click on it) marks it as seen, like opening a task.
+  function openedAnnouncement(a) {
+    if (!annIsNew(a)) return;
+    markAnnouncementsSeen([a.id]).catch(function (e) { flash(friendly(e)); });
   }
   function canManageAnnouncement(a) { return a.created_by === session.user.id || S.me.is_superadmin; }
   function renderAnnouncements() {
@@ -2278,19 +2389,40 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       busy(e.currentTarget, loadAnnouncements);
     } }, 'Refresh');
     const addBtn = h('button', { type: 'button', class: 'btn primary', onclick: function () { openAnnouncementForm(null); } }, '+ Announce');
+    const n = newAnnCount();
+    const newChip = h('span', { class: 'chip ext js-annchip', hidden: n === 0, text: n + ' new' });
+    const markAllBtn = h('button', { type: 'button', class: 'btn small js-annmarkall', hidden: n === 0,
+      onclick: function (e) { markAllAnnSeen(e.currentTarget); } }, 'Mark all as seen');
     return h('main', { class: 'page' },
       h('div', { class: 'toolbar ann-toolbar' }, search, refreshBtn, addBtn),
       h('section', { class: 'panel' },
         h('div', { class: 'panel-header' },
           h('div', { class: 'panel-head-left' }, h('span', { class: 'panel-lock' }, svgIcon(ICON_MEGAPHONE, 13)),
-            h('span', { class: 'panel-title', text: 'Announcements' }), infoTip(TIPS.announce, 'Announcements')),
-          h('div', { class: 'panel-head-right' }, countEl)),
+            h('span', { class: 'panel-title', text: 'Announcements' }), infoTip(TIPS.announce, 'Announcements'), newChip),
+          h('div', { class: 'panel-head-right' }, markAllBtn, countEl)),
         listEl));
   }
   function renderAnnouncement(a) {
     const audCls = a.audience === 'internal' ? 'int' : (a.audience === 'external' ? 'ext' : 'both');
-    return h('li', { class: 'ann', 'data-id': a.id },
+    const isNew = annIsNew(a);
+    const li = h('li', { class: 'ann' + (isNew ? ' has-new' : ''), 'data-id': a.id });
+    if (isNew) {
+      // Tapping or clicking a new announcement (not one of its links or buttons) marks it as seen.
+      li.tabIndex = 0;
+      li.setAttribute('aria-label', 'New announcement' + (a.title ? ': ' + a.title : '') + '. Press Enter to mark it as seen.');
+      li.addEventListener('click', function (e) {
+        if (e.target.closest('a, button')) return;
+        openedAnnouncement(a);
+      });
+      li.addEventListener('keydown', function (e) {
+        if (e.target !== li || (e.key !== 'Enter' && e.key !== ' ')) return;
+        e.preventDefault();
+        openedAnnouncement(a);
+      });
+    }
+    append(li, [
       h('div', { class: 'ann-head' },
+        isNew ? infoTip(TIPS.annDot, 'New since you last looked', h('span', { class: 'new-dot', 'aria-hidden': 'true' }), 'dot-tip') : null,
         h('strong', { class: 'ann-author', text: a.author_name || 'Unknown' }),
         h('time', { datetime: a.created_at, title: fmtWhen(a.created_at), text: fmtWhen(a.created_at) }),
         a.edited_at ? h('span', { class: 'edited-mark', title: 'Edited ' + fmtWhen(a.edited_at), text: 'edited' }) : null,
@@ -2305,10 +2437,14 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
           busy(btn, async function () {
             requireRow(await rest('announcements?id=eq.' + q(a.id), { method: 'DELETE', prefer: 'return=representation' }));
             S.announcements = S.announcements.filter(function (x) { return x.id !== a.id; });
+            S.annActivity.delete(a.id);
             refillList();
+            updateAnnIndicators();
             flash('Announcement deleted.', 'ok');
+            loadAnnSummary();
           });
-        } }, 'Delete')) : null);
+        } }, 'Delete')) : null]);
+    return li;
   }
   function openAnnouncementForm(a) {
     const editing = !!a;
@@ -2334,6 +2470,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         D.dlg.close();
         if (S.view === 'announcements') refillList();
         flash(editing ? 'Announcement saved.' : 'Announcement posted.', 'ok');
+        loadAnnSummary();   // my own post or edit is never new for me
       }, err) },
       err,
       field('Title', title),
