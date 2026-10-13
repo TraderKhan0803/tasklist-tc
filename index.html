@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-BprxaJuK4A5jvRIAKugYH5s+aKI+9RczgPy6TrD8otE='; style-src 'sha256-pp1ilgWn4V+20jU7SRmt7z/KKDFAcAh1BDFnum5hfIc='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-vMgzpX/MK6t1lEu8ftD/O5aD0pZ73ZAyoly3Eql6n6k='; style-src 'sha256-VCNm/DASA/DOrNIHXi72yracN+gYVlvo+SajbPK5JM4='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <title>Task List</title>
@@ -471,6 +471,40 @@ input[type=radio] { width: 18px; height: 18px; accent-color: var(--acc); margin:
   .personal-toolbar .personal-intro { grid-column: 1 / -1; }
 }
 
+/* ---------- announcements ---------- */
+.ann-list { list-style: none; margin: 0; padding: 0; }
+.ann { padding: 12px 14px; }
+.ann + .ann { border-top: 1px solid var(--bdr); }
+.ann-head { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin-bottom: 4px; }
+.ann-author { font-size: 12px; color: var(--txt); }
+.ann-head time { font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
+.ann-title { font-size: 14px; margin: 2px 0 4px; overflow-wrap: anywhere; }
+.ann-body { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 13px; line-height: 1.6; }
+.ann-list .empty { padding: 28px 16px; text-align: center; color: var(--t3); font-family: var(--f-mono); font-size: 11px; }
+.chip.aud-int { background: var(--blu-t); color: var(--blu); }
+.chip.aud-ext { background: var(--acc-t); color: var(--acc); }
+.chip.aud-both { background: var(--grn-t); color: var(--grn); }
+.edited-mark { font-family: var(--f-mono); font-size: 10px; color: var(--t3); font-style: italic; }
+.chip.posted { display: inline-flex; gap: 4px; background: var(--grn-t); color: var(--grn); }
+.note-actions { display: flex; flex-wrap: wrap; gap: 2px 6px; margin-top: 4px; }
+.note-actions .btn.link { min-height: 28px; padding: 2px 4px; font-size: 11px; color: var(--t2); }
+.note-actions .btn.link:hover { color: var(--acc); }
+.note-actions .btn.link.danger { color: var(--red); }
+.note-quote { margin: 0 0 12px; padding: 8px 12px; border-left: 2px solid var(--bdr); color: var(--t2); white-space: pre-wrap; overflow-wrap: anywhere; font-size: 12px; max-height: 140px; overflow: auto; }
+.audience-set label strong { color: var(--txt); font-weight: 600; }
+.ann-toolbar .search { flex: 1 1 240px; }
+
+/* ---------- mobile filter bar ---------- */
+.mobile-bar { display: none; }
+.filter-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px;
+  background: var(--acc); color: #fff; font-family: var(--f-mono); font-size: 10px; }
+dialog.filter-sheet .toolbar { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0; }
+dialog.filter-sheet .toolbar .search,
+dialog.filter-sheet .toolbar .btn.primary { display: none; }
+dialog.filter-sheet .toolbar .sortgroup,
+dialog.filter-sheet .toolbar .custom-range,
+dialog.filter-sheet .toolbar > .with-tip { grid-column: 1 / -1; }
+
 /* ---------- admin (TD .adm-card) ---------- */
 .section { background: var(--sur); border: 1px solid var(--bdr); border-radius: var(--r); padding: 16px; margin-bottom: 12px; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
@@ -556,6 +590,17 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   .toolbar select { width: 100%; }
   .toolbar .check { padding: 0 2px; }
   .toolbar .btn.primary { grid-column: 1 / -1; min-height: 44px; }
+  /* slim bar replaces the big filter block on the Tasks tab */
+  .task-toolbar { display: none; }
+  .mobile-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .mobile-bar .search { flex: 1 1 auto; min-width: 0; }
+  .mobile-bar .btn { flex: none; min-height: 44px; }
+  .filters-btn { gap: 6px; }
+  .add-mini { width: 44px; padding: 0; font-size: 22px; }
+  .ann-toolbar { grid-template-columns: 1fr auto; }
+  .ann-toolbar .search { grid-column: 1 / -1; }
+  .ann-toolbar .btn.primary { grid-column: auto; }
+  .ann { padding: 12px; }
   .toolbar .custom-range { grid-column: 1 / -1; grid-template-columns: 1fr 1fr; }
   .sortgroup { flex: none; }
   .panel-header { padding: 9px 12px; }
@@ -654,6 +699,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     highlightSince: new Map(),  // task_id -> my baseline at the moment I opened the task (for "new" highlights)
     admin: null,              // { access:Set('member|category'), emails:Map, invites:[] }
     lastInvite: null,
+    announcements: [],          // what the database lets me read in this venture, newest first
+    annQuery: '',               // Announcements search box
     activityOpen: new Set(),    // task ids whose Activity list is expanded (collapsed by default)
     adminTab: 'manage',         // Admin: 'manage' (members, categories, invites) or 'activity'
     feed: null,                 // Admin > Activity: { filters, rows, done, loading, error }
@@ -1016,11 +1063,20 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       rest('venture_members?select=id,user_id,display_name,is_superadmin,is_external&venture_id=eq.' + v),
       rest('categories?select=id,name&venture_id=eq.' + v),
       rest('tasks?select=id,venture_id,category_id,title,priority,status,deadline,assigned_to,link,is_external,is_personal,created_by,created_at,updated_at&venture_id=eq.' + v),
-      rest('task_notes?select=id,task_id,author_id,author_name,body,created_at,tasks!inner(venture_id)&tasks.venture_id=eq.' + v + '&order=created_at.asc'),
+      rest('task_notes?select=id,task_id,author_id,author_name,body,created_at,edited_at,posted_as_announcement_at,posted_announcement_id,tasks!inner(venture_id)&tasks.venture_id=eq.' + v + '&order=created_at.asc'),
       // One small row per visible task: what's new for me, and when it last changed.
       rest('rpc/task_activity_summary', { method: 'POST', body: { p_venture_id: S.ventureId } })
+        .catch(function (e) { return { loadError: e }; }),
+      // Announcements the database lets me read (newest first).
+      rest(ANN_SELECT + '&venture_id=eq.' + v + '&order=created_at.desc')
         .catch(function (e) { return { loadError: e }; })
     ]);
+    if (res[5] && res[5].loadError) {
+      S.announcements = [];
+      flash('Announcements could not be loaded: ' + friendly(res[5].loadError));
+    } else {
+      S.announcements = res[5] || [];
+    }
     S.activity = new Map(); S.events = new Map(); S.highlightSince = new Map();
     if (res[4] && res[4].loadError) {
       flash('Activity information could not be loaded: ' + friendly(res[4].loadError));
@@ -1105,6 +1161,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       case 'error': appEl.append(renderErrorView()); break;
       case 'invite': appEl.append(renderInviteSignedIn()); break;
       case 'personal': append(appEl, [renderHeader(), renderPersonal(), renderBottomNav()]); updateNewIndicators(); break;
+      case 'announcements': append(appEl, [renderHeader(), renderAnnouncements(), renderBottomNav()]); updateNewIndicators(); break;
       default: appEl.append(h('p', { class: 'center muted', text: 'Loading…' }));
     }
     // Small footer on every screen. It sits in the normal page flow (never fixed),
@@ -1289,7 +1346,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   function goTo(view) {
     if (S.view === view) return;
     if (view === 'admin') openAdmin();
-    else { S.view = view === 'personal' ? 'personal' : 'tasks'; S.lastInvite = null; collapseAll(); render(); }
+    else { S.view = (view === 'personal' || view === 'announcements') ? view : 'tasks'; S.lastInvite = null; collapseAll(); render(); }
   }
   // Small inline SVG icons (fixed path data, never user data).
   function svgIcon(d, size) {
@@ -1311,6 +1368,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   }
   const ICON_TASKS = 'M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01';
   const ICON_ADMIN = 'M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6';
+  const ICON_MEGAPHONE = 'M3 11v2a1 1 0 0 0 1 1h2l6 4V6L6 10H4a1 1 0 0 0-1 1zM16 9a3 3 0 0 1 0 6M19 6a7 7 0 0 1 0 12';
+  const ICON_FILTER = 'M3 5h18M6 12h12M10 19h4';
   const ICON_LOCK = 'M6 11h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1zM8 11V7a4 4 0 0 1 8 0v4';
   // Eye / eye-off line icons (same shapes as the TD Dashboard login).
   const ICON_EYE = 'M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8zM12 9a3 3 0 1 0 0 6a3 3 0 1 0 0-6z';
@@ -1345,7 +1404,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         onclick: function () { goTo(view); } }, svgIcon(icon), h('span', { text: label }),
         view === 'tasks' ? newCountBadge() : null);
     }
-    return h('nav', { class: 'bnav', 'aria-label': 'Sections' }, item('Tasks', 'tasks', ICON_TASKS), item('Personal', 'personal', ICON_LOCK),
+    return h('nav', { class: 'bnav', 'aria-label': 'Sections' }, item('Tasks', 'tasks', ICON_TASKS), item('Announcements', 'announcements', ICON_MEGAPHONE), item('Personal', 'personal', ICON_LOCK),
       S.me.is_superadmin ? item('Admin', 'admin', ICON_ADMIN) : null);
   }
 
@@ -1389,7 +1448,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       : h('div', { class: 'brand' }, brandKids);
     return h('header', { class: 'topbar' },
       brand,
-      h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tabBtn('Tasks', 'tasks'), tabBtn('Personal', 'personal'),
+      h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tabBtn('Tasks', 'tasks'), tabBtn('Announcements', 'announcements'), tabBtn('Personal', 'personal'),
         S.me.is_superadmin ? tabBtn('Admin', 'admin') : null),
       menu);
   }
@@ -1452,7 +1511,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   }
   const TIPS = {
     dot: 'Someone else changed this task since you last opened it. Open it to see what changed.',
-    notes: 'Anyone who can see this task can add a note and read the notes. Notes are permanent: nobody can edit or delete them in the app.',
+    notes: 'Anyone who can see this task can add a note and read the notes. A note\u2019s author and superadmins can edit or delete it, or post it as an announcement.',
+    announce: 'Announcements are news for the whole workspace, not tied to any task or category. Internal: internal members. External: external contractors. Both: everyone. Superadmins see every announcement, and you always see your own.',
     created: 'Shows tasks by the date they were created, in your local time. This week runs Monday to Sunday.',
     mine: 'Shows only tasks assigned to you.',
     taskExternal: 'Off: only superadmins, internal members with access to this category, and the person it\u2019s assigned to can see this task. On: contractors with access to this category can see it, including its notes and change history.',
@@ -1512,13 +1572,13 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         'Create, edit and delete tasks, and change any field. In Admin, manage members, categories, who can browse which category, and invites.',
         'Everyone who can see a task can also change its status, title, priority, deadline and link, and add notes. Only superadmins can change its category, who it\u2019s assigned to or whether it\u2019s External, and only superadmins create or delete tasks.',
         'Admin \u2192 Activity shows every change in this workspace, newest first.',
-        'Notes are permanent: nobody can edit or delete them in the app. They are removed only if a superadmin deletes the whole task.'
+        'You can edit or delete any note on tasks you can see (not on other people’s personal tasks); authors can edit or delete their own. Deleting removes the text for good: the history only records who deleted it and when.'
       ] : [
         'On any task you can see, you can change its status, title, priority, deadline and link, and add notes.',
         'You can create your own private tasks in the Personal tab.',
         'Only a superadmin can change a task\u2019s category, who it\u2019s assigned to or whether it\u2019s External, and only a superadmin can create or delete tasks.',
         'Every change you make is recorded with your name in the task\u2019s activity.',
-        'Notes are permanent: nobody can edit or delete them in the app. They are removed only if a superadmin deletes the whole task.'
+        'You can edit or delete your own notes; superadmins can edit or delete any note on tasks they can see. Deleting removes the text for good: the history only records who deleted it and when.'
       ]),
       sec('Staying up to date', [
         'An orange dot on a task means someone else changed it since you last opened it. Open the task to see what changed: new items are marked NEW and shown in orange.',
@@ -1532,6 +1592,12 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         'Ticking External on a task that already has notes or history shows all of it to those contractors. You\u2019ll be asked to confirm.',
         'An internal task can\u2019t be assigned to a contractor. Mark it External first.'
       ]) : null,
+      sec('Announcements', [
+        'The Announcements tab is for news to the whole workspace. It isn\u2019t tied to tasks or categories.',
+        'Anyone can post. Choose who it\u2019s for: Internal (internal members), External (external contractors) or Both. Superadmins see every announcement, and you always see your own.',
+        'The person who posted it and superadmins can edit or delete it.',
+        '\u201cPost as announcement\u201d on a note copies its text into a new announcement; the note stays in the task. Careful: people who can\u2019t see that task will be able to read the text.'
+      ]),
       sec('Personal tasks', [
         'The Personal tab is your private list. Personal tasks are visible only to you: not to other members, and not even to superadmins.',
         'You can edit them, add notes and delete them. Their notes and history are private too.',
@@ -1576,8 +1642,10 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     switch (e.kind) {
       case 'created': return 'created the task';
       case 'note':
-        if (!full) return 'added a note';
-        return 'added a note: “' + orNone(e.new_value, '') + ((e.new_value || '').length >= 200 ? '…' : '') + '”';
+        if (!full || !e.new_value) return 'added a note';   // text is blanked once a note is edited or deleted
+        return 'added a note: “' + e.new_value + (e.new_value.length >= 200 ? '…' : '') + '”';
+      case 'note_edited': return 'edited a note';
+      case 'note_deleted': return 'deleted a note';
       case 'title': return 'title “' + orNone(e.old_value, '') + '” → “' + orNone(e.new_value, '') + '”';
       case 'deadline': return 'deadline ' + (e.old_value ? fmtDay(e.old_value) : 'none') + ' → ' + (e.new_value ? fmtDay(e.new_value) : 'none');
       case 'assigned': return 'assignee ' + orNone(e.old_value, 'Unassigned') + ' → ' + orNone(e.new_value, 'Unassigned');
@@ -1783,7 +1851,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     } }, 'Refresh');
     const addBtn = isAdmin ? h('button', { type: 'button', class: 'btn primary', onclick: function () { openTaskForm(null); } }, '+ Add task') : null;
 
-    function fill() {
+    let fill = function () {
       const tasks = filteredTasks();
       const total = sharedTasks().length;
       countEl.textContent = tasks.length === total
@@ -1797,15 +1865,36 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       }
       tasks.forEach(function (t) { listEl.append(renderTaskItem(t)); });
       updateNewIndicators();
-    }
-    refillList = fill;
-    fill();
-    return h('main', { class: 'page' },
-      h('div', { class: 'toolbar' }, search, catSel, stSel,
+    };
+    // Phones: one slim bar (search + Filters + add); the full filter block
+    // opens in a bottom sheet. Desktop keeps the full toolbar.
+    const filterCount = h('span', { class: 'filter-count', hidden: true });
+    const mSearch = h('input', { type: 'search', class: 'search', placeholder: 'Search tasks', 'aria-label': 'Search tasks', value: S.filters.q,
+      oninput: function (e) { S.filters.q = e.target.value; search.value = e.target.value; collapseAll(); fill(); } });
+    search.addEventListener('input', function () { mSearch.value = search.value; });
+    const toolbar = h('div', { class: 'toolbar task-toolbar' }, search, catSel, stSel,
         h('div', { class: 'with-tip' }, createdSel, infoTip(TIPS.created, 'Created filter')),
         sortGroup, customRow,
         h('div', { class: 'with-tip' }, mine, infoTip(TIPS.mine, 'Assigned to me')),
-        refreshBtn, addBtn),
+        refreshBtn, addBtn);
+    const mobileBar = h('div', { class: 'mobile-bar' }, mSearch,
+      h('button', { type: 'button', class: 'btn filters-btn', 'aria-label': 'Filters', onclick: function () { openFilterSheet(toolbar); } },
+        svgIcon(ICON_FILTER, 16), h('span', { text: 'Filters' }), filterCount),
+      isAdmin ? h('button', { type: 'button', class: 'btn primary add-mini', 'aria-label': 'Add task', title: 'Add task', onclick: function () { openTaskForm(null); } }, '+') : null);
+    function updateFilterCount() {
+      const f = S.filters;
+      const n = (f.category ? 1 : 0) + (f.status ? 1 : 0) + (f.mine ? 1 : 0) + (f.created !== 'any' ? 1 : 0);
+      filterCount.textContent = String(n);
+      filterCount.hidden = n === 0;
+      filterCount.setAttribute('aria-label', n + ' active filters');
+    }
+    const plainFill = fill;
+    fill = function () { plainFill(); updateFilterCount(); };
+    refillList = fill;
+    fill();
+    return h('main', { class: 'page' },
+      mobileBar,
+      toolbar,
       h('section', { class: 'panel' },
         h('div', { class: 'panel-header' },
           h('div', { class: 'panel-head-left' }, h('span', { class: 'panel-title', text: 'Tasks' }), newChip),
@@ -1923,6 +2012,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   }
   function shortItem(e) {
     if (e.kind === 'note') return 'note';
+    if (e.kind === 'note_edited') return 'note edited';
+    if (e.kind === 'note_deleted') return 'note deleted';
     if (e.kind === 'created') return 'created';
     return describeEvent(e, false);
   }
@@ -2020,14 +2111,238 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     }
     box.append(h('ol', { class: 'notes' }, notes.map(function (n) {
       const isNew = isNewNote(n, info);
+      const mine = canManageNote(t, n);
       return h('li', { class: 'note' + (isNew ? ' new' : '') },
         h('div', { class: 'note-head' },
           h('strong', { text: n.author_name || 'Unknown' }),
           isNew ? chip('NEW', 'ext') : null,
-          h('time', { datetime: n.created_at, text: fmtWhen(n.created_at) })),
-        h('p', { class: 'note-body' }, linkify(n.body)));
+          h('time', { datetime: n.created_at, text: fmtWhen(n.created_at) }),
+          n.edited_at ? h('span', { class: 'edited-mark', title: 'Edited ' + fmtWhen(n.edited_at), text: 'edited' }) : null,
+          n.posted_as_announcement_at ? h('span', { class: 'chip posted', title: 'Posted as an announcement ' + fmtWhen(n.posted_as_announcement_at) },
+            svgIcon(ICON_MEGAPHONE, 11), h('span', { text: 'posted as announcement' })) : null),
+        h('p', { class: 'note-body' }, linkify(n.body)),
+        mine ? h('div', { class: 'note-actions' },
+          h('button', { type: 'button', class: 'btn link small', onclick: function () { openNoteEdit(t, n); } }, 'Edit'),
+          h('button', { type: 'button', class: 'btn link small', onclick: function () { openPostNote(t, n); } }, 'Post as announcement'),
+          h('button', { type: 'button', class: 'btn link small danger', onclick: function (e) { deleteNote(t, n, e.currentTarget); } }, 'Delete')) : null);
     })));
     return box;
+  }
+
+  // Phones: the full filter block, moved into a bottom sheet while open.
+  function openFilterSheet(toolbar) {
+    const home = toolbar.parentNode, next = toolbar.nextSibling;
+    const D = openDialog('Filters');
+    D.dlg.classList.add('filter-sheet');
+    D.inner.append(toolbar,
+      h('div', { class: 'actions end dialog-actions' },
+        h('button', { type: 'button', class: 'btn', onclick: function () {
+          const q0 = S.filters.q;
+          S.filters = freshFilters(); S.filters.q = q0;
+          D.dlg.close();
+          collapseAll();
+          render();
+        } }, 'Clear filters'),
+        h('button', { type: 'button', class: 'btn primary', onclick: function () { D.dlg.close(); } }, 'Done')));
+    D.dlg.addEventListener('close', function () { if (home && home.isConnected) home.insertBefore(toolbar, next); });
+  }
+
+  // ---------- Notes: edit, delete, post as announcement ----------
+  // Shown to the note's author, and to superadmins on shared tasks (a personal
+  // task's notes are only ever its owner's). The database enforces the same.
+  function canManageNote(t, n) {
+    return n.author_id === session.user.id || (S.me.is_superadmin && !t.is_personal);
+  }
+  function replaceNote(row) {
+    const list = S.notesByTask.get(row.task_id) || [];
+    const i = list.findIndex(function (x) { return x.id === row.id; });
+    if (i >= 0) list[i] = row;
+  }
+  // Redraw an open task's notes, its row subtitle and (after reloading) its activity.
+  function refreshTaskNotes(taskId) {
+    const li = taskLi(taskId);
+    const t = taskById(taskId);
+    if (li && t) {
+      const main = li.querySelector('.row .main');
+      if (main) main.replaceWith(renderRowMain(t, li));
+    }
+    refreshDetailHighlights(taskId);
+    loadEvents(taskId);
+  }
+  function openNoteEdit(t, n) {
+    const D = openDialog('Edit note');
+    const err = h('div', { class: 'inline-error', hidden: true, role: 'alert' });
+    const ta = h('textarea', { rows: '6', maxlength: '10000', required: true, 'aria-label': 'Note text' });
+    ta.value = n.body;
+    D.inner.append(h('form', { onsubmit: onSubmit(async function () {
+        const body = ta.value.trim();
+        if (!body) throw new ApiError('A note can\u2019t be empty. To remove it, use Delete.');
+        const row = requireRow(await rest('task_notes?id=eq.' + q(n.id), { method: 'PATCH', body: { body: body }, prefer: 'return=representation' }));
+        replaceNote(row);
+        D.dlg.close();
+        refreshTaskNotes(t.id);
+        flash('Note saved.', 'ok');
+      }, err) },
+      err,
+      h('p', { class: 'hint-line limited-hint', text: 'The note will show \u201cedited\u201d. The history records that it was edited, not the old text.' }),
+      ta,
+      h('div', { class: 'actions end dialog-actions' },
+        h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Cancel'),
+        h('button', { type: 'submit', class: 'btn primary' }, 'Save'))));
+    ta.focus();
+  }
+  function deleteNote(t, n, btn) {
+    if (!window.confirm('Delete this note?\n\nIts text will be permanently removed. The task\u2019s history will only record who deleted it and when.')) return;
+    busy(btn, async function () {
+      requireRow(await rest('task_notes?id=eq.' + q(n.id), { method: 'DELETE', prefer: 'return=representation' }));
+      const list = S.notesByTask.get(t.id) || [];
+      S.notesByTask.set(t.id, list.filter(function (x) { return x.id !== n.id; }));
+      refreshTaskNotes(t.id);
+      flash('Note deleted.', 'ok');
+    });
+  }
+  function audienceRadios(name, current) {
+    const opts = [['internal', 'Internal', 'internal members'], ['external', 'External', 'external contractors'], ['both', 'Both', 'everyone in the workspace']];
+    const inputs = {};
+    const set = h('fieldset', { class: 'audience-set' }, h('legend', { text: 'Who is it for?' }),
+      opts.map(function (o) {
+        const r = h('input', { type: 'radio', name: name, value: o[0], checked: current === o[0] });
+        inputs[o[0]] = r;
+        return h('label', { class: 'check' }, r, h('span', {}, h('strong', { text: o[1] }), ': ' + o[2]));
+      }),
+      h('span', { class: 'hint', text: 'Superadmins see every announcement, and you always see your own.' }));
+    return { el: set, value: function () { const k = Object.keys(inputs).find(function (x) { return inputs[x].checked; }); return k || ''; } };
+  }
+  function openPostNote(t, n) {
+    const D = openDialog('Post note as announcement');
+    const err = h('div', { class: 'inline-error', hidden: true, role: 'alert' });
+    const title = h('input', { type: 'text', maxlength: '200', placeholder: 'Optional' });
+    const aud = audienceRadios('aud-post-' + n.id, '');
+    D.inner.append(h('form', { onsubmit: onSubmit(async function () {
+        if (!aud.value()) throw new ApiError('Choose who the announcement is for.');
+        const newId = await rest('rpc/post_note_as_announcement', { method: 'POST',
+          body: { p_note_id: n.id, p_audience: aud.value(), p_title: title.value.trim() || null } });
+        D.dlg.close();
+        n.posted_as_announcement_at = new Date().toISOString();
+        n.posted_announcement_id = newId;
+        replaceNote(n);
+        refreshTaskNotes(t.id);
+        loadAnnouncements();
+        flash('Posted as an announcement. The note stays in the task.', 'ok');
+      }, err) },
+      err,
+      h('div', { class: 'publish-warn' }, h('span', { text: t.is_personal
+        ? 'This note is on your personal task. Announcements go to the whole workspace regardless of categories, so everyone in the audience you choose will be able to read this text.'
+        : 'Announcements go to the whole workspace regardless of categories, so people who can\u2019t see this task will be able to read this note\u2019s text.' })),
+      h('blockquote', { class: 'note-quote', text: n.body }),
+      field('Title', title),
+      aud.el,
+      h('div', { class: 'actions end dialog-actions' },
+        h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Cancel'),
+        h('button', { type: 'submit', class: 'btn primary' }, 'Post announcement'))));
+  }
+
+  // ---------- Announcements ----------
+  const ANN_SELECT = 'announcements?select=id,venture_id,title,body,audience,created_by,author_name,created_at,edited_at,posted_from_note_id';
+  const AUDIENCE_LABEL = { internal: 'Internal', external: 'External', both: 'Everyone' };
+  async function loadAnnouncements() {
+    try {
+      S.announcements = (await rest(ANN_SELECT + '&venture_id=eq.' + q(S.ventureId) + '&order=created_at.desc')) || [];
+    } catch (e) { flash('Announcements could not be loaded: ' + friendly(e)); return; }
+    if (S.view === 'announcements') refillList();
+  }
+  function canManageAnnouncement(a) { return a.created_by === session.user.id || S.me.is_superadmin; }
+  function renderAnnouncements() {
+    const listEl = h('ol', { class: 'ann-list', 'aria-label': 'Announcements' });
+    const countEl = h('span', { class: 'panel-count' });
+    function matches(a) {
+      const needle = S.annQuery.trim().toLowerCase();
+      if (!needle) return true;
+      return [a.title || '', a.body, a.author_name].join('\n').toLowerCase().indexOf(needle) !== -1;
+    }
+    function fill() {
+      const all = S.announcements;
+      const shown = all.filter(matches);
+      countEl.textContent = shown.length === all.length ? all.length + (all.length === 1 ? ' announcement' : ' announcements')
+                                                        : shown.length + ' of ' + all.length + ' match';
+      listEl.replaceChildren();
+      if (!shown.length) listEl.append(h('li', { class: 'empty', text: all.length ? 'No announcements match your search.'
+        : 'No announcements yet. Use \u201c+ Announce\u201d to post one.' }));
+      shown.forEach(function (a) { listEl.append(renderAnnouncement(a)); });
+    }
+    refillList = fill;
+    fill();
+    const search = h('input', { type: 'search', class: 'search', placeholder: 'Search announcements', 'aria-label': 'Search announcements', value: S.annQuery,
+      oninput: function (e) { S.annQuery = e.target.value; fill(); } });
+    const refreshBtn = h('button', { type: 'button', class: 'btn ann-refresh', title: 'Reload', onclick: function (e) {
+      busy(e.currentTarget, loadAnnouncements);
+    } }, 'Refresh');
+    const addBtn = h('button', { type: 'button', class: 'btn primary', onclick: function () { openAnnouncementForm(null); } }, '+ Announce');
+    return h('main', { class: 'page' },
+      h('div', { class: 'toolbar ann-toolbar' }, search, refreshBtn, addBtn),
+      h('section', { class: 'panel' },
+        h('div', { class: 'panel-header' },
+          h('div', { class: 'panel-head-left' }, h('span', { class: 'panel-lock' }, svgIcon(ICON_MEGAPHONE, 13)),
+            h('span', { class: 'panel-title', text: 'Announcements' }), infoTip(TIPS.announce, 'Announcements')),
+          h('div', { class: 'panel-head-right' }, countEl)),
+        listEl));
+  }
+  function renderAnnouncement(a) {
+    const audCls = a.audience === 'internal' ? 'int' : (a.audience === 'external' ? 'ext' : 'both');
+    return h('li', { class: 'ann', 'data-id': a.id },
+      h('div', { class: 'ann-head' },
+        h('strong', { class: 'ann-author', text: a.author_name || 'Unknown' }),
+        h('time', { datetime: a.created_at, title: fmtWhen(a.created_at), text: fmtWhen(a.created_at) }),
+        a.edited_at ? h('span', { class: 'edited-mark', title: 'Edited ' + fmtWhen(a.edited_at), text: 'edited' }) : null,
+        chip(AUDIENCE_LABEL[a.audience] || a.audience, 'aud-' + audCls)),
+      a.title ? h('h3', { class: 'ann-title', text: a.title }) : null,
+      h('p', { class: 'ann-body' }, linkify(a.body)),
+      canManageAnnouncement(a) ? h('div', { class: 'note-actions' },
+        h('button', { type: 'button', class: 'btn link small', onclick: function () { openAnnouncementForm(a); } }, 'Edit'),
+        h('button', { type: 'button', class: 'btn link small danger', onclick: function (e) {
+          if (!window.confirm('Delete this announcement' + (a.title ? ' \u201c' + a.title + '\u201d' : '') + '?\n\nThis cannot be undone.')) return;
+          const btn = e.currentTarget;
+          busy(btn, async function () {
+            requireRow(await rest('announcements?id=eq.' + q(a.id), { method: 'DELETE', prefer: 'return=representation' }));
+            S.announcements = S.announcements.filter(function (x) { return x.id !== a.id; });
+            refillList();
+            flash('Announcement deleted.', 'ok');
+          });
+        } }, 'Delete')) : null);
+  }
+  function openAnnouncementForm(a) {
+    const editing = !!a;
+    const D = openDialog(editing ? 'Edit announcement' : 'New announcement');
+    const err = h('div', { class: 'inline-error', hidden: true, role: 'alert' });
+    const title = h('input', { type: 'text', maxlength: '200', placeholder: 'Optional', value: editing && a.title ? a.title : '' });
+    const body = h('textarea', { rows: '6', maxlength: '10000', required: true, 'aria-label': 'Announcement text' });
+    body.value = editing ? a.body : '';
+    const aud = audienceRadios('aud-' + (editing ? a.id : 'new'), editing ? a.audience : '');
+    D.inner.append(h('form', { onsubmit: onSubmit(async function () {
+        const payload = { title: title.value.trim() || null, body: body.value.trim(), audience: aud.value() };
+        if (!payload.body) throw new ApiError('Please write the announcement.');
+        if (!payload.audience) throw new ApiError('Choose who the announcement is for.');
+        let row;
+        if (editing) {
+          row = requireRow(await rest('announcements?id=eq.' + q(a.id), { method: 'PATCH', body: payload, prefer: 'return=representation' }));
+          S.announcements = S.announcements.map(function (x) { return x.id === row.id ? row : x; });
+        } else {
+          payload.venture_id = S.ventureId;
+          row = requireRow(await rest('announcements', { method: 'POST', body: payload, prefer: 'return=representation' }));
+          S.announcements.unshift(row);
+        }
+        D.dlg.close();
+        if (S.view === 'announcements') refillList();
+        flash(editing ? 'Announcement saved.' : 'Announcement posted.', 'ok');
+      }, err) },
+      err,
+      field('Title', title),
+      h('label', { class: 'field' }, h('span', { text: 'Message' }), body),
+      aud.el,
+      h('div', { class: 'actions end dialog-actions' },
+        h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Cancel'),
+        h('button', { type: 'submit', class: 'btn primary' }, editing ? 'Save' : 'Post'))));
+    (editing ? body : title).focus();
   }
 
   // ---------- Links ----------
@@ -2117,7 +2432,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         }) },
         ta,
         h('div', { class: 'actions' }, h('button', { type: 'submit', class: 'btn primary small' }, 'Add note'),
-          h('span', { class: 'muted small', text: 'Notes are permanent: nobody can edit or delete them in the app.' }))));
+          h('span', { class: 'muted small', text: 'You can edit or delete your own notes later.' }))));
     }
     d.append(renderActivity(t, info));
     return d;
