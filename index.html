@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-on3Gh8oQYieyawmz8kVD+ctd6NYVVmx24eN7R9ZI150='; style-src 'sha256-o2fKZalvSy26upyK+LYziQhFpMSMMBq3DUvxmJz2oIY='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-PA8VjfleGImd7lcnhogVsYiUVN4XkaxeupF1Ojypj0c='; style-src 'sha256-Bc3YZXva5KLj+RNDJmCgLnu7vaCgSNLCB56yLysARq4='; connect-src https://lifhnbygeiihgtirbscy.supabase.co; img-src data:; base-uri 'none'; form-action 'none'; require-trusted-types-for 'script'; trusted-types 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="robots" content="noindex, nofollow">
 <title>Task List</title>
@@ -426,6 +426,59 @@ dialog.dialog.about-dialog { width: min(460px, calc(100% - 24px)); }
 .about-powered a { color: var(--acc); text-decoration: none; }
 .about-powered a:hover, .about-powered a:focus-visible { text-decoration: underline; }
 .about-version { margin: 6px 0 0; font-family: var(--f-mono); font-size: 10px; color: var(--t3); }
+.about-voice { margin: 14px auto 0; max-width: 340px; font-size: 11px; color: var(--t3); }
+
+/* ---------- voice assistant ---------- */
+.voice-top {
+  margin-left: auto; flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--bdr); background: var(--sur3); color: var(--acc);
+}
+.voice-top:hover, .voice-top:focus-visible { border-color: var(--acc); }
+.voice-top + .menu { margin-left: 10px; }
+.voice-fab { display: none; }
+.menu-toggle {
+  display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; cursor: pointer;
+  padding: 9px 10px; margin-top: 4px; border-top: 1px solid var(--bdr); font-size: 12px; color: var(--t2);
+}
+.menu-toggle input { margin-top: 2px; width: 16px; height: 16px; accent-color: var(--acc); }
+.menu-toggle strong { display: block; color: var(--txt); font-weight: 600; }
+.menu-toggle small { display: block; margin-top: 3px; font-size: 11px; line-height: 1.45; color: var(--t3); max-width: 240px; }
+.menu-toggle:has(input:disabled) { cursor: default; opacity: .8; }
+dialog.dialog.voice-panel { width: min(520px, calc(100% - 24px)); }
+.voice-panel .ov-title { display: flex; align-items: center; gap: 6px; }
+.v-status {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 12px; padding: 14px 16px;
+  border: 2px solid var(--bdr); border-radius: var(--r); background: var(--sur3);
+  font-size: 18px; font-weight: 700; color: var(--txt);
+}
+.v-light { width: 16px; height: 16px; flex: none; border-radius: 50%; background: var(--t3); }
+.voice-panel[data-state=listening] .v-status { border-color: #ef4444; background: rgba(239, 68, 68, .14); }
+.voice-panel[data-state=listening] .v-light { background: #ef4444; box-shadow: 0 0 0 4px rgba(239, 68, 68, .35); animation: v-pulse 1s ease-in-out infinite; }
+.voice-panel[data-state=speaking] .v-status { border-color: var(--acc); background: var(--acc-t); }
+.voice-panel[data-state=speaking] .v-light { background: var(--acc); }
+@keyframes v-pulse { 50% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } }
+@media (prefers-reduced-motion: reduce) { .voice-panel .v-light { animation: none !important; } }
+.v-line { margin: 0 0 10px; font-size: 16px; line-height: 1.45; color: var(--txt); overflow-wrap: anywhere; }
+.v-label { display: block; margin-bottom: 2px; font-family: var(--f-mono); font-size: 10px; letter-spacing: .6px; text-transform: uppercase; color: var(--t3); }
+.v-heard-text { font-weight: 600; }
+.v-actions, .v-reading { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 12px 0; }
+.v-reading { grid-template-columns: repeat(3, 1fr); }
+.btn.v-big { min-height: 52px; font-size: 15px; color: var(--txt); }
+.v-review { margin: 12px 0; padding: 12px 14px; border: 2px solid var(--acc); border-radius: var(--r); background: var(--sur2); }
+.v-review-title { margin: 0 0 8px; font-size: 14px; }
+.v-fields { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 12px; margin: 0 0 12px; font-size: 15px; }
+.v-fields dt { color: var(--t3); }
+.v-fields dd { margin: 0; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; }
+.v-fields dd .btn { flex: none; }
+.v-review-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.v-type { display: flex; gap: 8px; margin: 4px 0 10px; }
+.v-type input { flex: 1 1 auto; min-width: 0; }
+.v-rate { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; color: var(--t2); }
+.voice-panel .dialog-actions { display: flex; gap: 8px; }
+.btn.v-talk, .btn.v-stop { min-height: 56px; padding: 0 18px; font-size: 17px; font-weight: 700; gap: 8px; }
+.btn.v-stop { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+.btn.v-stop:hover { background: #991b1b; }
 .help { font-size: 13px; }
 .help-intro { color: var(--t2); }
 .help-sec { margin-top: 12px; }
@@ -650,6 +703,19 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   .dialog-inner { padding: 18px 16px 0; }
   .dialog-actions { margin: 8px -16px 0; padding-left: 16px; padding-right: 16px; }
   .dialog-actions .btn { flex: 1; }
+  /* voice: a round floating button above the bottom bar instead of the top-bar mic */
+  .voice-top { display: none; }
+  .voice-top + .menu { margin-left: auto; }
+  .voice-fab {
+    display: flex; align-items: center; justify-content: center; position: fixed; z-index: 140;
+    right: 16px; bottom: calc(var(--bnav-h) + 16px + env(safe-area-inset-bottom));
+    width: 60px; height: 60px; border-radius: 50%; border: 0; cursor: pointer;
+    background: var(--acc); color: #fff; box-shadow: 0 6px 20px rgba(0, 0, 0, .55);
+  }
+  #app:has(.voice-fab) .page { padding-bottom: 92px; }
+  .v-actions .btn.v-big, .v-reading .btn.v-big { padding: 6px 8px; }
+  .v-review-actions { grid-template-columns: 1fr 1fr; }
+  .v-review-actions .btn.primary { grid-column: 1 / -1; }
   /* About stays a centred card on phones */
   dialog.dialog.about-dialog { width: calc(100% - 24px); margin: auto; border-radius: 14px; border-bottom: 1px solid var(--bdr); }
   .about-dialog .dialog-actions { margin: 0; padding: 12px 16px; }
@@ -679,7 +745,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
   const SUPABASE_URL = 'https://lifhnbygeiihgtirbscy.supabase.co';
   const SUPABASE_KEY = 'sb_publishable_03p-NI7sqDyI8jjXHCulAA_LXFs-WA3';
   // Release version, shown in the profile menu > About. Update with each release.
-  const APP_VERSION = '2026-10-13';
+  const APP_VERSION = '2026-10-14';
   const APP_NAME = 'Task List';
   const COMPANY_NAME = 'Matwa Group';
   const COMPANY_URL = 'https://matwagroup.com';
@@ -1193,12 +1259,12 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       case 'pick': appEl.append(renderPick()); break;
       // append() (our helper) skips null. The browser's own appEl.append() would
       // print a null bottom nav (non-superadmins) as the word "null" (fix D1).
-      case 'tasks': append(appEl, [renderHeader(), renderTasks(), renderBottomNav()]); updateNewIndicators(); break;
+      case 'tasks': append(appEl, [renderHeader(), renderTasks(), voiceFab(), renderBottomNav()]); updateNewIndicators(); break;
       case 'admin': append(appEl, [renderHeader(), renderAdmin(), renderBottomNav()]); updateNewIndicators(); break;
       case 'error': appEl.append(renderErrorView()); break;
       case 'invite': appEl.append(renderInviteSignedIn()); break;
-      case 'personal': append(appEl, [renderHeader(), renderPersonal(), renderBottomNav()]); updateNewIndicators(); break;
-      case 'announcements': append(appEl, [renderHeader(), renderAnnouncements(), renderBottomNav()]); updateNewIndicators(); break;
+      case 'personal': append(appEl, [renderHeader(), renderPersonal(), voiceFab(), renderBottomNav()]); updateNewIndicators(); break;
+      case 'announcements': append(appEl, [renderHeader(), renderAnnouncements(), voiceFab(), renderBottomNav()]); updateNewIndicators(); break;
       default: appEl.append(h('p', { class: 'center muted', text: 'Loading…' }));
     }
     // Small footer on every screen. It sits in the normal page flow (never fixed),
@@ -1466,6 +1532,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         h('div', { class: 'who' }, h('div', { text: S.me.display_name }), h('div', { text: session.user.email })),
         menuItem('About', openAbout),
         menuItem('Help', openHelp),
+        voiceMenuToggle(),
         menuItem('Join another workspace', function () { S.view = 'join'; render(); }),
         menuItem('Sign out', signOut))
     );
@@ -1487,6 +1554,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       brand,
       h('nav', { class: 'tabs', 'aria-label': 'Sections' }, tabBtn('Tasks', 'tasks'), tabBtn('Announcements', 'announcements'), tabBtn('Personal', 'personal'),
         S.me.is_superadmin ? tabBtn('Admin', 'admin') : null),
+      voiceTopButton(),
       menu);
   }
   function closeMenus() {
@@ -1550,7 +1618,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     dot: 'Someone else changed this task since you last opened it. Open it to see what changed.',
     notes: 'Anyone who can see this task can add a note and read the notes. A note\u2019s author and superadmins can edit or delete it, or post it as an announcement.',
     announce: 'Announcements are news for the whole workspace, not tied to any task or category. Internal: internal members. External: external contractors. Both: everyone. Superadmins see every announcement, and you always see your own. An orange dot marks one that is new to you.',
-    annDot: 'Someone else posted or changed this announcement since you last looked. Tap it, or use Mark all as seen, to clear the dot.',
+    voice: 'Say or tap what you want. It asks one question at a time and reads everything back; nothing is saved until you say “save” or tap Save. Your browser sends what you say to Google or Apple to turn it into text; the app keeps no audio. Use it only when it’s safe.',
+    annDot:'Someone else posted or changed this announcement since you last looked. Tap it, or use Mark all as seen, to clear the dot.',
     created: 'Shows tasks by the date they were created, in your local time. This week runs Monday to Sunday.',
     mine: 'Shows only tasks assigned to you.',
     taskExternal: 'Off: only superadmins, internal members with access to this category, and the person it\u2019s assigned to can see this task. On: contractors with access to this category can see it, including its notes and change history.',
@@ -1585,7 +1654,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         h('p', { class: 'about-desc', text: 'Task List keeps the ' + (ventureName ? ventureName + ' ' : '') +
           'team up to date with the latest tasks and announcements, so everyone stays in the loop.' }),
         siteOk ? h('a', { class: 'about-site', href: site, target: '_blank', rel: 'noopener noreferrer',
-          text: new URL(site).hostname.replace(/^www\./, '') }) : null),
+          text: new URL(site).hostname.replace(/^www\./, '') }) : null,
+        h('p', { class: 'about-voice', text: 'Hands-free: turn on the voice assistant in the profile menu (Chrome, Edge or Safari).' })),
       h('div', { class: 'about-foot' },
         h('p', { class: 'about-powered' }, 'Powered by ' + ABOUT_BY + ' \u00b7 ',
           h('a', { href: COMPANY_URL, target: '_blank', rel: 'noopener noreferrer', text: 'matwagroup.com' })),
@@ -1634,7 +1704,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         'Opening a task, or Mark all as seen, clears the dot. Your own changes are never marked as new.',
         'Inside a task, \u201cShow activity\u201d lists every change: who, what and when.',
         'The Announcements tab has its own orange count of new announcements.',
-        'The list updates when you load the page or press Refresh.'
+        'The list updates when you load the page or press Refresh.',
+        voiceSupported() ? 'With the voice assistant on, say “what’s new” to hear new activity and announcements.' : null
       ]),
       sa ? sec('Sharing with contractors', [
         'Categories control what people can browse. Set them on each member\u2019s card in Admin.',
@@ -1654,6 +1725,15 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         'You can edit them, add notes and delete them. Their notes and history are private too.',
         'Make public turns a personal task into a normal task in a category you choose, Internal or External. Its earlier notes and history become visible to everyone who can see it, and it can\u2019t be made private again.'
       ]),
+      voiceSupported() ? sec('Voice assistant', [
+        'Turn it on in the profile menu (Voice assistant). It’s off until you do, and the setting is kept on this device only. Works in Chrome, Edge and Safari.',
+        'Tap the microphone (the round orange button on phones) and say what you want: “new task”, “new personal task”, “new announcement”, “read my top 5 tasks”, “tasks due today”, “what’s new”, “read announcements” or “read task 2”. You can also tap these, or type instead.',
+        'It asks one question at a time. Say “skip” to leave an optional answer empty, “back” for the previous question, “repeat” to hear it again, or “cancel” to stop. It reads everything back, and nothing is saved until you say “save” or tap Save.',
+        'While it reads, say “next”, “repeat”, “pause” or “stop” in the short gap after each item. The Stop button always stops it at once.',
+        'Privacy: your browser sends what you say to Google (Chrome, Edge) or Apple (Safari) to turn it into text. The app never stores audio, and what it heard is forgotten when you close the panel.',
+        'Listening stops when the screen locks or the app goes to the background, so keep the screen on.',
+        'Only use it when it’s safe. When driving, set it up before you go and never look at the screen while moving.'
+      ]) : sec('Voice assistant', ['The voice assistant isn’t available in this browser. Use Chrome, Edge or Safari.']),
       sec('Passwords', ['Forgot your password? Ask your administrator. They can ask Matwa Group to reset it.'])),
       dialogClose(D));
   }
@@ -2446,15 +2526,16 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         } }, 'Delete')) : null]);
     return li;
   }
-  function openAnnouncementForm(a) {
+  function openAnnouncementForm(a, prefill) {
     const editing = !!a;
+    const pre = !editing && prefill ? prefill : null;
     const D = openDialog(editing ? 'Edit announcement' : 'New announcement');
     const err = h('div', { class: 'inline-error', hidden: true, role: 'alert' });
-    const title = h('input', { type: 'text', maxlength: '200', placeholder: 'Optional', value: editing && a.title ? a.title : '' });
+    const title = h('input', { type: 'text', maxlength: '200', placeholder: 'Optional', value: editing && a.title ? a.title : (pre && pre.title) || '' });
     const body = h('textarea', { rows: '6', maxlength: '10000', required: true, 'aria-label': 'Announcement text' });
-    body.value = editing ? a.body : '';
-    const aud = audienceRadios('aud-' + (editing ? a.id : 'new'), editing ? a.audience : '');
-    D.inner.append(h('form', { onsubmit: onSubmit(async function () {
+    body.value = editing ? a.body : (pre && pre.body) || '';
+    const aud = audienceRadios('aud-' + (editing ? a.id : 'new'), editing ? a.audience : (pre && pre.audience) || '');
+    const save = async function () {
         const payload = { title: title.value.trim() || null, body: body.value.trim(), audience: aud.value() };
         if (!payload.body) throw new ApiError('Please write the announcement.');
         if (!payload.audience) throw new ApiError('Choose who the announcement is for.');
@@ -2471,7 +2552,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         if (S.view === 'announcements') refillList();
         flash(editing ? 'Announcement saved.' : 'Announcement posted.', 'ok');
         loadAnnSummary();   // my own post or edit is never new for me
-      }, err) },
+    };
+    D.inner.append(h('form', { onsubmit: onSubmit(save, err) },
       err,
       field('Title', title),
       h('label', { class: 'field' }, h('span', { text: 'Message' }), body),
@@ -2480,7 +2562,852 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Cancel'),
         h('button', { type: 'submit', class: 'btn primary' }, editing ? 'Save' : 'Post'))));
     (editing ? body : title).focus();
+    return { dlg: D.dlg, submit: formSubmitter(save, err) };
   }
+
+  // ---------- Voice assistant (off by default; browser speech only) ----------
+  // Listening uses the browser's own SpeechRecognition: Chrome and Edge send the
+  // audio to Google, Safari to Apple, to turn it into text. Speaking uses
+  // speechSynthesis. No audio is stored, and what was heard is forgotten when
+  // the panel closes. Saving goes through the normal forms (openTaskForm,
+  // openLimitedTaskForm, openAnnouncementForm), so the same checks apply.
+  const VOICE_KEY = 'tlt.voice.v1.';
+  const ICON_MIC = 'M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3zM19 10v1a7 7 0 0 1-14 0v-1M12 18v4M8 22h8';
+  const VOICE_VIEWS = ['tasks', 'announcements', 'personal'];
+  function speechRecognitionClass() { return window.SpeechRecognition || window.webkitSpeechRecognition || null; }
+  function voiceSupported() {
+    return !!speechRecognitionClass() && !!window.speechSynthesis && typeof window.SpeechSynthesisUtterance === 'function';
+  }
+  function voicePrefs() {
+    let p = null;
+    try { p = JSON.parse(readStored(VOICE_KEY + (session ? session.user.id : '')) || 'null'); } catch (e) { p = null; }
+    return { on: !!(p && p.on), rate: p && p.rate === 'slow' ? 'slow' : 'normal' };
+  }
+  function saveVoicePrefs(p) { if (session) writeStored(VOICE_KEY + session.user.id, JSON.stringify({ on: !!p.on, rate: p.rate })); }
+  function voiceAvailable() { return voiceSupported() && voicePrefs().on && VOICE_VIEWS.indexOf(S.view) !== -1; }
+  function voiceTopButton() {
+    return voiceAvailable() ? h('button', { type: 'button', class: 'voice-top', 'aria-label': 'Voice assistant', title: 'Voice assistant',
+      onclick: openVoicePanel }, svgIcon(ICON_MIC, 18)) : null;
+  }
+  function voiceFab() {
+    return voiceAvailable() ? h('button', { type: 'button', class: 'voice-fab', 'aria-label': 'Voice assistant',
+      onclick: openVoicePanel }, svgIcon(ICON_MIC, 26)) : null;
+  }
+  // Profile menu switch. Off by default; kept per person on this device.
+  function voiceMenuToggle() {
+    const sup = voiceSupported();
+    const cb = h('input', { type: 'checkbox', role: 'switch', checked: sup && voicePrefs().on, disabled: !sup,
+      onchange: function (e) {
+        const on = e.target.checked;
+        saveVoicePrefs({ on: on, rate: voicePrefs().rate });
+        closeMenus();
+        render();
+        flash(on ? 'Voice assistant on. Tap the microphone to start.' : 'Voice assistant off.', 'ok');
+      } });
+    return h('label', { class: 'menu-toggle' }, cb,
+      h('span', {}, h('strong', { text: 'Voice assistant' }),
+        h('small', { text: sup
+          ? 'Off unless you turn it on (this device only). When you talk to it, your browser sends what you say to Google (Chrome, Edge) or Apple (Safari) to turn it into text. The app stores no audio.'
+          : 'Not available in this browser. Use Chrome, Edge or Safari.' })));
+  }
+
+  // ---- engine: one conversation ("run") at a time; Stop ends it at once ----
+  const V = { ui: null, run: 0, busy: false, listening: false, paused: false, blocked: false,
+              queue: [], sayDone: null, hearDone: null, pending: null, lastTasks: [] };
+  class VoiceStop extends Error {}
+  class VoiceCancel extends Error {}
+  function vCheck(run) { if (run !== V.run) throw new VoiceStop(); }
+  function vNorm(s) {
+    return String(s || '').toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  }
+  function vClean(t) { t = String(t || '').replace(/\s+/g, ' ').trim(); return t.charAt(0).toUpperCase() + t.slice(1); }
+  const V_CANCEL = /^(?:please )?(?:cancel|stop|quit|exit|never ?mind|forget it)(?: (?:it|that|this|please|everything|reading))?$/;
+  const V_REPEAT = /^(?:please )?(?:repeat|repeat that|repeat the question|say (?:it|that) again|again|pardon|what|sorry|come again)(?: please)?$/;
+  const V_BACK = /^(?:go )?back$|^previous(?: question)?$/;
+  const V_SKIP = /^(?:skip|skip it|skip this|none|nothing|no|nope|no thanks|leave it(?: empty| blank)?|empty|blank|no (?:deadline|title|date|one)|nobody|no one|unassigned)$/;
+  const V_SAVE = /^(?:yes )?(?:save|save it|save that|yes|confirm|post it|post|done)(?: please)?$/;
+  const V_NEXT = /^(?:next|continue|go on|ok|okay|yes|resume|carry on)$/;
+  const NUM_WORDS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve',
+    'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen', 'twenty'];
+  function vNum(word) {
+    const w = vNorm(word).replace(/^(?:number|no) /, '');
+    if (/^\d+$/.test(w)) return parseInt(w, 10);
+    if (w === 'a' || w === 'an') return 1;
+    const i = NUM_WORDS.indexOf(w);
+    return i === -1 ? null : i;
+  }
+
+  function vStatus(state, idleText) {
+    V.state = state;
+    if (!V.ui) return;
+    V.ui.dlg.dataset.state = state;
+    V.ui.statusText.textContent = state === 'listening' ? 'Listening…' : state === 'speaking' ? 'Speaking…'
+      : state === 'busy' ? 'Working…' : (idleText || 'Ready. Tap Talk, or a button below.');
+    V.ui.talk.lastChild.textContent = state === 'listening' ? 'Listening…' : 'Talk';
+  }
+  function vHeard(text) { if (V.ui) V.ui.heard.textContent = text || '—'; }
+  function vSaid(text) { if (V.ui) V.ui.said.textContent = text || '—'; }
+  function vShowReading(on) {
+    V.paused = false;
+    if (!V.ui) return;
+    V.ui.reading.hidden = !on;
+    V.ui.pauseBtn.textContent = 'Pause';
+  }
+
+  // Speak one piece of text. Resolves 'done', or 'interrupted' when a button
+  // (or typed text) cut it short.
+  function englishVoice() {
+    let list = [];
+    try { list = window.speechSynthesis.getVoices() || []; } catch (e) { list = []; }
+    const en = list.filter(function (v) { return /^en([-_]|$)/i.test(v.lang || ''); });
+    const pref = String(navigator.language || '').toLowerCase();
+    return en.find(function (v) { return v.default; })
+      || en.find(function (v) { return String(v.lang).toLowerCase().replace('_', '-') === pref; })
+      || en.find(function (v) { return /^en[-_]us/i.test(v.lang); }) || en[0] || null;
+  }
+  function vSay(run, text) {
+    vCheck(run);
+    if (!text) return Promise.resolve('done');
+    vSaid(text);
+    if (V.queue.length) return Promise.resolve('interrupted');
+    vStatus('speaking');
+    return new Promise(function (resolve) {
+      let done = false;
+      let guard = null;
+      function finish(r) {
+        if (done) return;
+        done = true;
+        clearTimeout(guard);
+        if (V.sayDone === finish) V.sayDone = null;
+        resolve(r);
+      }
+      V.sayDone = finish;
+      try {
+        const synth = window.speechSynthesis;
+        synth.cancel();
+        const u = new window.SpeechSynthesisUtterance(text);
+        const voice = englishVoice();
+        if (voice) { u.voice = voice; u.lang = voice.lang; } else u.lang = 'en-US';
+        u.rate = voicePrefs().rate === 'slow' ? 0.8 : 0.95;   // a little slower than normal
+        u.onend = function () { finish('done'); };
+        u.onerror = function () { finish('done'); };
+        guard = setTimeout(function () { finish('done'); }, 4000 + text.length * 150);   // some browsers never fire onend
+        synth.speak(u);
+      } catch (e) { finish('done'); }
+    }).then(function (r) { vCheck(run); return r; });
+  }
+  // Listen for one answer. Resolves with the text heard ('' for silence). The
+  // microphone is only on while this is waiting; it stops after a pause in
+  // speech, after ms milliseconds, or when Stop is pressed.
+  function vHear(run, ms, long) {
+    vCheck(run);
+    if (V.queue.length) return Promise.resolve(V.queue.shift());
+    const Rec = speechRecognitionClass();
+    return new Promise(function (resolve) {
+      let rec = null;
+      let finalText = '';
+      let interim = '';
+      let done = false;
+      let timer = null;
+      let quiet = null;
+      function finish(text) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer); clearTimeout(quiet);
+        if (V.hearDone === finish) V.hearDone = null;
+        V.listening = false;
+        vStatus('busy');
+        if (rec) { rec.onresult = null; rec.onerror = null; rec.onend = null; try { rec.abort(); } catch (e) { /* already stopped */ } }
+        resolve(typeof text === 'string' ? text : (finalText + ' ' + interim).trim());
+      }
+      V.hearDone = finish;
+      try {
+        rec = new Rec();
+        rec.lang = /^en/i.test(navigator.language || '') ? navigator.language : 'en-US';
+        rec.interimResults = true;
+        rec.continuous = !!long;   // long answers (an announcement) may have pauses
+        rec.maxAlternatives = 1;
+        rec.onresult = function (e) {
+          interim = '';
+          for (let i = e.resultIndex; i < e.results.length; i++) {
+            const r = e.results[i];
+            if (r.isFinal) finalText += (finalText ? ' ' : '') + r[0].transcript.trim();
+            else interim += r[0].transcript;
+          }
+          vHeard((finalText + ' ' + interim).trim());
+          if (!long && finalText) { finish(finalText.trim()); return; }
+          clearTimeout(quiet);
+          if (long) quiet = setTimeout(function () { finish(); }, 2500);   // 2.5 s of silence ends a long answer
+        };
+        rec.onerror = function (e) {
+          if (e && (e.error === 'not-allowed' || e.error === 'service-not-allowed' || e.error === 'audio-capture')) V.blocked = true;
+          finish();
+        };
+        rec.onend = function () { finish(); };
+        timer = setTimeout(function () { finish(); }, ms || 8000);
+        V.listening = true;
+        vStatus('listening');
+        rec.start();
+      } catch (e) { finish(''); }
+    }).then(function (t) {
+      vCheck(run);
+      if (V.blocked) {
+        V.blocked = false;
+        throw new VoiceCancel('I can’t use the microphone. Allow it for this site in your browser settings, or type instead.');
+      }
+      return t;
+    });
+  }
+  // Stop speaking and listening without starting anything new.
+  function vHalt() {
+    V.queue = [];
+    if (V.sayDone) V.sayDone('stopped');
+    if (V.hearDone) V.hearDone('');
+    try { window.speechSynthesis.cancel(); } catch (e) { /* nothing to cancel */ }
+  }
+  // The Stop button, closing the panel, or the app going to the background.
+  function vStop(msg) {
+    V.run++;
+    V.busy = false;
+    V.pending = null;
+    vHalt();
+    vShowReview(null);
+    vShowReading(false);
+    vStatus('idle', msg || 'Stopped. Nothing was saved. Tap Talk or a button to start again.');
+  }
+  async function vStart(fn) {
+    vHalt();
+    const run = ++V.run;
+    V.busy = true;
+    vShowReading(false);
+    try { await fn(run); }
+    catch (e) {
+      if (e instanceof VoiceCancel) {
+        if (run === V.run) { V.pending = null; vShowReview(null); }
+        try { await vSay(run, e.message || 'Cancelled. Nothing was saved.'); } catch (x) { /* stopped */ }
+      } else if (!(e instanceof VoiceStop)) {
+        vSaid('Sorry, something went wrong: ' + friendly(e));
+      }
+    }
+    if (run === V.run) { V.busy = false; vShowReading(false); vStatus('idle'); }
+  }
+  // A tapped button or typed text: answers the question being asked, cuts
+  // speech short, or (when idle) starts a new command.
+  function vInput(text) {
+    vHeard(text);
+    if (V.hearDone) { V.hearDone(text); return; }
+    if (V.busy) {
+      V.queue.push(text);
+      if (V.sayDone) { V.sayDone('interrupted'); try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ } }
+      return;
+    }
+    if (V.pending) { vStart(function (run) { return vReview(run, V.pending, text); }); return; }
+    vStart(function (run) { return vCommand(run, text); });
+  }
+  function vTalk() {
+    if (V.listening) return;
+    if (V.busy) {   // cut the current sentence short and go straight to listening
+      if (V.sayDone) { V.sayDone('interrupted'); try { window.speechSynthesis.cancel(); } catch (e) { /* ignore */ } }
+      return;
+    }
+    if (V.pending) { vStart(function (run) { return vReview(run, V.pending); }); return; }
+    vStart(async function (run) { await vCommand(run, await vHear(run, 8000)); });
+  }
+
+  // ---- understanding answers ----
+  function vLev(a, b) {
+    const m = a.length, n = b.length;
+    let prev = [];
+    for (let j = 0; j <= n; j++) prev.push(j);
+    for (let i = 1; i <= m; i++) {
+      const cur = [i];
+      for (let j = 1; j <= n; j++) {
+        cur.push(Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a.charAt(i - 1) === b.charAt(j - 1) ? 0 : 1)));
+      }
+      prev = cur;
+    }
+    return prev[n];
+  }
+  function vSim(a, b) { return a && b ? 1 - vLev(a, b) / Math.max(a.length, b.length) : 0; }
+  // Best match by name, or { ambiguous: [a, b] }, or null.
+  function vFuzzy(said, items, nameOf) {
+    const s = vNorm(said).replace(/^(?:it s |its |the |to |for |assign(?:ed)? to |category )+/, '');
+    if (!s) return null;
+    const scored = items.map(function (it) {
+      const n = vNorm(nameOf(it));
+      let sc = 0;
+      if (!n) return { it: it, sc: 0 };
+      if (n === s) sc = 1;
+      else if (s.length >= 3 && (n.indexOf(s) === 0 || s.indexOf(n) !== -1)) sc = 0.92;
+      else if (s.length >= 3 && n.indexOf(s) !== -1) sc = 0.85;
+      else {
+        sc = vSim(s, n);
+        n.split(' ').forEach(function (np) { if (np.length >= 3) sc = Math.max(sc, vSim(s, np) * 0.95); });
+        s.split(' ').forEach(function (sp) {
+          if (sp.length < 3) return;
+          sc = Math.max(sc, vSim(sp, n) * 0.9);
+          n.split(' ').forEach(function (np) { if (np.length >= 3) sc = Math.max(sc, vSim(sp, np) * 0.85); });
+        });
+      }
+      return { it: it, sc: sc };
+    }).sort(function (a, b) { return b.sc - a.sc; });
+    if (!scored.length || scored[0].sc < 0.7) return null;
+    if (scored[1] && scored[1].sc >= 0.7 && scored[0].sc - scored[1].sc < 0.03) return { ambiguous: [scored[0].it, scored[1].it] };
+    return { item: scored[0].it };
+  }
+  function vOptions(names) {
+    const list = names.slice(0, 5);
+    return 'I didn’t find that. The options are: ' + list.join(', ') + (names.length > 5 ? ', and more' : '') + '.';
+  }
+  function vIsoDay(d) {
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function speakDate(iso) {
+    const d = parseDay(iso);
+    const opts = { weekday: 'long', month: 'long', day: 'numeric' };
+    if (d.getFullYear() !== new Date().getFullYear()) opts.year = 'numeric';
+    return d.toLocaleDateString('en-US', opts);
+  }
+  const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+  const WEEKDAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const ORDINALS = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh',
+    'twelfth', 'thirteenth', 'fourteenth', 'fifteenth', 'sixteenth', 'seventeenth', 'eighteenth', 'nineteenth', 'twentieth'];
+  function vMonth(word) {
+    const w = String(word || '');
+    if (w.length < 3) return -1;
+    return MONTHS.findIndex(function (m) { return m === w || (m.indexOf(w) === 0 && (w.length >= 3)); });
+  }
+  // "today", "tomorrow", "Friday", "next Monday", "15 October", "October 15th",
+  // "the 20th", "in 3 days", "next week". Returns YYYY-MM-DD or null.
+  function vParseDate(text, base) {
+    base = base || today();
+    let w = ' ' + vNorm(text) + ' ';
+    w = w.replace(/ twenty (first|second|third|fourth|fifth|sixth|seventh|eighth|ninth) /g, function (x, o) { return ' ' + (20 + ORDINALS.indexOf(o)) + ' '; })
+         .replace(/ thirty first /g, ' 31 ').replace(/ thirtieth /g, ' 30 ');
+    ORDINALS.forEach(function (o, i) { if (o) w = w.replace(new RegExp(' ' + o + ' ', 'g'), ' ' + i + ' '); });
+    w = w.replace(/ (\d+)(?:st|nd|rd|th) /g, ' $1 ')
+         .replace(/ (?:the|on|by|for|of|due|deadline|is|it s|its|this coming|coming) /g, ' ')
+         .replace(/\s+/g, ' ').trim();
+    const add = function (n) { const d = new Date(base); d.setDate(d.getDate() + n); return d; };
+    if (/^(?:today|tonight|end of today)$/.test(w)) return vIsoDay(base);
+    if (w === 'tomorrow') return vIsoDay(add(1));
+    if (w === 'day after tomorrow') return vIsoDay(add(2));
+    let m = /^in (\w+) (day|days|week|weeks)$/.exec(w);
+    if (m) { const n = vNum(m[1]); if (n !== null && n <= 365) return vIsoDay(add(n * (/^week/.test(m[2]) ? 7 : 1))); }
+    const monIdx = (base.getDay() + 6) % 7;   // Monday = 0
+    if (w === 'next week') return vIsoDay(add(7 - monIdx));
+    m = /^(this |next )?(sunday|monday|tuesday|wednesday|thursday|friday|saturday)$/.exec(w);
+    if (m) {
+      const target = WEEKDAYS.indexOf(m[2]);
+      if (m[1] === 'next ') return vIsoDay(add(7 - monIdx + (target + 6) % 7));   // that day in next week
+      return vIsoDay(add((target - base.getDay() + 7) % 7));                       // the coming one (today counts)
+    }
+    let day = null, mon = -1, year = null;
+    m = /^(\d{1,2}) ([a-z]+)(?: (\d{4}))?$/.exec(w);
+    if (m && vMonth(m[2]) !== -1) { day = +m[1]; mon = vMonth(m[2]); year = m[3] ? +m[3] : null; }
+    m = /^([a-z]+) (\d{1,2})(?: (\d{4}))?$/.exec(w);
+    if (m && vMonth(m[1]) !== -1) { day = +m[2]; mon = vMonth(m[1]); year = m[3] ? +m[3] : null; }
+    m = /^(\d{1,2})$/.exec(w);
+    if (m) {   // just a day of the month: this month, or next month if it has passed
+      day = +m[1]; mon = base.getMonth(); year = base.getFullYear();
+      if (day < base.getDate()) { mon++; if (mon > 11) { mon = 0; year++; } }
+    }
+    if (day === null || mon === -1) return null;
+    let y = year || base.getFullYear();
+    let d = new Date(y, mon, day);
+    if (d.getMonth() !== mon || d.getDate() !== day) return null;
+    if (!year && d < base) { y++; d = new Date(y, mon, day); if (d.getMonth() !== mon) return null; }
+    return vIsoDay(d);
+  }
+  function parseText(max) {
+    return function (ans) {
+      const t = vClean(ans);
+      if (!t) return { msg: 'I didn’t catch that.' };
+      if (t.length > max) return { msg: 'That’s too long. Please say it more briefly.' };
+      return { ok: true, value: t };
+    };
+  }
+  function parseCategory(ans) {
+    const r = vFuzzy(ans, S.categories, function (c) { return c.name; });
+    if (r && r.item) return { ok: true, value: r.item.id, echo: r.item.name };
+    if (r && r.ambiguous) return { msg: 'Did you mean ' + r.ambiguous[0].name + ' or ' + r.ambiguous[1].name + '?' };
+    return { msg: vOptions(S.categories.map(function (c) { return c.name; })) };
+  }
+  function parsePriority(ans, w) {
+    if (/\b(?:high|hi|urgent|important|top)\b/.test(w)) return { ok: true, value: 'High' };
+    if (/\b(?:medium|normal|middle|mid|average)\b/.test(w)) return { ok: true, value: 'Medium' };
+    if (/\b(?:low|lo|minor)\b/.test(w)) return { ok: true, value: 'Low' };
+    return { msg: 'Please say high, medium or low.' };
+  }
+  function parseStatus(ans, w) {
+    if (/\b(?:in progress|progress|started|working|doing)\b/.test(w)) return { ok: true, value: 'In Progress' };
+    if (/\b(?:completed?|done|finished)\b/.test(w)) return { ok: true, value: 'Completed' };
+    if (/\b(?:blocked|stuck)\b/.test(w)) return { ok: true, value: 'Blocked' };
+    if (/\b(?:pending|not started|to do|todo|waiting)\b/.test(w)) return { ok: true, value: 'Pending' };
+    return { msg: 'Please say pending, in progress, completed or blocked.' };
+  }
+  function parseExternal(ans, w) {
+    if (/\b(?:not|no) (?:external|contractors?)\b/.test(w)) return { ok: true, value: false, echo: 'Internal' };
+    if (/\b(?:external|contractors?|yes|share|shared)\b/.test(w)) return { ok: true, value: true, echo: 'External' };
+    if (/\b(?:internal|no|nope|private|staff)\b/.test(w)) return { ok: true, value: false, echo: 'Internal' };
+    return { msg: 'Please say internal or external.' };
+  }
+  function parseAudience(ans, w) {
+    if (/\b(?:both|everyone|everybody|all)\b/.test(w) || (/\binternal\b/.test(w) && /\bexternal\b/.test(w))) return { ok: true, value: 'both' };
+    if (/\b(?:internal|staff)\b/.test(w)) return { ok: true, value: 'internal' };
+    if (/\b(?:external|contractors?)\b/.test(w)) return { ok: true, value: 'external' };
+    return { msg: 'Please say internal, external or both.' };
+  }
+  function parseDeadline(ans) {
+    const iso = vParseDate(ans);
+    if (iso) return { ok: true, value: iso, echo: speakDate(iso) };
+    return { msg: 'I didn’t understand that date. Try tomorrow, a day like Friday, or a date like the 15th of October.' };
+  }
+  function parseAssignee(d) {
+    return function (ans) {
+      const r = vFuzzy(ans, S.members, function (m) { return m.display_name; });
+      const eligible = S.members.filter(function (m) { return d.is_external || !m.is_external; });
+      if (r && r.ambiguous) return { msg: 'Did you mean ' + r.ambiguous[0].display_name + ' or ' + r.ambiguous[1].display_name + '?' };
+      if (!r) return { msg: vOptions(['nobody'].concat(eligible.map(function (m) { return m.display_name; }))) };
+      const m = r.item;
+      if (m.is_external && !d.is_external) {
+        return { msg: m.display_name + ' is an external contractor, so the task would have to be External. Say another name, nobody, or back to change it.' };
+      }
+      return { ok: true, value: m.id, echo: m.display_name };
+    };
+  }
+
+  // ---- asking questions ----
+  // One question: returns { value, echo } | { skip: true } | { back: true }.
+  async function vAsk(run, question, f, lead) {
+    let q = (lead || '') + question;
+    let misses = 0;
+    for (;;) {
+      await vSay(run, q);
+      const ans = await vHear(run, f.long ? 20000 : 9000, f.long);
+      const w = vNorm(ans);
+      if (!w) {
+        if (++misses >= 3) throw new VoiceCancel('I didn’t hear an answer, so I’ve stopped. Nothing was saved.');
+        q = 'I didn’t catch that. ' + question;
+        continue;
+      }
+      if (V_CANCEL.test(w)) throw new VoiceCancel('Cancelled. Nothing was saved.');
+      if (V_REPEAT.test(w)) { q = question; continue; }
+      if (V_BACK.test(w)) return { back: true };
+      if (f.parseFirst) {
+        const r0 = f.parse(ans, w);
+        if (r0 && r0.ok) return { value: r0.value, echo: r0.echo };
+      }
+      if (V_SKIP.test(w)) {
+        if (f.optional) return { skip: true };
+        q = 'This one is needed. ' + question;
+        continue;
+      }
+      const r = f.parse(ans, w);
+      if (r && r.ok) return { value: r.value, echo: r.echo };
+      q = (r && r.msg ? r.msg : 'Sorry, I didn’t get that.') + ' ' + question;
+    }
+  }
+  async function vFillFields(run, d, fields) {
+    const list = fields.filter(function (f) { return !f.changeOnly; });
+    let i = 0;
+    let lead = '';
+    while (i < list.length) {
+      const f = list[i];
+      const r = await vAsk(run, f.q, f, lead);
+      lead = '';
+      if (r.back) {
+        if (i > 0) i--;
+        lead = i > 0 || list.length ? 'Going back. ' : '';
+        continue;
+      }
+      d[f.key] = r.skip ? f.skipValue : r.value;
+      if (r.echo) lead = r.echo + '. ';
+      i++;
+    }
+    return lead;
+  }
+  function vPickField(w, fields) {
+    return fields.find(function (f) { return f.names.test(w); }) || null;
+  }
+  async function vRedoField(run, d, f) {
+    const r = await vAsk(run, f.q, f, '');
+    if (r.back) return '';
+    d[f.key] = r.skip ? f.skipValue : r.value;
+    if (f.key === 'is_external' && !d.is_external && d.assigned_to) {
+      const m = memberById(d.assigned_to);
+      if (m && m.is_external) {
+        d.assigned_to = null;
+        return 'Internal. I removed ' + m.display_name + ' as the assignee, because internal tasks can’t go to contractors. ';
+      }
+    }
+    return r.echo ? r.echo + '. ' : '';
+  }
+  // Open the normal form with the answers filled in and press its Save for the
+  // person: the same checks and database rules as saving by hand.
+  async function vDoSave(d) {
+    vStatus('busy');
+    const handle = d.kind === 'announcement' ? openAnnouncementForm(null, d)
+      : d.kind === 'personal' ? openLimitedTaskForm(null, d) : openTaskForm(null, d);
+    if (!handle) return { error: 'The form couldn’t be opened.' };
+    const res = await handle.submit();
+    if (!res.ok && handle.dlg.open) handle.dlg.close();
+    return res;
+  }
+  // Read back, then "Save, change something, or cancel?". Nothing is saved
+  // without an explicit "save" (or tapping Save).
+  async function vReview(run, p, firstInput) {
+    V.pending = p;
+    let full = !firstInput;
+    let lead = p.lead || '';
+    p.lead = '';
+    let misses = 0;
+    let input = firstInput || null;
+    for (;;) {
+      vShowReview(p);
+      let ans = input;
+      input = null;
+      if (ans === null) {
+        const summary = p.fields.map(function (f) { return f.label + ': ' + f.say(p.d); }).join('. ');
+        await vSay(run, lead + (full ? 'Here’s the ' + p.what + '. ' + summary + '. ' : '') + 'Save, change something, or cancel?');
+        ans = await vHear(run, 9000);
+      }
+      lead = '';
+      full = false;
+      const w = vNorm(ans);
+      if (!w) {
+        if (++misses >= 2) { await vSay(run, 'I’ll stop listening. Tap Save, Change or Cancel on the screen, or tap Talk.'); return; }
+        continue;
+      }
+      misses = 0;
+      if (V_SAVE.test(w)) {
+        const res = await vDoSave(p.d);
+        if (res.ok) {
+          V.pending = null;
+          vShowReview(null);
+          await vSay(run, 'Saved. ' + (p.d.kind === 'announcement' ? 'The announcement is posted.' : 'The task is added.'));
+          return;
+        }
+        p.error = res.error;
+        vShowReview(p);
+        lead = 'It wasn’t saved. ' + res.error.replace(/[.!?]?\s*$/, '.') + ' ';
+        continue;
+      }
+      if (V_CANCEL.test(w)) throw new VoiceCancel('Cancelled. Nothing was saved.');
+      if (V_REPEAT.test(w)) { full = true; continue; }
+      if (/^(?:change|edit|redo|fix|correct|update)\b/.test(w) || vPickField(w, p.fields)) {
+        let f = vPickField(w, p.fields);
+        if (!f) {
+          const r = await vAsk(run, 'Which one? ' + p.fields.map(function (x) { return x.label; }).join(', ') + '.', {
+            parse: function (a, ww) { const x = vPickField(ww, p.fields); return x ? { ok: true, value: x } : { msg: 'I didn’t find that field.' }; }
+          }, '');
+          if (r.back) { continue; }
+          f = r.value;
+        }
+        p.error = '';
+        lead = await vRedoField(run, p.d, f);
+        full = true;
+        continue;
+      }
+      lead = 'Please say save, change something, or cancel. ';
+    }
+  }
+
+  // ---- creating ----
+  function categoryName(id) { const c = S.categories.find(function (x) { return x.id === id; }); return c ? c.name : 'none'; }
+  async function vNewTask(run, personal) {
+    if (!personal && !S.me.is_superadmin) {
+      personal = true;
+      await vSay(run, 'Only a superadmin can create shared tasks, so this will be a personal task that only you can see.');
+    }
+    if (!personal && !S.categories.length) throw new VoiceCancel('There are no categories yet. Create one in Admin first.');
+    const d = { kind: personal ? 'personal' : 'task', title: '', category_id: null, priority: 'Medium', status: 'Pending',
+                deadline: null, is_external: false, assigned_to: null };
+    const fields = [
+      { key: 'title', label: 'Title', names: /\btitle\b|\bname\b/, q: 'What’s the task? Say a short title.', parse: parseText(200),
+        say: function (x) { return x.title; } },
+      personal ? null : { key: 'category_id', label: 'Category', names: /\bcategor/, q: 'Which category?', parse: parseCategory,
+        say: function (x) { return categoryName(x.category_id); } },
+      { key: 'priority', label: 'Priority', names: /\bpriorit/, q: 'Priority: high, medium or low? Say skip for medium.',
+        optional: true, skipValue: 'Medium', parse: parsePriority, say: function (x) { return x.priority; } },
+      { key: 'deadline', label: 'Deadline', names: /\bdeadline\b|\bdate\b|\bdue\b/,
+        q: 'Deadline? For example tomorrow, Friday, or the 15th of October. Say skip for none.',
+        optional: true, skipValue: null, parse: parseDeadline, say: function (x) { return x.deadline ? speakDate(x.deadline) : 'none'; } },
+      personal ? null : { key: 'is_external', label: 'Visibility', names: /\bvisib|\binternal\b|\bexternal\b/,
+        q: 'Internal or external? External means contractors with access to the category can see it.',
+        optional: true, skipValue: false, parseFirst: true, parse: parseExternal, say: function (x) { return x.is_external ? 'External' : 'Internal'; } },
+      personal ? null : { key: 'assigned_to', label: 'Assigned to', names: /\bassign|\bwho\b|\bperson\b/,
+        q: 'Who is it assigned to? Say a name, or nobody.', optional: true, skipValue: null, parse: parseAssignee(d),
+        say: function (x) { const m = memberById(x.assigned_to); return m ? m.display_name : 'nobody'; } },
+      { key: 'status', label: 'Status', names: /\bstatus\b/, changeOnly: true, q: 'Status: pending, in progress, completed or blocked?',
+        parse: parseStatus, say: function (x) { return x.status; } }
+    ].filter(Boolean);
+    const lead = await vFillFields(run, d, fields);
+    await vReview(run, { d: d, fields: fields, what: personal ? 'personal task' : 'task', lead: lead });
+  }
+  async function vNewAnnouncement(run) {
+    const d = { kind: 'announcement', title: '', body: '', audience: '' };
+    const fields = [
+      { key: 'title', label: 'Title', names: /\btitle\b|\bheading\b/, q: 'Do you want a title? Say it, or say skip.',
+        optional: true, skipValue: '', parse: parseText(200), say: function (x) { return x.title || 'no title'; } },
+      { key: 'body', label: 'Message', names: /\bmessage\b|\bbody\b|\btext\b/, long: true,
+        q: 'What should the announcement say? Pause for a moment when you’re done.', parse: parseText(10000),
+        say: function (x) { return trimForSpeech(x.body).text; } },
+      { key: 'audience', label: 'Audience', names: /\baudience\b|\bwho\b|\bfor\b/, q: 'Who is it for: internal, external, or both?',
+        parse: parseAudience, say: function (x) { return x.audience === 'both' ? 'everyone' : x.audience || 'not chosen'; } }
+    ];
+    const lead = await vFillFields(run, d, fields);
+    await vReview(run, { d: d, fields: fields, what: 'announcement', lead: lead });
+  }
+
+  // ---- reading out (only what the lists already show) ----
+  function trimForSpeech(text, max) {
+    max = max || 300;
+    const t = String(text || '').replace(/\s+/g, ' ').trim();
+    if (t.length <= max) return { text: t, more: '' };
+    let cut = t.lastIndexOf(' ', max);
+    if (cut < max * 0.6) cut = max;
+    return { text: t.slice(0, cut) + '…', more: t.slice(cut).trim() };
+  }
+  function speakable(s) {
+    return String(s).replace(/\s*→\s*/g, ' to ').replace(/\s*·\s*/g, ', ').replace(/\+(\d+) more/g, 'and $1 more')
+      .replace(/\b(\d+)([mhd]) ago\b/g, function (x, n, u) {
+        return n + ' ' + { m: 'minute', h: 'hour', d: 'day' }[u] + (n === '1' ? '' : 's') + ' ago';
+      }).replace(/\s+/g, ' ');
+  }
+  function spokenAgo(ts) {
+    const diff = Date.now() - ms(ts);
+    const m = Math.floor(diff / 60000);
+    if (m < 1) return 'just now';
+    if (m < 60) return m + (m === 1 ? ' minute ago' : ' minutes ago');
+    const hr = Math.floor(m / 60);
+    if (hr < 24) return hr + (hr === 1 ? ' hour ago' : ' hours ago');
+    const dd = Math.floor(hr / 24);
+    if (dd < 7) return dd + (dd === 1 ? ' day ago' : ' days ago');
+    return 'on ' + new Date(ms(ts)).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+  }
+  function taskSpeech(t) {
+    const due = t.deadline ? (isOverdue(t) ? 'overdue, it was due ' : 'due ') + speakDate(t.deadline) : 'no deadline';
+    return t.title + '. ' + t.priority + ' priority, ' + t.status + ', ' + due + ', ' +
+      (t.is_personal ? 'personal task' : categoryName(t.category_id)) + '.';
+  }
+  function annSpeech(a) {
+    const body = trimForSpeech(a.body);
+    return { text: (a.author_name || 'Someone') + ' posted ' + spokenAgo(a.created_at) + (a.edited_at ? ', edited' : '') + '. ' +
+      (a.title ? a.title + '. ' : '') + body.text, more: body.more };
+  }
+  function byPriorityThenDeadline(a, b) {
+    const p = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
+    if (p) return p;
+    return (a.deadline ? ms(a.deadline) : Infinity) - (b.deadline ? ms(b.deadline) : Infinity);
+  }
+  async function vPause(run) {
+    V.paused = true;
+    if (V.ui) V.ui.pauseBtn.textContent = 'Resume';
+    await vSay(run, 'Paused. Say continue when you’re ready.');
+    for (let k = 0; k < 6; k++) {
+      const w = vNorm(await vHear(run, 10000));
+      if (V_NEXT.test(w)) { V.paused = false; if (V.ui) V.ui.pauseBtn.textContent = 'Pause'; return true; }
+      if (V_CANCEL.test(w)) return false;
+    }
+    return false;
+  }
+  // Reads items one by one. After each, a short pause for "next", "repeat",
+  // "pause", "read more" or "stop" (the buttons do the same at any moment).
+  async function vReadItems(run, intro, items) {
+    vShowReading(true);
+    await vSay(run, intro);
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      await vSay(run, it.text + (it.more ? ' Say read more for the rest.' : ''));
+      const ans = await vHear(run, 3500);
+      const w = vNorm(ans);
+      if (!w || V_NEXT.test(w)) continue;
+      if (V_CANCEL.test(w)) { vShowReading(false); await vSay(run, 'Stopped.'); return; }
+      if (V_REPEAT.test(w)) { i--; continue; }
+      if (V_BACK.test(w)) { i = Math.max(-1, i - 2); continue; }
+      if (/^(?:read more|more|the rest|keep reading)$/.test(w)) { if (it.more) await vSay(run, it.more); continue; }
+      if (/^(?:pause|wait|hold on|hang on)$/.test(w)) {
+        if (!(await vPause(run))) { vShowReading(false); await vSay(run, 'Stopped.'); return; }
+        continue;
+      }
+      vShowReading(false);
+      return vCommand(run, ans);   // something else: treat it as a new command
+    }
+    vShowReading(false);
+    await vSay(run, 'That’s all.');
+  }
+  function numbered(tasks) {
+    V.lastTasks = tasks;
+    return tasks.map(function (t, i) { return { text: 'Number ' + (i + 1) + ': ' + taskSpeech(t) }; });
+  }
+  async function vTopTasks(run) {
+    const mine = sharedTasks().filter(function (t) { return t.assigned_to === S.me.id && t.status !== 'Completed'; })
+      .sort(byPriorityThenDeadline).slice(0, 5);
+    if (!mine.length) { await vSay(run, 'You have no open tasks assigned to you.'); return; }
+    await vReadItems(run, 'Your top ' + mine.length + (mine.length === 1 ? ' task.' : ' tasks.'), numbered(mine));
+  }
+  async function vDueToday(run) {
+    const iso = vIsoDay(today());
+    const open = S.tasks.filter(function (t) { return t.status !== 'Completed'; });
+    const due = open.filter(function (t) { return t.deadline === iso; }).sort(byPriorityThenDeadline);
+    const overdue = open.filter(isOverdue).length;
+    const extra = overdue ? ' You also have ' + overdue + (overdue === 1 ? ' overdue task.' : ' overdue tasks.') : '';
+    if (!due.length) { await vSay(run, 'Nothing is due today.' + extra); return; }
+    await vReadItems(run, due.length + (due.length === 1 ? ' task is' : ' tasks are') + ' due today.' + extra, numbered(due));
+  }
+  async function vWhatsNew(run) {
+    const tasks = sharedTasks().filter(hasNew);
+    const anns = S.announcements.filter(annIsNew);
+    if (!tasks.length && !anns.length) { await vSay(run, 'Nothing new since you last looked.'); return; }
+    const items = tasks.map(function (t) { return { text: 'Task ' + t.title + ': ' + speakable(activitySummary(activityOf(t.id))) + '.' }; })
+      .concat(anns.map(function (a) { const s = annSpeech(a); return { text: 'Announcement. ' + s.text, more: s.more }; }));
+    const parts = [];
+    if (tasks.length) parts.push(tasks.length + (tasks.length === 1 ? ' task with new activity' : ' tasks with new activity'));
+    if (anns.length) parts.push(anns.length + (anns.length === 1 ? ' new announcement' : ' new announcements'));
+    await vReadItems(run, parts.join(' and ') + '.', items);
+  }
+  async function vAnnouncements(run) {
+    const list = S.announcements.slice(0, 5);
+    if (!list.length) { await vSay(run, 'There are no announcements.'); return; }
+    await vReadItems(run, 'The latest ' + (list.length === 1 ? 'announcement.' : list.length + ' announcements.'), list.map(annSpeech));
+  }
+  async function vReadTask(run, arg) {
+    const n = vNum(arg);
+    let t = null;
+    if (n !== null) {
+      const list = V.lastTasks.length ? V.lastTasks : (S.view === 'personal' ? personalTasks() : filteredTasks());
+      t = list[n - 1] || null;
+      if (!t) { await vSay(run, 'There’s no task number ' + n + '.'); return; }
+    } else {
+      const r = vFuzzy(arg, S.tasks, function (x) { return x.title; });
+      if (r && r.ambiguous) { await vSay(run, 'Did you mean ' + r.ambiguous[0].title + ', or ' + r.ambiguous[1].title + '? Say read task and the full title.'); return; }
+      t = r ? r.item : null;
+      if (!t) { await vSay(run, 'I didn’t find a task called ' + arg + '.'); return; }
+    }
+    const notes = S.notesByTask.get(t.id) || [];
+    const last = notes[notes.length - 1];
+    const who = memberById(t.assigned_to);
+    let text = taskSpeech(t) + (t.is_personal ? '' : ' Assigned to ' + (who ? who.display_name : 'nobody') + '.');
+    let more = '';
+    if (last) {
+      const s = trimForSpeech(last.body, 200);
+      text += ' ' + notes.length + (notes.length === 1 ? ' note' : ' notes') + '. The latest, from ' + (last.author_name || 'someone') + ': ' + s.text;
+      more = s.more;
+    } else text += ' No notes yet.';
+    await vReadItems(run, '', [{ text: text, more: more }]);
+  }
+
+  // ---- commands ----
+  const VOICE_HELP = 'You can say: new task, new personal task, new announcement, read my top 5 tasks, tasks due today, what’s new, read announcements, or read task and a number or title. Say stop at any time.';
+  async function vCommand(run, text) {
+    const w = vNorm(text);
+    if (!w) { await vSay(run, 'I didn’t hear anything. Tap Talk when you’re ready.'); return; }
+    let m;
+    if (V_CANCEL.test(w) || /^(?:close|goodbye|bye|that s all|done|no thanks)$/.test(w)) { await vSay(run, 'Okay.'); return; }
+    if (/\bwhat s new\b|\bwhats new\b|\bwhat is new\b|\banything new\b|\bnews\b|\bupdates?\b|^new$/.test(w)) return vWhatsNew(run);
+    if (/\b(?:new|create|add|make)\b.*\bpersonal\b/.test(w)) return vNewTask(run, true);
+    if (/\b(?:new|create|add|make)\b.*\btasks?\b/.test(w)) return vNewTask(run, false);
+    if (/\b(?:new|create|add|make|post)\b.*\bannouncement\b|^announce\b/.test(w)) return vNewAnnouncement(run);
+    if (/\bdue\b|\btoday\b/.test(w)) return vDueToday(run);
+    if (/\btop\b|\bmy (?:open )?tasks\b/.test(w)) return vTopTasks(run);
+    if ((m = /^(?:read |open |tell me about |what about )?(?:the )?task (?:number )?(.+)$/.exec(w))) return vReadTask(run, m[1]);
+    if (/\bannouncements?\b/.test(w)) return vAnnouncements(run);
+    if (/\bhelp\b|\bwhat can (?:you|i) (?:do|say)\b|\bcommands?\b/.test(w)) { await vSay(run, VOICE_HELP); return; }
+    await vSay(run, 'Sorry, I didn’t understand. ' + VOICE_HELP);
+  }
+
+  // ---- the panel ----
+  function vShowReview(p) {
+    if (!V.ui) return;
+    const box = V.ui.review;
+    if (!p) { box.hidden = true; box.replaceChildren(); return; }
+    box.hidden = false;
+    box.replaceChildren();
+    append(box, [   // our append() skips null (the browser's would print "null")
+      h('h3', { class: 'v-review-title', text: 'Check before saving: new ' + p.what }),
+      p.error ? h('p', { class: 'inline-error', role: 'alert', text: 'Not saved: ' + p.error }) : null,
+      h('dl', { class: 'v-fields' }, p.fields.map(function (f) {
+        return [h('dt', { text: f.label }),
+          h('dd', {}, h('span', { text: f.key === 'body' ? p.d.body : f.say(p.d) }),
+            h('button', { type: 'button', class: 'btn link small', 'aria-label': 'Change ' + f.label,
+              onclick: function () { vInput('change ' + f.label.toLowerCase()); } }, 'Change'))];
+      })),
+      h('div', { class: 'v-review-actions' },
+        h('button', { type: 'button', class: 'btn primary v-big', onclick: function () { vInput('save'); } }, 'Save'),
+        h('button', { type: 'button', class: 'btn v-big', onclick: vEditByHand }, 'Edit by hand'),
+        h('button', { type: 'button', class: 'btn v-big', onclick: function () { vInput('cancel'); } }, 'Cancel'))]);
+  }
+  // Hand the answers to the normal form and step aside.
+  function vEditByHand() {
+    const p = V.pending;
+    if (!p) return;
+    const d = p.d;
+    if (V.ui) V.ui.dlg.close();
+    if (d.kind === 'announcement') openAnnouncementForm(null, d);
+    else if (d.kind === 'personal') openLimitedTaskForm(null, d);
+    else openTaskForm(null, d);
+  }
+  function openVoicePanel() {
+    if (V.ui || !voiceSupported()) return;
+    const D = openDialog('Voice assistant');
+    D.dlg.classList.add('voice-panel');
+    const titleEl = D.inner.querySelector('.ov-title');
+    titleEl.append(infoTip(TIPS.voice, 'Voice assistant'));
+    const statusText = h('span', { class: 'v-status-text', text: 'Ready' });
+    const heard = h('span', { class: 'v-heard-text', text: '—' });
+    const said = h('span', { class: 'v-said-text', text: '—' });
+    const review = h('div', { class: 'v-review', hidden: true });
+    const pauseBtn = h('button', { type: 'button', class: 'btn v-big', onclick: function () { vInput(V.paused ? 'continue' : 'pause'); } }, 'Pause');
+    const reading = h('div', { class: 'v-reading', hidden: true },
+      h('button', { type: 'button', class: 'btn v-big', onclick: function () { vInput('next'); } }, 'Next'),
+      h('button', { type: 'button', class: 'btn v-big', onclick: function () { vInput('repeat'); } }, 'Repeat'),
+      pauseBtn);
+    function act(label, cmd) { return h('button', { type: 'button', class: 'btn v-big', onclick: function () { vInput(cmd); } }, label); }
+    const typed = h('input', { type: 'text', 'aria-label': 'Type instead', placeholder: 'Type instead, e.g. what’s new', autocomplete: 'off', maxlength: '10000' });
+    const rate = h('select', { 'aria-label': 'Speaking speed', value: voicePrefs().rate,
+      onchange: function (e) { saveVoicePrefs({ on: true, rate: e.target.value }); } },
+      h('option', { value: 'normal', text: 'Normal' }), h('option', { value: 'slow', text: 'Slow' }));
+    const talk = h('button', { type: 'button', class: 'btn primary v-talk', onclick: vTalk }, svgIcon(ICON_MIC, 20), h('span', { text: 'Talk' }));
+    D.inner.append(
+      h('div', { class: 'v-status', role: 'status', 'aria-live': 'polite' }, h('span', { class: 'v-light', 'aria-hidden': 'true' }), statusText),
+      h('p', { class: 'v-line' }, h('span', { class: 'v-label', text: 'Heard' }), heard),
+      h('p', { class: 'v-line' }, h('span', { class: 'v-label', text: 'Assistant' }), said),
+      review,
+      reading,
+      h('div', { class: 'v-actions' },
+        act('New task', 'new task'), act('New announcement', 'new announcement'),
+        act('My top 5 tasks', 'read my top 5 tasks'), act('Due today', 'tasks due today'),
+        act('What’s new', 'what’s new'), act('Announcements', 'read announcements')),
+      h('form', { class: 'v-type', onsubmit: function (e) {
+        e.preventDefault();
+        const t = typed.value.trim();
+        if (!t) return;
+        typed.value = '';
+        vInput(t);
+      } }, typed, h('button', { type: 'submit', class: 'btn' }, 'Send')),
+      h('label', { class: 'v-rate' }, h('span', { text: 'Speaking speed' }), rate),
+      h('p', { class: 'hint-line', text: 'Only use this when it’s safe. Keep the screen on: listening stops when it locks.' }),
+      h('div', { class: 'actions end dialog-actions v-bottom' },
+        talk,
+        h('button', { type: 'button', class: 'btn v-stop', onclick: function () { vStop(); } }, 'Stop'),
+        h('button', { type: 'button', class: 'btn', onclick: function () { D.dlg.close(); } }, 'Close')));
+    V.ui = { dlg: D.dlg, statusText: statusText, heard: heard, said: said, review: review, reading: reading, pauseBtn: pauseBtn, talk: talk };
+    D.dlg.addEventListener('close', function () {
+      vStop();
+      V.ui = null;
+      V.lastTasks = [];   // nothing heard or said is kept once the panel closes
+    });
+    talk.focus();
+    // Opening the panel is the tap that allows the microphone.
+    vStart(async function (run) {
+      await vSay(run, 'What would you like to do? For example, new task, or what’s new.');
+      await vCommand(run, await vHear(run, 8000));
+    });
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden && V.ui) vStop('Stopped because the app went to the background. Tap Talk to start again.');
+  });
 
   // ---------- Links ----------
   const ICON_EXTERNAL = 'M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3';
@@ -2649,9 +3576,21 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
     return { dlg: dlg, inner: inner };
   }
 
-  function openTaskForm(t) {
+  // Runs a form's own save function for the voice assistant (same code path as
+  // pressing Save) and reports the outcome; errors also show in the form.
+  function formSubmitter(save, err) {
+    return async function () {
+      err.hidden = true;
+      try { await save(); return { ok: true }; }
+      catch (e) { err.textContent = friendly(e); err.hidden = false; return { error: friendly(e) }; }
+    };
+  }
+
+  // prefill (new tasks only): values filled in by the voice assistant.
+  // Returns { dlg, submit } so the voice assistant can save through this form.
+  function openTaskForm(t, prefill) {
     // Non-superadmins edit only status, title, priority, deadline and link.
-    if (t && (t.is_personal || !S.me.is_superadmin)) { openLimitedTaskForm(t); return; }
+    if (t && (t.is_personal || !S.me.is_superadmin)) { return openLimitedTaskForm(t); }
     if (!S.categories.length) { flash('Create a category first (Admin → Categories).'); return; }
     const editing = !!t;
     const D = openDialog(editing ? 'Edit task' : 'Add task');
@@ -2711,7 +3650,15 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       fillAssignees();
     });
     assign.addEventListener('change', updateHint);
-    fillAssignees(editing ? (t.assigned_to || '') : '');
+    if (!editing && prefill) {
+      title.value = prefill.title || '';
+      if (prefill.category_id) cat.value = prefill.category_id;
+      if (prefill.priority) pri.value = prefill.priority;
+      if (prefill.status) st.value = prefill.status;
+      deadline.value = prefill.deadline || '';
+      ext.checked = !!prefill.is_external;
+    }
+    fillAssignees(editing ? (t.assigned_to || '') : ((prefill && prefill.assigned_to) || ''));
     function restoreFields() {
       const cur = taskById(t.id) || t;
       title.value = cur.title; cat.value = cur.category_id; pri.value = cur.priority; st.value = cur.status;
@@ -2719,7 +3666,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       fillAssignees(cur.assigned_to || '');
     }
 
-    D.inner.append(h('form', { onsubmit: onSubmit(async function () {
+    const save = async function () {
         const linkVal = normalizeLink(link.value);
         link.value = linkVal;
         if (linkVal && !safeHttpUrl(linkVal)) throw new ApiError('The link must start with http:// or https://.');
@@ -2751,7 +3698,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         collapseAll();
         refillList();
         flash(editing ? 'Task saved.' : 'Task added.', 'ok');
-      }, err) },
+    };
+    D.inner.append(h('form', { onsubmit: onSubmit(save, err) },
       err,
       field('Title', title),
       h('div', { class: 'grid2' }, field('Category', cat), field('Deadline', deadline)),
@@ -2766,12 +3714,13 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         h('button', { type: 'submit', class: 'btn primary' }, editing ? 'Save' : 'Add task'))
     ));
     title.focus();
+    return { dlg: D.dlg, submit: formSubmitter(save, err) };
   }
 
   // Edit form for anyone who can see a task but isn't a superadmin. Category,
   // assignee and External aren't shown (the database refuses them anyway).
   // t = null creates a new PERSONAL task (anyone can).
-  function openLimitedTaskForm(t) {
+  function openLimitedTaskForm(t, prefill) {
     const creating = !t;
     const personal = creating || t.is_personal;
     const D = openDialog(creating ? 'Add personal task' : (personal ? 'Edit personal task' : 'Edit task'));
@@ -2788,7 +3737,13 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
       deadline.value = cur.deadline || ''; link.value = cur.link || '';
     }
     restoreFields();
-    D.inner.append(h('form', { onsubmit: onSubmit(async function () {
+    if (creating && prefill) {
+      title.value = prefill.title || '';
+      if (prefill.priority) pri.value = prefill.priority;
+      if (prefill.status) st.value = prefill.status;
+      deadline.value = prefill.deadline || '';
+    }
+    const save = async function () {
         const linkVal = normalizeLink(link.value);
         link.value = linkVal;
         if (linkVal && !safeHttpUrl(linkVal)) throw new ApiError('The link must start with http:// or https://.');
@@ -2813,7 +3768,8 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         collapseAll();
         refillList();
         flash(creating ? 'Personal task added. Only you can see it.' : 'Task saved.', 'ok');
-      }, err) },
+    };
+    D.inner.append(h('form', { onsubmit: onSubmit(save, err) },
       err,
       h('p', { class: 'hint-line limited-hint' }, h('span', { text: personal
         ? 'Personal task: only you can see it, not other members and not superadmins.'
@@ -2827,6 +3783,7 @@ dialog.dialog::backdrop { background: rgba(0, 0, 0, .75); -webkit-backdrop-filte
         h('button', { type: 'submit', class: 'btn primary' }, creating ? 'Add personal task' : 'Save'))
     ));
     title.focus();
+    return { dlg: D.dlg, submit: formSubmitter(save, err) };
   }
 
   // ---------- Personal tasks ----------
